@@ -7,8 +7,6 @@ CRAVE is a SwiftData-powered iOS application designed to help users log and trac
 
 📂 Project Structure
 
-📂 Project Structure
-
 ```bash
 CRAVE.xcodeproj             # Xcode project
 CRAVEApp/                   # Main source folder
