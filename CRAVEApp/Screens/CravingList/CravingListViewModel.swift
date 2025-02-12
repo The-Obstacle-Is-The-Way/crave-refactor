@@ -2,7 +2,7 @@
 //  CravingListViewModel.swift
 //  CRAVE
 //
-//  Created by [Your Name] on [Date]
+//  Created by John H Jung on 2/12/25
 //
 
 import UIKit

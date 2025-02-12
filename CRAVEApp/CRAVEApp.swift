@@ -2,7 +2,7 @@
 //  CraveApp.swift
 //  CRAVE
 //
-//  Created by Your Name on 2/12/25.
+//  Created by John H Jung on 2/12/25.
 //
 
 import UIKit
