@@ -7,14 +7,17 @@ CRAVE is a SwiftData-powered iOS application designed to help users log and trac
 
 📂 Project Structure
 
-CRAVE.xcodeproj             // Xcode project
-CRAVEApp/                   // Main source folder
-├── CRAVE.entitlements      // App capabilities (Optional)
-├── Info.plist              // App metadata
-├── CRAVEApp.swift          // SwiftUI entry point
-├── ContentView.swift       // Root SwiftUI View
-├── Assets.xcassets         // Image & Color Assets
-├── Preview Content/        // SwiftUI Previews
+📂 Project Structure
+
+```bash
+CRAVE.xcodeproj             # Xcode project
+CRAVEApp/                   # Main source folder
+├── CRAVE.entitlements      # App capabilities (Optional)
+├── Info.plist              # App metadata
+├── CRAVEApp.swift          # SwiftUI entry point
+├── ContentView.swift       # Root SwiftUI View
+├── Assets.xcassets         # Image & Color Assets
+├── Preview Content/        # SwiftUI Previews
 │   └── Preview Assets.xcassets
 ├── Core/
 │   ├── DesignSystem/
@@ -27,8 +30,8 @@ CRAVEApp/                   // Main source folder
 │       └── View+Extensions.swift
 ├── Data/
 │   ├── Entities/
-│   │   └── CravingModel.swift         // SwiftData model
-│   └── CravingManager.swift           // Data logic
+│   │   └── CravingModel.swift         # SwiftData model
+│   └── CravingManager.swift           # Data logic
 ├── Screens/
 │   ├── LogCraving/
 │   │   ├── LogCravingView.swift
@@ -47,6 +50,7 @@ CRAVEApp/                   // Main source folder
     └── CRAVEUITests/
         ├── CRAVEUITests.swift
         └── CRAVEUITestsLaunchTests.swift
+```
 
 🏗 Key Features
 
