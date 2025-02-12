@@ -5,13 +5,13 @@
 //  Created by John H Jung on 2/12/25
 //
 
-import UIKit
+
 import SwiftUI
 import SwiftData
-import Foundation
 
 struct CravingListView: View {
     @Environment(\.modelContext) private var context
+    
     let selectedDate: Date
     let cravings: [Craving]
 
@@ -22,15 +22,18 @@ struct CravingListView: View {
             }
             .onDelete { indexSet in
                 for index in indexSet {
-                    context.delete(cravings[index])  // ✅ Removes craving from SwiftData
+                    context.delete(cravings[index])  // remove from SwiftData
                 }
-                try? context.save()  // ✅ Saves changes
+                do {
+                    try context.save()  // persist the deletion
+                } catch {
+                    print("Delete error: \(error)")
+                }
             }
         }
-        // Display the selected date at the top
         .navigationTitle(Text(selectedDate, style: .date))
         .toolbar {
-            EditButton()  // ✅ Allows users to delete cravings
+            EditButton()
         }
     }
 }

@@ -1,18 +1,26 @@
+//
+//  CravingManagerTests.swift
+//  CRAVE
+//
+//  Created by John H Jung on 2/12/25
+//
+
+
 import XCTest
 import SwiftData
 @testable import CRAVE
 
-@MainActor  // ✅ Ensures everything in this class runs on the main actor
+@MainActor
 final class CravingManagerTests: XCTestCase {
-    
+
     var container: ModelContainer!
     var context: ModelContext!
 
     override func setUpWithError() throws {
         let schema = Schema([Craving.self])
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: schema, configurations: [configuration])
-        context = ModelContext(container)  // ✅ Now runs on the main actor
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(for: schema, configurations: [config])
+        context = ModelContext(container)
     }
 
     override func tearDownWithError() throws {
@@ -21,30 +29,30 @@ final class CravingManagerTests: XCTestCase {
     }
 
     func testAddCraving() throws {
-        let newCravingText = "This is a test craving"
-
-        CravingManager.shared.addCraving(newCravingText, using: context)  // ✅ No `await` needed
-
-        let fetchedCravings = try context.fetch(FetchDescriptor<Craving>())  // ✅ No `await` needed
-
-        XCTAssertEqual(fetchedCravings.count, 1, "Craving count should be 1")
-        XCTAssertEqual(fetchedCravings.first?.text, newCravingText, "Craving text should match")
+        CravingManager.shared.addCraving("Test craving", using: context)
+        let results = try context.fetch(FetchDescriptor<Craving>())
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.text, "Test craving")
     }
 
     func testSoftDeleteCraving() throws {
-        let newCravingText = "Should be soft-deleted"
+        CravingManager.shared.addCraving("Soft-delete me", using: context)
 
-        CravingManager.shared.addCraving(newCravingText, using: context)
+        var fetched = try context.fetch(FetchDescriptor<Craving>())
+        XCTAssertEqual(fetched.count, 1)
 
-        let fetchedCravings = try context.fetch(FetchDescriptor<Craving>())
-        guard let insertedCraving = fetchedCravings.first else {
-            return XCTFail("Failed to insert craving.")
+        guard let inserted = fetched.first else {
+            return XCTFail("No craving found after insert.")
         }
 
-        CravingManager.shared.softDeleteCraving(insertedCraving, using: context)
+        CravingManager.shared.softDeleteCraving(inserted, using: context)
+        fetched = try context.fetch(FetchDescriptor<Craving>())
 
-        let refetchedCravings = try context.fetch(FetchDescriptor<Craving>())
-        XCTAssertEqual(refetchedCravings.count, 1, "Craving count should still be 1")
-        XCTAssertTrue(refetchedCravings.first?.isDeleted == true, "Craving should be marked as deleted")
+        XCTAssertEqual(fetched.count, 1)
+        // Option 1: coalesce to false
+        XCTAssertTrue(fetched.first?.isDeleted ?? false, "Craving should be marked as deleted")
+
+        // or Option 2: compare with XCTAssertEqual
+        // XCTAssertEqual(fetched.first?.isDeleted, true)
     }
 }
