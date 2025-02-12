@@ -18,12 +18,21 @@ struct DateListView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.dateSections, id: \.self) { date in
-                    let cravingsForDate = viewModel.cravingsByDate[date] ?? []
-                    NavigationLink {
-                        CravingListView(selectedDate: date, cravings: cravingsForDate)
-                    } label: {
-                        Text(date, style: .date)
+                if viewModel.dateSections.isEmpty {
+                    // ✅ Added empty state message
+                    Text("No cravings logged yet.")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                } else {
+                    ForEach(viewModel.dateSections, id: \.self) { date in
+                        let cravingsForDate = viewModel.cravingsByDate[date] ?? []
+                        NavigationLink {
+                            CravingListView(selectedDate: date, cravings: cravingsForDate)
+                        } label: {
+                            Text(date, style: .date)
+                        }
                     }
                 }
             }

@@ -31,7 +31,7 @@ struct LogCravingView: View {
                     if viewModel.cravingText.isEmpty {
                         showAlert = true
                     } else {
-                        viewModel.submitCraving(context: context)
+                        viewModel.submitCraving(context: context) // ✅ Ensured function is called
                     }
                 }
                 .alert("Please enter a craving", isPresented: $showAlert) {
@@ -45,4 +45,3 @@ struct LogCravingView: View {
         }
     }
 }
-
