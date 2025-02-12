@@ -1,32 +1,32 @@
 //
-//  CRAVEApp.swift
+//  LogCravingViewModel.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25.
+//  Created by [Your Name] on [Date]
 //
 
+import UIKit
 import SwiftUI
 import SwiftData
+import Foundation
 
-@main
-struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+@Observable
+class LogCravingViewModel {
+    var cravingText: String = ""
 
+    // Extra validation or business logic can go here as needed.
+    func submitCraving(context: ModelContext) {
+        guard !cravingText.isEmpty else { return }
+        let newCraving = Craving(text: cravingText)
+        context.insert(newCraving)
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            try context.save()
+            CRAVEDesignSystem.Haptics.success()
+            cravingText = ""
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print("Failed to save new craving: \(error)")
+            CRAVEDesignSystem.Haptics.error()
         }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
     }
 }
+

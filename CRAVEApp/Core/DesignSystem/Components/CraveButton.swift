@@ -1,32 +1,19 @@
-//
-//  CRAVEApp.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
-//
+// CraveButton.swift
 
 import SwiftUI
-import SwiftData
 
-@main
-struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+struct CraveButton: View {
+    let title: String
+    let action: () -> Void
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .frame(maxWidth: .infinity)
+                .frame(height: CRAVEDesignSystem.Layout.buttonHeight)
+                .foregroundColor(.white)
+                .background(CRAVEDesignSystem.Colors.primary)
+                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
         }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
     }
 }

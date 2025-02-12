@@ -1,66 +1,48 @@
 //
-//  ContentView.swift
+//  LogCravingView.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25.
+//  Created by John H Jung on 12/12/25
 //
 
+import UIKit
 import SwiftUI
 import SwiftData
+import Foundation
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+struct LogCravingView: View {
+    @Environment(\.modelContext) private var context
+
+    // View-specific state and logic
+    @State private var viewModel = LogCravingViewModel()
+    @State private var showAlert = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationView {
+            VStack(spacing: CRAVEDesignSystem.Layout.standardPadding) {
+                Text("Log a Craving")
+                    .font(CRAVEDesignSystem.Typography.titleFont)
+
+                // A custom text editor with placeholder (CraveTextEditor.swift)
+                CraveTextEditor(text: $viewModel.cravingText, placeholder: "Describe your craving...")
+
+                // A custom button style (CraveButton.swift)
+                CraveButton(title: "Submit") {
+                    if viewModel.cravingText.isEmpty {
+                        showAlert = true
+                    } else {
+                        viewModel.submitCraving(context: context)
                     }
                 }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                .alert("Please enter a craving", isPresented: $showAlert) {
+                    Button("OK", role: .cancel) { }
                 }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                Spacer()
             }
+            .padding()
+            .navigationTitle("Log Craving")
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
-}

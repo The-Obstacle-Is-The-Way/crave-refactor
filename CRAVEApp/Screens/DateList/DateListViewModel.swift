@@ -1,32 +1,35 @@
 //
-//  CRAVEApp.swift
+//  DateListViewModel.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25.
+//  Created by [Your Name] on [Date]
 //
 
+import UIKit
 import SwiftUI
 import SwiftData
+import Foundation
 
-@main
-struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+@Observable
+class DateListViewModel {
+    // Dictionary grouping cravings by date
+    var cravingsByDate: [Date: [Craving]] = [:]
+    var dateSections: [Date] = []
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+    func groupCravings(_ cravings: [Craving]) {
+        let calendar = Calendar.current
+        var tempDict: [Date: [Craving]] = [:]
+
+        for craving in cravings {
+            // Extract just YYYY-MM-DD to group by 'day'
+            let comps = calendar.dateComponents([.year, .month, .day], from: craving.timestamp)
+            if let dayDate = calendar.date(from: comps) {
+                tempDict[dayDate, default: []].append(craving)
+            }
         }
-    }()
 
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
+        // Sort days descending
+        dateSections = tempDict.keys.sorted { $0 > $1 }
+        cravingsByDate = tempDict
     }
 }

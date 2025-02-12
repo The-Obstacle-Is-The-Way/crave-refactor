@@ -1,32 +1,27 @@
 //
-//  CRAVEApp.swift
+//  CRAVETabView.swift
 //  CRAVE
 //
 //  Created by John H Jung on 2/12/25.
 //
 
+import UIKit
 import SwiftUI
 import SwiftData
+import Foundation
 
-@main
-struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+struct CRAVETabView: View {
+    var body: some View {
+        TabView {
+            LogCravingView()
+                .tabItem {
+                    Label("Log", systemImage: "plus.square.on.square")
+                }
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            DateListView()
+                .tabItem {
+                    Label("History", systemImage: "list.bullet.rectangle")
+                }
         }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
     }
 }

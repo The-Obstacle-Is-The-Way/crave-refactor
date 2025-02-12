@@ -5,56 +5,65 @@
 //  Created by John H Jung on 2/12/25.
 //
 
+import UIKit
 import SwiftUI
+import Foundation
 import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    
+    @Query(sort: \Craving.timestamp, order: .reverse)
+    private var cravings: [Craving]
 
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(items) { item in
+                ForEach(cravings) { craving in
                     NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        Text("Craving logged at \(craving.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                            .padding()
                     } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                        VStack(alignment: .leading) {
+                            Text(craving.text)
+                                .font(.headline)
+                            Text(craving.timestamp, style: .date)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
-                .onDelete(perform: deleteItems)
+                .onDelete(perform: deleteCravings)
             }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
             .toolbar {
-#if os(iOS)
+                #if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
-#endif
+                #endif
+                
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    Button(action: addCraving) {
+                        Label("Add Craving", systemImage: "plus")
                     }
                 }
             }
         } detail: {
-            Text("Select an item")
+            Text("Select a Craving")
         }
     }
 
-    private func addItem() {
+    private func addCraving() {
         withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+            CravingManager.shared.addCraving("New Craving from ContentView", using: modelContext)
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteCravings(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(items[index])
+                let craving = cravings[index]
+                CravingManager.shared.softDeleteCraving(craving, using: modelContext)
             }
         }
     }
@@ -62,5 +71,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Craving.self, inMemory: true)
 }

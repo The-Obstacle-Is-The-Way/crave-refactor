@@ -1,66 +1,42 @@
 //
-//  ContentView.swift
+//  View+Extensions.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25.
+//  Created by Your Name on 2/12/25.
 //
 
+import UIKit
 import SwiftUI
-import SwiftData
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
-    var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
+extension View {
+    /// Quickly wraps the view in a background and corner radius defined by the design system.
+    func craveCardStyle() -> some View {
+        self
+            .padding(CRAVEDesignSystem.Layout.standardPadding)
+            .background(CRAVEDesignSystem.Colors.secondaryBackground)
+            .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
+            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
+    
+    /// Example specialized corner rounding if you ever want more control.
+    /// Use SwiftUI's 'clipShape' to mask specific corners.
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+/// A helper shape for partial corner rounding. Can be placed within this file.
+struct RoundedCorner: Shape {
+    var radius: CGFloat = 0
+    var corners: UIRectCorner = .allCorners
+    
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
 }
+

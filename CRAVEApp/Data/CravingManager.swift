@@ -1,66 +1,36 @@
 //
-//  ContentView.swift
+//  ContentManager.swift
 //  CRAVE
 //
 //  Created by John H Jung on 2/12/25.
 //
 
+import UIKit
 import SwiftUI
+import Foundation
 import SwiftData
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+final class CravingManager {
+    static let shared = CravingManager()
 
-    var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+    private init() {}
+
+    func addCraving(_ text: String, using context: ModelContext) {
+        let newCraving = Craving(text: text)
+        context.insert(newCraving)
+        do {
+            try context.save()
+        } catch {
+            print("SwiftData save error: \(error)")
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+    func softDeleteCraving(_ craving: Craving, using context: ModelContext) {
+        craving.isDeleted = true
+        do {
+            try context.save()
+        } catch {
+            print("SwiftData save error: \(error)")
         }
     }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

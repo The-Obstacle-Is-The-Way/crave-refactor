@@ -1,66 +1,24 @@
-//
-//  ContentView.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
-//
-
+// CraveTextEditor.swift
 import SwiftUI
-import SwiftData
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+struct CraveTextEditor: View {
+    @Binding var text: String
+    var placeholder: String = "Enter something..."
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        ZStack(alignment: .topLeading) {
+            if text.isEmpty {
+                Text(placeholder)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 8)
             }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+            TextEditor(text: $text)
+                .frame(minHeight: 120)
+                .padding(4)
+                .background(CRAVEDesignSystem.Colors.secondaryBackground)
+                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
+                .font(CRAVEDesignSystem.Typography.bodyFont)
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

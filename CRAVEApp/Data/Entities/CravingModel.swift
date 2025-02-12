@@ -1,32 +1,31 @@
 //
-//  CRAVEApp.swift
+//  CravingModel.swift
 //  CRAVE
 //
 //  Created by John H Jung on 2/12/25.
 //
 
-import SwiftUI
 import SwiftData
+import Foundation
 
-@main
-struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+@Model
+class Craving {
+    @Attribute(.unique) var id: UUID
+    var text: String
+    var timestamp: Date
+    var isDeleted: Bool
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
+    init(
+        id: UUID = UUID(),
+        text: String,
+        timestamp: Date = Date(),
+        isDeleted: Bool = false
+    ) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+        self.isDeleted = isDeleted
     }
 }
+
+

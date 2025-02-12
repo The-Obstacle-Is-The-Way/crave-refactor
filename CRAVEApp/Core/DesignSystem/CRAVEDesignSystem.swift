@@ -1,66 +1,62 @@
 //
-//  ContentView.swift
+//  CRAVEDesignSystem.swift
 //  CRAVE
 //
 //  Created by John H Jung on 2/12/25.
 //
 
+/* A simple, centralized design system for CRAVE.
+Keeps brand colors, typography, layout metrics, and haptics in one place
+so the UI stays consistent across the entire app. */
+
+import UIKit
 import SwiftUI
-import SwiftData
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
-    var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
+enum CRAVEDesignSystem {
+    
+    enum Colors {
+        static let primary = Color.blue
+        static let secondary = Color.gray
+        static let success = Color.green
+        static let warning = Color.orange
+        static let danger = Color.red
+        static let background = Color(UIColor.systemBackground)
+        static let secondaryBackground = Color(UIColor.secondarySystemBackground)
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
+    enum Typography {
+        static let titleFont    = Font.system(size: 20, weight: .bold)
+        static let headingFont  = Font.system(size: 17, weight: .semibold)
+        static let bodyFont     = Font.system(size: 16, weight: .regular)
+        static let captionFont  = Font.system(size: 14, weight: .regular)
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+    enum Layout {
+        static let standardPadding: CGFloat = 16
+        static let compactPadding: CGFloat  = 8
+        static let buttonHeight: CGFloat    = 50
+        static let textFieldHeight: CGFloat = 40
+        static let cornerRadius: CGFloat    = 8
+    }
+
+    enum Animation {
+        static let standardDuration = 0.3
+        static let quickDuration    = 0.2
+    }
+
+    enum Haptics {
+        static func success() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+        }
+        static func warning() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+        }
+        static func error() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
-}

@@ -29,20 +29,55 @@
 		28B8D8FC2D5CD84100FA0F1E /* CRAVEUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CRAVEUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2865868C2D5D0D8D00F6FD8B /* Exceptions for "CRAVEApp" folder in "CRAVE" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/CRAVETests/CravingManagerTests.swift,
+				Tests/CRAVEUITests/CRAVEUITests.swift,
+				Tests/CRAVEUITests/CRAVEUITestsLaunchTests.swift,
+			);
+			platformFiltersByRelativePath = {
+				CRAVEApp.swift = (ios, );
+				ContentView.swift = (ios, );
+				Core/DesignSystem/CRAVEDesignSystem.swift = (ios, );
+				Core/DesignSystem/Components/CraveButton.swift = (ios, );
+				Core/DesignSystem/Components/CraveTextEditor.swift = (ios, );
+				"Core/Extensions/View+Extensions.swift" = (ios, );
+				Data/CravingManager.swift = (ios, );
+				Navigation/CRAVETabView.swift = (ios, );
+				Screens/CravingList/CravingListView.swift = (ios, );
+				Screens/DateList/DateListView.swift = (ios, );
+				Screens/LogCraving/LogCravingView.swift = (ios, );
+			};
+			target = 28B8D8DE2D5CD84000FA0F1E /* CRAVE */;
+		};
+		28B8D9CB2D5CE04900FA0F1E /* Exceptions for "CRAVEApp" folder in "CRAVETests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/CRAVETests/CravingManagerTests.swift,
+			);
+			target = 28B8D8F12D5CD84100FA0F1E /* CRAVETests */;
+		};
+		28B8D9CC2D5CE04900FA0F1E /* Exceptions for "CRAVEApp" folder in "CRAVEUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/CRAVEUITests/CRAVEUITests.swift,
+				Tests/CRAVEUITests/CRAVEUITestsLaunchTests.swift,
+			);
+			target = 28B8D8FB2D5CD84100FA0F1E /* CRAVEUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		28B8D8E12D5CD84000FA0F1E /* CRAVE */ = {
+		28B8D8E12D5CD84000FA0F1E /* CRAVEApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CRAVE;
-			sourceTree = "<group>";
-		};
-		28B8D8F52D5CD84100FA0F1E /* CRAVETests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CRAVETests;
-			sourceTree = "<group>";
-		};
-		28B8D8FF2D5CD84100FA0F1E /* CRAVEUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CRAVEUITests;
+			exceptions = (
+				2865868C2D5D0D8D00F6FD8B /* Exceptions for "CRAVEApp" folder in "CRAVE" target */,
+				28B8D9CB2D5CE04900FA0F1E /* Exceptions for "CRAVEApp" folder in "CRAVETests" target */,
+				28B8D9CC2D5CE04900FA0F1E /* Exceptions for "CRAVEApp" folder in "CRAVEUITests" target */,
+			);
+			path = CRAVEApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +110,7 @@
 		28B8D8D62D5CD84000FA0F1E = {
 			isa = PBXGroup;
 			children = (
-				28B8D8E12D5CD84000FA0F1E /* CRAVE */,
-				28B8D8F52D5CD84100FA0F1E /* CRAVETests */,
-				28B8D8FF2D5CD84100FA0F1E /* CRAVEUITests */,
+				28B8D8E12D5CD84000FA0F1E /* CRAVEApp */,
 				28B8D8E02D5CD84000FA0F1E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,7 +141,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				28B8D8E12D5CD84000FA0F1E /* CRAVE */,
+				28B8D8E12D5CD84000FA0F1E /* CRAVEApp */,
 			);
 			name = CRAVE;
 			packageProductDependencies = (
@@ -130,9 +163,6 @@
 			dependencies = (
 				28B8D8F42D5CD84100FA0F1E /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				28B8D8F52D5CD84100FA0F1E /* CRAVETests */,
-			);
 			name = CRAVETests;
 			packageProductDependencies = (
 			);
@@ -152,9 +182,6 @@
 			);
 			dependencies = (
 				28B8D8FE2D5CD84100FA0F1E /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				28B8D8FF2D5CD84100FA0F1E /* CRAVEUITests */,
 			);
 			name = CRAVEUITests;
 			packageProductDependencies = (
@@ -321,6 +348,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -376,6 +404,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -388,14 +417,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = CRAVE/CRAVE.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CRAVEApp/CRAVE.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"CRAVE/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"CRAVEApp/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ7W9PTAD8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = CRAVE;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -414,10 +445,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Novamind.CRAVE;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Debug;
@@ -427,14 +459,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = CRAVE/CRAVE.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CRAVEApp/CRAVE.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"CRAVE/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"CRAVEApp/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ7W9PTAD8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = CRAVE;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -453,10 +487,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Novamind.CRAVE;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Release;
@@ -475,10 +510,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Novamind.CRAVETests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CRAVE.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CRAVE";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -498,10 +534,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Novamind.CRAVETests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CRAVE.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CRAVE";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -520,10 +557,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Novamind.CRAVEUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = CRAVE;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -542,10 +580,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Novamind.CRAVEUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = CRAVE;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};

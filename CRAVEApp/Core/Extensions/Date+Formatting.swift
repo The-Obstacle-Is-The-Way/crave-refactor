@@ -1,32 +1,24 @@
 //
-//  CRAVEApp.swift
+//  Date+Formatting.swift
 //  CRAVE
 //
 //  Created by John H Jung on 2/12/25.
 //
 
-import SwiftUI
-import SwiftData
+import Foundation
 
-@main
-struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
+extension Date {
+    /// Returns a string of the date formatted with the given format, e.g. "MMM d, yyyy" -> "Feb 12, 2025".
+    func toString(format: String = "MMM d, yyyy") -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        return formatter.string(from: self)
+    }
+    
+    /// Returns a string of the date in a relative style if desired, e.g. "Today," "Tomorrow," "Yesterday."
+    func toRelativeString() -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: self, relativeTo: Date())
     }
 }
