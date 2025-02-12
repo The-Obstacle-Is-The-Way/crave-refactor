@@ -1,5 +1,5 @@
 //
-//  CravingListView.swift
+//  DateListView.swift
 //  CRAVE
 //
 //  Created by John H Jung on 2/12/25
@@ -11,9 +11,14 @@ import SwiftData
 
 struct CravingListView: View {
     @Environment(\.modelContext) private var context
-    
     let selectedDate: Date
-    let cravings: [Craving]
+    @State private var cravings: [Craving]  // Changed to @State
+    
+    // Initialize with passed cravings array
+    init(selectedDate: Date, cravings: [Craving]) {
+        self.selectedDate = selectedDate
+        _cravings = State(initialValue: cravings)  // Proper @State initialization
+    }
 
     var body: some View {
         List {
@@ -21,13 +26,18 @@ struct CravingListView: View {
                 Text(craving.text)
             }
             .onDelete { indexSet in
-                for index in indexSet {
-                    context.delete(cravings[index])  // remove from SwiftData
-                }
-                do {
-                    try context.save()  // persist the deletion
-                } catch {
-                    print("Delete error: \(error)")
+                withAnimation {
+                    // Convert indexSet to array and sort in reverse to safely remove items
+                    for index in indexSet.sorted().reversed() {
+                        let craving = cravings[index]
+                        context.delete(craving)
+                        cravings.remove(at: index)
+                    }
+                    do {
+                        try context.save()
+                    } catch {
+                        print("Delete error: \(error)")
+                    }
                 }
             }
         }
