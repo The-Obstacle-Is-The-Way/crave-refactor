@@ -2,14 +2,11 @@
 //  DateListView.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25
-//
 
 import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    // Explicitly specify Craving as the root type and use .reverse instead of .descending
     @Query(sort: \Craving.timestamp, order: .reverse)
     private var allCravings: [Craving]
 
@@ -19,7 +16,6 @@ struct DateListView: View {
         NavigationView {
             List {
                 if viewModel.dateSections.isEmpty {
-                    // ✅ Added empty state message
                     Text("No cravings logged yet.")
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -38,7 +34,7 @@ struct DateListView: View {
             }
             .navigationTitle("Craving Dates")
             .onAppear {
-                viewModel.groupCravings(allCravings)
+                viewModel.setData(allCravings)
             }
         }
     }
