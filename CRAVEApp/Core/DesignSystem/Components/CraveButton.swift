@@ -1,4 +1,9 @@
-// CraveButton.swift
+//
+//  CraveButton.swift
+//  CRAVE
+//
+//  Created by John H Jung on 2/12/25.
+//
 
 import SwiftUI
 
@@ -7,7 +12,12 @@ struct CraveButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if DEBUG
+            print("CraveButton tapped with title: \(title)")
+            #endif
+            action()
+        }) {
             Text(title)
                 .frame(maxWidth: .infinity)
                 .frame(height: CRAVEDesignSystem.Layout.buttonHeight)
@@ -15,5 +25,8 @@ struct CraveButton: View {
                 .background(CRAVEDesignSystem.Colors.primary)
                 .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
         }
+        // Provide a stable accessibility identifier for UI tests
+        // If the button's title is "Submit", we'll use "SubmitButton" specifically
+        .accessibilityIdentifier(title == "Submit" ? "SubmitButton" : "CraveButton_\(title)")
     }
 }

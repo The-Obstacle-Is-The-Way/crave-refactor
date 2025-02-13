@@ -1,6 +1,5 @@
 //
 //  CRAVEUITestsLaunchTests.swift
-//  CRAVEUITests
 //
 //  Created by John H Jung on 2/12/25.
 //
@@ -9,23 +8,34 @@ import XCTest
 
 final class CRAVEUITestsLaunchTests: XCTestCase {
 
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
+    let app = XCUIApplication()
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        app.launch()
     }
 
-    @MainActor
-    func testLaunch() throws {
-        let app = XCUIApplication()
-        app.launch()
+    func testLaunchAndVerifyMainViews() throws {
+        // ✅ Wait a bit to ensure the app is fully loaded before checking UI elements
+        sleep(1)
 
-        // Insert steps here to perform after app launch but before taking a screenshot,
-        // such as logging into a test account or navigating somewhere in the app
+        // ✅ Ensure we are in the correct tab before checking for elements
+        let logTab = app.tabBars.buttons["Log"]
+        if logTab.waitForExistence(timeout: 2) {
+            logTab.tap()
+        }
 
-        let attachment = XCTAttachment(screenshot: app.screenshot())
+        // ✅ Ensure Log Craving screen loads
+        let logTextField = app.textViews["CravingTextEditor"]
+        XCTAssertTrue(logTextField.waitForExistence(timeout: 5), "❌ Craving input field not found")
+
+        // ✅ Ensure navigation tab exists
+        let historyTab = app.tabBars.buttons["History"]
+        XCTAssertTrue(historyTab.waitForExistence(timeout: 5), "❌ History tab not found")
+
+        // ✅ Capture a screenshot for debugging if test fails
+        let screenshot = app.screenshot()
+        let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = "Launch Screen"
         attachment.lifetime = .keepAlways
         add(attachment)

@@ -1,24 +1,16 @@
 //
-//  DateListView.swift
+//  CravingListView.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25
-//
-
 
 import SwiftUI
 import SwiftData
 
 struct CravingListView: View {
     @Environment(\.modelContext) private var context
+
     let selectedDate: Date
-    @State private var cravings: [Craving]  // Changed to @State
-    
-    // Initialize with passed cravings array
-    init(selectedDate: Date, cravings: [Craving]) {
-        self.selectedDate = selectedDate
-        _cravings = State(initialValue: cravings)  // Proper @State initialization
-    }
+    let cravings: [Craving]
 
     var body: some View {
         List {
@@ -26,24 +18,20 @@ struct CravingListView: View {
                 Text(craving.text)
             }
             .onDelete { indexSet in
-                withAnimation {
-                    // Convert indexSet to array and sort in reverse to safely remove items
-                    for index in indexSet.sorted().reversed() {
-                        let craving = cravings[index]
-                        context.delete(craving)
-                        cravings.remove(at: index)
-                    }
-                    do {
-                        try context.save()
-                    } catch {
-                        print("Delete error: \(error)")
-                    }
+                for index in indexSet {
+                    // Hard-delete or soft-delete as you prefer:
+                    // For full removal:
+                    context.delete(cravings[index])
+                    // For a soft-delete instead:
+                    // cravings[index].isDeleted = true
+
+                    try? context.save()
                 }
             }
         }
         .navigationTitle(Text(selectedDate, style: .date))
         .toolbar {
-            EditButton()
+            EditButton() // allows swipe or tap "Edit" to delete
         }
     }
 }

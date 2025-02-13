@@ -1,8 +1,4 @@
-//
-//  DateListViewModel.swift
-//  CRAVE
-//
-
+// DateListViewModel.swift
 import SwiftUI
 import Foundation
 
@@ -13,16 +9,16 @@ class DateListViewModel {
 
     func setData(_ cravings: [Craving]) {
         let calendar = Calendar.current
-        var tempDict: [Date: [Craving]] = [:]
+        var temp: [Date: [Craving]] = [:]
 
         for craving in cravings {
             let comps = calendar.dateComponents([.year, .month, .day], from: craving.timestamp)
             if let dayDate = calendar.date(from: comps) {
-                tempDict[dayDate, default: []].append(craving)
+                temp[dayDate, default: []].append(craving)
             }
         }
 
-        dateSections = tempDict.keys.sorted { $0 > $1 }
-        cravingsByDate = tempDict
+        dateSections = temp.keys.sorted(by: >)
+        cravingsByDate = temp
     }
 }

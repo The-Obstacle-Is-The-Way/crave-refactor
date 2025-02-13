@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "43AB6C37-E31E-422F-BBA1-1120CA2CFAEA",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CRAVE.xcodeproj",
+      "identifier" : "28B8D8DE2D5CD84000FA0F1E",
+      "name" : "CRAVE"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:CRAVE.xcodeproj",
+        "identifier" : "28B8D8F12D5CD84100FA0F1E",
+        "name" : "CRAVETests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:CRAVE.xcodeproj",
+        "identifier" : "28B8D8FB2D5CD84100FA0F1E",
+        "name" : "CRAVEUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

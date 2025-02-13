@@ -1,31 +1,17 @@
-//
-//  CravingModel.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
-//
+// CravingModel.swift
+// CRAVE
 
 import SwiftData
 import Foundation
 
 @Model
 class Craving {
-    @Attribute(.unique) var id: UUID
-    var text: String
-    var timestamp: Date
-    var isDeleted: Bool
+    @Attribute(.unique) var id: UUID = UUID()
+    @Attribute var text: String
+    @Attribute var timestamp: Date = Date()
+    @Attribute var isDeleted: Bool = false
 
-    init(
-        id: UUID = UUID(),
-        text: String,
-        timestamp: Date = Date(),
-        isDeleted: Bool = false
-    ) {
-        self.id = id
+    init(_ text: String) {
         self.text = text
-        self.timestamp = timestamp
-        self.isDeleted = isDeleted
     }
 }
-
-

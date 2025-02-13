@@ -17,7 +17,8 @@ class LogCravingViewModel {
     // Extra validation or business logic can go here as needed.
     func submitCraving(context: ModelContext) {
         guard !cravingText.isEmpty else { return }
-        let newCraving = Craving(text: cravingText)
+        // Call the initializer without a label.
+        let newCraving = Craving(cravingText)
         context.insert(newCraving)
         do {
             try context.save()
@@ -29,4 +30,3 @@ class LogCravingViewModel {
         }
     }
 }
-

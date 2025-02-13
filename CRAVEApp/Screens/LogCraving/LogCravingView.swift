@@ -5,15 +5,15 @@
 //  Created by John H Jung on 12/12/25
 //
 
-import UIKit
 import SwiftUI
 import SwiftData
+import UIKit
 import Foundation
 
 struct LogCravingView: View {
     @Environment(\.modelContext) private var context
 
-    // View-specific state and logic
+    // View-specific state
     @State private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
 
@@ -23,15 +23,18 @@ struct LogCravingView: View {
                 Text("Log a Craving")
                     .font(CRAVEDesignSystem.Typography.titleFont)
 
-                // A custom text editor with placeholder (CraveTextEditor.swift)
-                CraveTextEditor(text: $viewModel.cravingText, placeholder: "Describe your craving...")
+                // Custom text editor (CraveTextEditor.swift)
+                CraveTextEditor(
+                    text: $viewModel.cravingText,
+                    placeholder: "Describe your craving..."
+                )
 
-                // A custom button style (CraveButton.swift)
+                // Custom button (CraveButton.swift)
                 CraveButton(title: "Submit") {
                     if viewModel.cravingText.isEmpty {
                         showAlert = true
                     } else {
-                        viewModel.submitCraving(context: context) // ✅ Ensured function is called
+                        viewModel.submitCraving(context: context)
                     }
                 }
                 .alert("Please enter a craving", isPresented: $showAlert) {

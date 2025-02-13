@@ -11,10 +11,6 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     
-    // ❌ Original (includes deleted cravings):
-    // @Query(sort: \Craving.timestamp, order: .reverse)
-    // private var cravings: [Craving]
-    
     // ✅ Updated: exclude soft-deleted cravings
     @Query(
         filter: #Predicate<Craving> { !$0.isDeleted },
@@ -61,7 +57,7 @@ struct ContentView: View {
     }
     
     private func addCraving() {
-        withAnimation {
+        _ = withAnimation {
             CravingManager.shared.addCraving("New Craving from ContentView", using: modelContext)
         }
     }
@@ -70,7 +66,7 @@ struct ContentView: View {
         withAnimation {
             for index in offsets {
                 let craving = cravings[index]
-                CravingManager.shared.softDeleteCraving(craving, using: modelContext)
+                _ = CravingManager.shared.softDeleteCraving(craving, using: modelContext)
             }
         }
     }

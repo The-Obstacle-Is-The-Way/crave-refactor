@@ -1,13 +1,5 @@
-//
-//  CravingManager.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
-//
-
-/* A lightweight singleton for handling Craving insertions/deletions outside of Views.
-Use it when you need consistent data operations from multiple screens or background tasks. */
-
+// CravingManager.swift
+// CRAVE
 
 import SwiftData
 import Foundation
@@ -17,48 +9,51 @@ final class CravingManager {
     static let shared = CravingManager()
     private init() {}
 
-    /// Adds a new Craving object with the given text, then saves the context.
-    func addCraving(_ text: String, using context: ModelContext) {
-        let newCraving = Craving(text: text)
+    func addCraving(_ text: String, using context: ModelContext) -> Bool {
+        let newCraving = Craving(text)
         context.insert(newCraving)
-        do {
-            try context.save()
-        } catch {
-            print("SwiftData save error while adding craving: \(error)")
-        }
+        return save(context, action: "adding craving")
     }
 
-    /// Marks a Craving as deleted (soft delete) but keeps the record in the database.
-    func softDeleteCraving(_ craving: Craving, using context: ModelContext) {
+    func softDeleteCraving(_ craving: Craving, using context: ModelContext) -> Bool {
         craving.isDeleted = true
-        do {
-            try context.save()
-        } catch {
-            print("SwiftData save error while soft-deleting craving: \(error)")
-        }
+        let success = save(context, action: "soft-deleting craving")
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5)) // Ensure sufficient delay
+        return success
     }
 
-    /// (Optional) Fully remove a Craving from the persistent store if you need true deletion.
-    func permanentlyDeleteCraving(_ craving: Craving, using context: ModelContext) {
+    func permanentlyDeleteCraving(_ craving: Craving, using context: ModelContext) -> Bool {
         context.delete(craving)
-        do {
-            try context.save()
-        } catch {
-            print("SwiftData save error while permanently deleting craving: \(error)")
-        }
+        return save(context, action: "permanently deleting craving")
     }
 
-    /// (Optional) A simple fetch method if you want to retrieve cravings outside of a View’s @Query.
     func fetchCravings(using context: ModelContext, includingDeleted: Bool = false) -> [Craving] {
-        let descriptor = FetchDescriptor<Craving>()
+        let descriptor: FetchDescriptor<Craving>
+        if includingDeleted {
+            descriptor = FetchDescriptor<Craving>()
+        } else {
+            descriptor = FetchDescriptor<Craving>(predicate: #Predicate { !$0.isDeleted })
+        }
         do {
-            let allCravings = try context.fetch(descriptor)
-            return includingDeleted
-                ? allCravings
-                : allCravings.filter { $0.isDeleted == false }
+            return try context.fetch(descriptor)
         } catch {
             print("SwiftData fetch error: \(error)")
             return []
+        }
+    }
+
+    private func save(_ context: ModelContext, action: String) -> Bool {
+        do {
+            try context.save()
+            let all = try context.fetch(FetchDescriptor<Craving>())
+            print("After \(action), total cravings: \(all.count)")
+            all.forEach { c in
+                print("Craving \(c.id) -> isDeleted: \(c.isDeleted), text: \(c.text)")
+            }
+            return true
+        } catch {
+            print("SwiftData save error while \(action): \(error)")
+            return false
         }
     }
 }
