@@ -1,38 +1,33 @@
-// DateListView.swift
+//
+//  DateListView.swift
+//  CRAVE
+//
+
 import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    @Query private var allCravings: [Craving]
+    @Query(
+        filter: #Predicate<Craving> { !$0.isDeleted },
+        sort: [SortDescriptor(\Craving.timestamp, order: .reverse)]
+    )
+    private var allCravings: [Craving]
 
     @Environment(\.modelContext) private var context
     @State private var viewModel = DateListViewModel()
-
-    init() {
-        let filter = #Predicate<Craving> { !$0.isDeleted }
-        let descriptor = SortDescriptor(\Craving.timestamp, order: .reverse)
-        _allCravings = Query(filter: filter, sort: [descriptor])
-    }
 
     var body: some View {
         NavigationView {
             List {
                 if viewModel.dateSections.isEmpty {
                     Text("No cravings logged yet.")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, minHeight: 100)
                         .accessibilityIdentifier("emptyStateText")
                 } else {
                     ForEach(viewModel.dateSections, id: \.self) { date in
                         let cravingsForDate = viewModel.cravingsByDate[date] ?? []
 
                         NavigationLink {
-                            CravingListView(
-                                selectedDate: date,
-                                cravings: cravingsForDate
-                            )
+                            CravingListView(selectedDate: date, cravings: cravingsForDate)
                         } label: {
                             HStack {
                                 Text(date, style: .date)
@@ -40,21 +35,39 @@ struct DateListView: View {
                                 Text("\(cravingsForDate.count) items")
                                     .foregroundColor(.gray)
                             }
-                            .accessibilityIdentifier("dateCell")
                         }
-                        .accessibilityIdentifier("dateCellLink")
+                        .accessibilityIdentifier("dateCell")
                     }
                 }
             }
             .listStyle(InsetGroupedListStyle())
             .navigationTitle("Craving Dates")
             .onAppear {
+                forceUIRefresh()
+                printCravingDebugLogs()
                 viewModel.setData(allCravings)
             }
-            .onChange(of: allCravings) { oldValue, newValue in
+            .onChange(of: allCravings) { _, newValue in
+                forceUIRefresh()
+                printCravingDebugLogs()
                 viewModel.setData(newValue)
             }
             .accessibilityIdentifier("datesList")
         }
+    }
+
+    /// 🚨 FORCE SWIFTUI TO REFRESH THE VIEW
+    private func forceUIRefresh() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation {
+                viewModel.setData(allCravings)
+            }
+        }
+    }
+
+    /// 🚨 PRINT DEBUG LOGS TO CONFIRM DATA
+    private func printCravingDebugLogs() {
+        print("🟡 `DateListView` appeared. Found cravings: \(allCravings.count)")
+        allCravings.forEach { print("📝 Craving: \($0.text) | Timestamp: \($0.timestamp) | Deleted: \($0.isDeleted)") }
     }
 }

@@ -36,7 +36,6 @@
 			membershipExceptions = (
 				Tests/CRAVETests/CravingManagerTests.swift,
 				Tests/CRAVEUITests/CRAVEUITests.swift,
-				Tests/CRAVEUITests/CRAVEUITestsLaunchTests.swift,
 			);
 			platformFiltersByRelativePath = {
 				CRAVEApp.swift = (ios, );
@@ -64,7 +63,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Tests/CRAVEUITests/CRAVEUITests.swift,
-				Tests/CRAVEUITests/CRAVEUITestsLaunchTests.swift,
 			);
 			platformFiltersByRelativePath = {
 				Tests/CRAVEUITests/CRAVEUITests.swift = (ios, );

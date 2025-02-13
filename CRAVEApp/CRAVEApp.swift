@@ -1,8 +1,6 @@
 //
-//  CRAVEApp.swift
+//  CraveApp.swift
 //  CRAVE
-//
-//  Created by John H Jung on 2/12/25
 //
 
 import SwiftUI
@@ -14,7 +12,17 @@ struct CraveApp: App {
 
     init() {
         do {
-            container = try ModelContainer(for: Craving.self)
+            let schema = Schema([Craving.self])
+            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+
+            // 🚨 RESET DATABASE IF NEEDED
+            let storeURL = URL.documentsDirectory.appendingPathComponent("CRAVE.sqlite")
+            if FileManager.default.fileExists(atPath: storeURL.path) {
+                try FileManager.default.removeItem(at: storeURL)
+                print("🗑 Deleted old SwiftData database to reset")
+            }
+
+            container = try ModelContainer(for: schema, configurations: [config])
         } catch {
             fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
         }

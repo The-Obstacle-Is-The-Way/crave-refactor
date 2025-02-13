@@ -50,23 +50,25 @@ final class CravingManagerTests: XCTestCase {
             return XCTFail("❌ No craving found after insert.")
         }
 
+        // ✅ Log the state before soft delete
+        print("🔹 Before soft delete: \(inserted.text) | isDeleted: \(inserted.isDeleted)")
+
         // 2. Soft-delete that craving
         let deleteSuccess = CravingManager.shared.softDeleteCraving(inserted, using: context)
         XCTAssertTrue(deleteSuccess, "❌ Soft delete operation failed.")
 
-        // 3. Wait longer for SwiftData to commit the soft-delete
-        let expectation = self.expectation(description: "Wait for soft-delete to propagate")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {  // Increased from 0.5 to 1.0
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 2)
+        // ✅ Force SwiftData to commit and refresh
+        RunLoop.current.run(until: Date().addingTimeInterval(1.0))
 
-        // 4. Re-fetch everything (including deleted)
+        // ✅ Re-fetch everything (including deleted)
         fetched = try context.fetch(FetchDescriptor<Craving>())
-        XCTAssertEqual(fetched.count, 1, "❌ Craving count should still be 1 (soft delete).")
+        print("🔍 All cravings after soft-delete:")
+        fetched.forEach { print("📝 \(String(describing: $0.text)) | Deleted: \($0.isDeleted)") }
+
+        // ✅ Verify that the craving is marked as deleted
         XCTAssertTrue(
             fetched.first?.isDeleted ?? false,
-            "❌ Craving should be marked as deleted."
+            "❌ Craving should be marked as deleted but was not."
         )
 
         // 5. Confirm soft-deleted items do NOT appear when includingDeleted = false

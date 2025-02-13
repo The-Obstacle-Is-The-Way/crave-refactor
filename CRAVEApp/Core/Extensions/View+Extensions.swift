@@ -9,7 +9,7 @@ import UIKit
 import SwiftUI
 
 extension View {
-    /// Quickly wraps the view in a background and corner radius defined by the design system.
+    /// Quickly wrapsa the view in a background and corner radius defined by the design system.
     func craveCardStyle() -> some View {
         self
             .padding(CRAVEDesignSystem.Layout.standardPadding)

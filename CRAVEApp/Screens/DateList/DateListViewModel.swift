@@ -1,4 +1,8 @@
-// DateListViewModel.swift
+//
+//  DateListViewModel.swift
+//  CRAVE
+//
+
 import SwiftUI
 import Foundation
 
@@ -16,6 +20,11 @@ class DateListViewModel {
             if let dayDate = calendar.date(from: comps) {
                 temp[dayDate, default: []].append(craving)
             }
+        }
+
+        print("🟡 Grouped cravings by date:")
+        temp.forEach { date, cravings in
+            print("📆 \(date): \(cravings.count) cravings")
         }
 
         dateSections = temp.keys.sorted(by: >)

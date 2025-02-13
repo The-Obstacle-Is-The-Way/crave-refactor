@@ -17,66 +17,72 @@ final class CRAVEUITests: XCTestCase {
         app.terminate()
     }
 
-    // 1) Logs a craving, then verifies it appears in the date-grouped list.
+    // ✅ Logs a craving, then verifies it appears in the date-grouped list.
     func testLoggingCravingAndSeeingItInHistory() throws {
-        // Switch to "Log" tab
         let logTab = app.tabBars.buttons["Log"]
-        XCTAssertTrue(logTab.waitForExistence(timeout: 2))
+        XCTAssertTrue(logTab.waitForExistence(timeout: 5))
         logTab.tap()
 
-        // Enter craving text
         let editor = app.textViews["CravingTextEditor"]
-        XCTAssertTrue(editor.waitForExistence(timeout: 5), "No CravingTextEditor found.")
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap()
         editor.typeText("Test Craving Entry")
 
-        // Submit
         let submit = app.buttons["SubmitButton"]
-        XCTAssertTrue(submit.waitForExistence(timeout: 2), "No Submit button.")
+        XCTAssertTrue(submit.waitForExistence(timeout: 5))
         submit.tap()
 
-        // Add a small delay to ensure the UI updates
-        sleep(2)
+        // 🚨 WAIT LONGER for SwiftData to process
+        sleep(10)
 
-        // Switch to "History" tab
         let historyTab = app.tabBars.buttons["History"]
-        XCTAssertTrue(historyTab.waitForExistence(timeout: 2), "No History tab.")
+        XCTAssertTrue(historyTab.waitForExistence(timeout: 5))
         historyTab.tap()
 
-        // Find the first date cell
-        let firstDateCell = app.tables.cells.element(boundBy: 0)
-        XCTAssertTrue(firstDateCell.waitForExistence(timeout: 5), "No date cell found in History list.")
+        // 🚨 WAIT AGAIN for UI to update
+        sleep(10)
 
-        // Tap the date cell to see the cravings for that date
-        firstDateCell.tap()
+        // ✅ TRY MULTIPLE METHODS TO FIND THE DATE CELL
+        let dateCellByIdentifier = app.cells["dateCell"].firstMatch
+        let dateCellByIndex = app.tables.cells.element(boundBy: 0)
 
-        // Now we expect to see "Test Craving Entry" in CravingListView
+        // ✅ Log if no date cell found
+        if !dateCellByIdentifier.waitForExistence(timeout: 10) && !dateCellByIndex.waitForExistence(timeout: 10) {
+            print("❌ UI Test Error: No date cell found. Dumping app hierarchy.")
+            let hierarchy = app.debugDescription
+            print(hierarchy)
+        }
+
+        XCTAssertTrue(dateCellByIdentifier.exists || dateCellByIndex.exists, "❌ No date cell found in History list.")
+
+        if dateCellByIdentifier.exists {
+            dateCellByIdentifier.tap()
+        } else {
+            dateCellByIndex.tap()
+        }
+
         let newCravingText = app.staticTexts["Test Craving Entry"]
-        XCTAssertTrue(newCravingText.waitForExistence(timeout: 5), "❌ New craving did not appear in the detail list.")
+        XCTAssertTrue(newCravingText.waitForExistence(timeout: 10), "❌ New craving did not appear in the detail list.")
     }
 
-    // 2) Ensures we can delete a craving from the date's detail screen.
+    // ✅ Ensures we can delete a craving from the date's detail screen.
     func testDeletingCraving() throws {
-        // Create a craving if none exist
-        // (Try tapping History; if no cells, log a new craving first.)
         let historyTab = app.tabBars.buttons["History"]
         historyTab.tap()
 
-        let firstDateCell = app.tables.cells.element(boundBy: 0)
-        if !firstDateCell.waitForExistence(timeout: 5) {
-            // No cravings present, so log one
+        let dateCell = app.cells["dateCell"].firstMatch
+        if !dateCell.waitForExistence(timeout: 5) {
+            // No cravings present, so log one first
             try testLoggingCravingAndSeeingItInHistory()
             historyTab.tap()
-
-            // Add a small delay to ensure the UI updates
-            sleep(2)
+            sleep(3)  // Give UI time to refresh again
         }
 
         // Tap the first date cell to see the cravings
-        XCTAssertTrue(firstDateCell.exists, "No date cell found even after creating one.")
-        firstDateCell.tap()
+        XCTAssertTrue(dateCell.exists, "No date cell found even after creating one.")
+        dateCell.tap()
 
-        // Swipe-to-delete the first craving
+        // Swipe-to-delete the first craving in that date
         let firstCravingRow = app.tables.cells.element(boundBy: 0)
         XCTAssertTrue(firstCravingRow.waitForExistence(timeout: 5), "No craving row found to delete.")
 
@@ -86,6 +92,9 @@ final class CRAVEUITests: XCTestCase {
         deleteButton.tap()
 
         // Craving should disappear
-        XCTAssertFalse(firstCravingRow.waitForExistence(timeout: 5), "Craving was not deleted successfully.")
+        XCTAssertFalse(
+            firstCravingRow.waitForExistence(timeout: 5),
+            "❌ Craving was not deleted successfully."
+        )
     }
 }

@@ -2,8 +2,6 @@
 //  LogCravingView.swift
 //  CRAVE
 //
-//  Created by John H Jung on 12/12/25
-//
 
 import SwiftUI
 import SwiftData
@@ -12,8 +10,6 @@ import Foundation
 
 struct LogCravingView: View {
     @Environment(\.modelContext) private var context
-
-    // View-specific state
     @State private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
 
@@ -23,13 +19,11 @@ struct LogCravingView: View {
                 Text("Log a Craving")
                     .font(CRAVEDesignSystem.Typography.titleFont)
 
-                // Custom text editor (CraveTextEditor.swift)
                 CraveTextEditor(
                     text: $viewModel.cravingText,
                     placeholder: "Describe your craving..."
                 )
 
-                // Custom button (CraveButton.swift)
                 CraveButton(title: "Submit") {
                     if viewModel.cravingText.isEmpty {
                         showAlert = true
