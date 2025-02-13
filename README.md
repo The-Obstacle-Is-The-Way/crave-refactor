@@ -5,8 +5,15 @@
 📂 Project Structure
 
 ```bash
+📄 YC MVP Planning Document → https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
 
 CRAVEApp/
+├── Docs/
+│   └── Images/ 
+│       ├── architecture-diagram.png
+│       ├── crave-ui-preview.png
+│       └── README-assets.png
+│
 ├── CRAVE.entitlements
 ├── Info.plist
 ├── CRAVEApp.swift
@@ -52,10 +59,6 @@ CRAVEApp/
         └── CRAVEUITests.swift
 
 ```
----
-
-📄 YC MVP Planning Document → https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
-
 ---
 
 ## Architecture
