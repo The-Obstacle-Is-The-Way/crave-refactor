@@ -7,29 +7,66 @@ import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var cravings: [Craving]
+    @Query(
+        sort: [SortDescriptor(\Craving.timestamp, order: .reverse)]
+    )
+    private var allCravings: [Craving]  // ✅ Removed isDeleted filter to ensure all cravings show
 
-    // ✅ State variable to trigger a UI refresh
-    @State private var forceRefresh = false
+    @Environment(\.modelContext) private var context
+    @State private var viewModel = DateListViewModel()
 
     var body: some View {
-        List {
-            ForEach(cravings.filter { !$0.isDeleted }) { craving in
-                Text(craving.text)
-                    .accessibilityIdentifier("historyDateCell")
+        NavigationView {
+            List {
+                if viewModel.dateSections.isEmpty {
+                    Text("No cravings logged yet.")
+                        .accessibilityIdentifier("emptyStateText")
+                } else {
+                    ForEach(viewModel.dateSections, id: \.self) { date in
+                        let cravingsForDate = viewModel.cravingsByDate[date] ?? []
+
+                        NavigationLink {
+                            CravingListView(selectedDate: date, cravings: cravingsForDate)
+                        } label: {
+                            HStack {
+                                Text(date, style: .date)
+                                Spacer()
+                                Text("\(cravingsForDate.count) items")
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .accessibilityIdentifier("historyDateCell_\(date.timeIntervalSince1970)")
+                    }
+                }
             }
-        }
-        .id(forceRefresh) // ✅ Forces SwiftUI to refresh
-        .onAppear {
-            refreshUI()
+            .listStyle(InsetGroupedListStyle())
+            .navigationTitle("Craving Dates")
+            .onAppear {
+                forceUIRefresh()
+                printCravingDebugLogs()
+                viewModel.setData(allCravings)
+            }
+            .onChange(of: allCravings) { _, newValue in
+                forceUIRefresh()
+                printCravingDebugLogs()
+                viewModel.setData(newValue)
+            }
+            .accessibilityIdentifier("datesList")
         }
     }
 
-    /// 🚀 Forces SwiftUI to refresh `@Query`
-    private func refreshUI() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.forceRefresh.toggle()
+    /// 🚨 FORCE SWIFTUI TO REFRESH THE VIEW
+    private func forceUIRefresh() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation {
+                viewModel.setData(allCravings)
+            }
         }
+    }
+
+    /// 🚨 PRINT DEBUG LOGS TO CONFIRM DATA
+    private func printCravingDebugLogs() {
+        print("🟡 `DateListView` appeared. Found cravings: \(allCravings.count)")
+        allCravings.forEach { print("📝 Craving: \($0.text) | Timestamp: \($0.timestamp) | Deleted: \($0.isDeleted)") }
     }
 }

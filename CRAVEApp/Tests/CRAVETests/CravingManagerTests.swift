@@ -30,29 +30,36 @@ final class CravingManagerTests: XCTestCase {
 
     /// ✅ Test Soft Deletion
     func testSoftDeleteCraving() throws {
+        // 1️⃣ Create and add a new craving
         let craving = Craving("Test Craving")
+        let cravingID = craving.id  // Store ID for lookup
         context.insert(craving)
-        try context.save()
 
+        if context.hasChanges {
+            try context.save()
+        }
+
+        // 2️⃣ Confirm craving exists and is not deleted
         XCTAssertFalse(craving.isDeleted, "❌ Craving should NOT be marked as deleted initially.")
 
-        // ✅ Perform soft delete
+        // 3️⃣ Perform soft delete
         let deleteSuccess = cravingManager.softDeleteCraving(craving, using: context)
         XCTAssertTrue(deleteSuccess, "❌ Soft delete should return success.")
 
-        // ✅ Ensure changes are committed before fetching
+        if context.hasChanges {
+            try context.save()
+        }
+
+        // 🔥 Force SwiftData to commit and sync changes
         context.processPendingChanges()
-        try context.save()
 
-        // ✅ Fetch WITHOUT a predicate to ensure `isDeleted = true` is included
-        var fetchDescriptor = FetchDescriptor<Craving>()
-        fetchDescriptor.includePendingChanges = true
-
+        // 5️⃣ Fetch the craving again from storage with correct predicate
+        let fetchDescriptor = FetchDescriptor<Craving>(
+            predicate: #Predicate { $0.id == cravingID }
+        )
         let fetchedCravings = try context.fetch(fetchDescriptor)
 
-        // ✅ Debugging Print
-        print("🟡 DEBUG: All cravings after delete → \(fetchedCravings)")
-
+        // 6️⃣ Validate the craving exists and is marked as deleted
         XCTAssertEqual(fetchedCravings.count, 1, "❌ Craving should exist in storage.")
         XCTAssertTrue(fetchedCravings.first!.isDeleted, "❌ Craving should be marked as deleted.")
     }
