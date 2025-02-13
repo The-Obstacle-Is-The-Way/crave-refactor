@@ -1,9 +1,8 @@
 CRAVE - MVP
 
-Overview
-CRAVE is a SwiftData-powered iOS application designed to help users log and track cravings. Built with SwiftUI + SwiftData, CRAVE offers a minimal yet scalable architecture for managing craving entries efficiently.
+# CRAVE 🍒 — Modern Craving Management App
 
-📄 YC MVP Planning Document → https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
+**CRAVE** is an iOS application built with **SwiftUI** and **SwiftData**, helping you track and manage your cravings through a clean, intuitive interface. Whether it’s late-night snack urges or midday munchies, CRAVE ensures you stay in control.
 
 📂 Project Structure
 
@@ -55,68 +54,92 @@ CRAVEApp/
         └── CRAVEUITests.swift
 
 ```
+---
+📄 YC MVP Planning Document → https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
 
-🏗 Key Features
+## 🌟 Architecture & Features
 
-1️⃣ SwiftData Model (CravingModel.swift)
-Uses @Model for persistence.
-Stores craving details (text, timestamp, isDeleted).
-Handles data storage and retrieval via CravingManager.swift.
+### Data Layer
+- **SwiftData Integration**: Harnesses `@Model` for modern persistence and efficient CRUD operations.  
+- **Soft Deletions**: Archives cravings instead of fully removing them, preserving data for potential analytics.  
+- **Data Manager**: A dedicated `CravingManager` ensures thread-safe data access and state consistency.
 
-2️⃣ App Structure (CRAVEApp.swift)
-Provides SwiftData ModelContainer for dependency injection.
-Uses SwiftUI-based navigation with CRAVETabView.swift.
+### Design System
+- **Centralized Tokens**: Unified colors, typography, and spacing for a polished, cohesive design.  
+- **Reusable Components**: Custom buttons, text editors, and haptic feedback helpers.  
+- **Adaptive Layout**: Responsive UI that looks great on various iOS screens.
 
-3️⃣ UI Components (CRAVEDesignSystem.swift)
-Centralized color, typography, layout, and haptic feedback.
-Custom components: CraveButton.swift, CraveTextEditor.swift.
+### Core Features
+- **Quick Logging**: Rapid craving entry with instant persistence.  
+- **Smart History**: Cravings are grouped by date, with friendly placeholders if no data exists.  
+- **Easy Management**: Swipe-to-archive, bulk edits, and other intuitive actions keep your list tidy.
 
-4️⃣ Screens (MVVM Architecture)
-✅ Log a Craving (LogCravingView.swift)
-Allows users to enter a craving.
-Uses LogCravingViewModel.swift for state management.
-Calls submitCraving() to persist cravings.
+### Technical Excellence
+- **MVVM Architecture**: Leverages `@Observable` for clean, scalable state management.  
+- **Comprehensive Testing**: Unit tests, UI tests, and ephemeral in-memory data configurations using XCTest.  
+- **Performance Focus**: Swift animations, minimal overhead, and optimized data fetches keep the app smooth.
 
-✅ Craving History (DateListView.swift)
-Displays cravings grouped by date.
-Uses SwiftData’s @Query property wrapper.
-Shows an empty state when no cravings exist.
+---
 
-✅ Craving Detail (CravingListView.swift)
-Lists cravings for a selected date.
-Implements .onDelete {} to remove cravings from SwiftData.
+## 🚀 Roadmap
+- **iCloud Sync**: Seamless multi-device experience.  
+- **AI Insights**: Pattern recognition to identify triggers and trends.  
+- **Apple Watch App**: Log cravings and check history right from your wrist.  
+- **Home Screen Widgets**: Quick glance at your cravings and progress.  
+- **Smart Notifications**: Timely nudges when cravings typically strike.
 
-5️⃣ Testing (CRAVETests & CRAVEUITests)
-Uses XCTest to validate data persistence & UI flows.
-Implements in-memory testing with ModelContainer(.ephemeral).
+---
 
-🚀 Future Enhancements
-Cloud Sync (iCloud integration for multi-device support)
-AI Insights (Craving patterns & behavioral analysis)
-Apple Watch & VisionOS support
-Widgets & Notifications for habit reminders
+## ⚙️ Development
 
-📦 Setup & Installation
-Clone the repository:
+Built with:
+- **SwiftUI**  
+- **SwiftData**  
+- **Combine**  
+- **XCTest**
 
-git clone https://github.com/YOUR_USERNAME/CRAVE.git
-cd CRAVE
-Open in Xcode:
-  Double-click CRAVE.xcodeproj.
-Run the project:
-  Select a simulator or device and press Cmd + R.
-Optional: Run Tests
+**Requirements**:
+- iOS 17.0+  
+- Xcode 15.0+
 
-Cmd + U  # Runs unit tests in Xcode
+### Setup & Installation
+1. **Clone the repository**:  
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/CRAVE.git
+   cd CRAVE
+   ```
+2. **Open in Xcode**:  
+   Double-click `CRAVE.xcodeproj` or open it via `File > Open...`
+3. **Run the project**:  
+   Select a simulator or device, then press <kbd>Cmd</kbd> + <kbd>R</kbd>.
+4. *(Optional)* **Run Tests**:  
+   <kbd>Cmd</kbd> + <kbd>U</kbd> to execute unit and UI tests.
 
-🌟 Contributing
-Fork the repository
-Create a new branch: git checkout -b feature-branch-name
-Commit changes: git commit -m "Add new feature"
-Push to GitHub: git push origin feature-branch-name
-Create a Pull Request
-For issues, feature requests, or ideas, submit a GitHub Issue!
+---
 
-📄 License
-This project is licensed under the MIT License.
-🚀 For detailed MVP planning, see: YC MVP Google Doc: https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
+## 🤝 Contributing
+1. **Fork** this repository  
+2. **Create a new branch**:  
+   ```bash
+   git checkout -b feature-branch
+   ```
+3. **Commit your changes**:  
+   ```bash
+   git commit -m "Add new feature"
+   ```
+4. **Push the branch**:  
+   ```bash
+   git push origin feature-branch
+   ```
+5. **Submit a Pull Request** describing your changes.  
+   
+For issues, feature requests, or ideas, please [open an issue](https://github.com/YOUR_USERNAME/CRAVE/issues).
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+> **CRAVE**: Because understanding your cravings **shouldn’t** be complicated. 🍫  
