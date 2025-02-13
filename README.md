@@ -107,7 +107,7 @@ CRAVEApp/
 ---
 
 ## 🚀 Roadmap
-🚀 Ultra Dank Roadmap for Voice, AI, and Analytics Integration
+💎 Ultra Dank Roadmap for Voice, AI, and Analytics Integration
 
 ---
 
