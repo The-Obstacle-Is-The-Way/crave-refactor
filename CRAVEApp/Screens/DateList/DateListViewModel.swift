@@ -1,5 +1,7 @@
-// DateListViewModel.swift
-// Groups cravings by date, ignoring those with isDeleted == true.
+//
+//  DateListViewModel.swift
+//  CRAVE
+//
 
 import SwiftUI
 import Foundation
@@ -9,22 +11,23 @@ class DateListViewModel {
     var cravingsByDate: [Date: [Craving]] = [:]
     var dateSections: [Date] = []
 
-    func groupCravings(_ cravings: [Craving]) {
-        // Filter out soft-deleted items
-        let activeCravings = cravings.filter { !$0.isDeleted }
+    func setData(_ cravings: [Craving]) {
         let calendar = Calendar.current
-        var tempDict: [Date: [Craving]] = [:]
+        var temp: [Date: [Craving]] = [:]
 
-        for craving in activeCravings {
-            // Group by YYYY-MM-DD
+        for craving in cravings {
             let comps = calendar.dateComponents([.year, .month, .day], from: craving.timestamp)
             if let dayDate = calendar.date(from: comps) {
-                tempDict[dayDate, default: []].append(craving)
+                temp[dayDate, default: []].append(craving)
             }
         }
 
-        // Sort days descending
-        dateSections = tempDict.keys.sorted { $0 > $1 }
-        cravingsByDate = tempDict
+        print("🟡 Grouped cravings by date:")
+        temp.forEach { date, cravings in
+            print("📆 \(date): \(cravings.count) cravings")
+        }
+
+        dateSections = temp.keys.sorted(by: >)
+        cravingsByDate = temp
     }
 }

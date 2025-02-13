@@ -1,25 +1,26 @@
-// CravingModel.swift
-// SwiftData model for CRAVE.
+//
+//  CravingModel.swift
+//  CRAVE
+//
 
 import SwiftData
 import Foundation
 
 @Model
 class Craving {
-    @Attribute(.unique) var id: UUID
-    var text: String
-    var timestamp: Date
-    var isDeleted: Bool  // Soft-delete flag
+    @Attribute(.unique) var id: UUID = UUID()
+    @Attribute var text: String
+    @Attribute var timestamp: Date = Date()
+    @Attribute var isDeleted: Bool = false  // ✅ Soft delete flag
 
-    init(
-        id: UUID = UUID(),
-        text: String,
-        timestamp: Date = Date(),
-        isDeleted: Bool = false
-    ) {
-        self.id = id
+    /// 🚀 Initialize a new craving
+    init(_ text: String) {
         self.text = text
-        self.timestamp = timestamp
-        self.isDeleted = isDeleted
+        self.isDeleted = false  // ✅ Ensure new cravings are not deleted by default
+    }
+
+    /// ✅ Computed property to check if craving is active
+    var isActive: Bool {
+        return !isDeleted
     }
 }

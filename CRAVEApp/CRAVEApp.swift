@@ -1,5 +1,7 @@
-// CRAVEApp.swift
-// The entry point, sets up the ModelContainer and attaches it.
+//
+//  CraveApp.swift
+//  CRAVE
+//
 
 import SwiftUI
 import SwiftData
@@ -13,21 +15,14 @@ struct CraveApp: App {
             let schema = Schema([Craving.self])
             let config = ModelConfiguration(isStoredInMemoryOnly: false)
 
-            // Identify where SwiftData's default store lives:
-            let defaultStoreURL = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first!.appendingPathComponent("default.store")
-
-            if FileManager.default.fileExists(atPath: defaultStoreURL.path) {
-                // Remove any old store so there's no migration conflict
-                try FileManager.default.removeItem(at: defaultStoreURL)
-                print("🗑 Deleted old SwiftData store at: \(defaultStoreURL)")
+            // 🚨 RESET DATABASE IF NEEDED
+            let storeURL = URL.documentsDirectory.appendingPathComponent("CRAVE.sqlite")
+            if FileManager.default.fileExists(atPath: storeURL.path) {
+                try FileManager.default.removeItem(at: storeURL)
+                print("🗑 Deleted old SwiftData database to reset")
             }
 
-            // Now create a fresh container with the new Craving schema
             container = try ModelContainer(for: schema, configurations: [config])
-
         } catch {
             fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
         }

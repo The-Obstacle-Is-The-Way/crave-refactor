@@ -1,5 +1,7 @@
-// CravingListView.swift
-// Shows cravings for a particular date, with the ability to swipe-to-delete.
+//
+//  CravingListView.swift
+//  CRAVE
+//
 
 import SwiftUI
 import SwiftData
@@ -17,15 +19,19 @@ struct CravingListView: View {
             }
             .onDelete { indexSet in
                 for index in indexSet {
-                    // Soft-delete: hide from UI but not truly removed
-                    cravings[index].isDeleted = true
+                    // Hard-delete or soft-delete as you prefer:
+                    // For full removal:
+                    context.delete(cravings[index])
+                    // For a soft-delete instead:
+                    // cravings[index].isDeleted = true
+
+                    try? context.save()
                 }
-                try? context.save()
             }
         }
         .navigationTitle(Text(selectedDate, style: .date))
         .toolbar {
-            EditButton()
+            EditButton() // allows swipe or tap "Edit" to delete
         }
     }
 }
