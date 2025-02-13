@@ -2,12 +2,15 @@
 
 import SwiftUI
 
-struct CalendarHeatmapView: View {
+public struct CalendarHeatmapView: View {
     let data: [Date: Int]
     
-    var body: some View {
+    public init(data: [Date: Int]) {
+        self.data = data
+    }
+    
+    public var body: some View {
         let sortedDates = data.keys.sorted()
-        // Display in a 7-column grid (one week per row)
         let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
         
         LazyVGrid(columns: columns, spacing: 4) {
@@ -16,9 +19,11 @@ struct CalendarHeatmapView: View {
                 Rectangle()
                     .fill(color(for: count))
                     .frame(width: 20, height: 20)
-                    .overlay(Text(shortDateString(from: date))
-                                .font(.caption2)
-                                .opacity(0)) // Hide text but keep layout consistent
+                    .overlay(
+                        Text(shortDateString(from: date))
+                            .font(.caption2)
+                            .opacity(0) // Invisible text to maintain layout
+                    )
             }
         }
     }
@@ -41,7 +46,7 @@ struct CalendarHeatmapView: View {
 }
 
 struct CalendarHeatmapView_Previews: PreviewProvider {
-    static var previews: some View {
+    public static var previews: some View {
         CalendarHeatmapView(data: {
             var data = [Date: Int]()
             let calendar = Calendar.current

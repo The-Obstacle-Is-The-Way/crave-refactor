@@ -5,40 +5,49 @@
 
 import SwiftUI
 import SwiftData
-import UIKit
-import Foundation
 
-struct LogCravingView: View {
-    @Environment(\.modelContext) private var context
-    @State private var viewModel = LogCravingViewModel()
-    @State private var showAlert = false
-
-    var body: some View {
+public struct LogCravingView: View {
+    @StateObject public var viewModel: LogCravingViewModel = LogCravingViewModel()
+    
+    public init() { }
+    
+    public var body: some View {
         NavigationView {
-            VStack(spacing: CRAVEDesignSystem.Layout.standardPadding) {
-                Text("Log a Craving")
-                    .font(CRAVEDesignSystem.Typography.titleFont)
-
-                CraveTextEditor(
-                    text: $viewModel.cravingText,
-                    placeholder: "Describe your craving..."
-                )
-
-                CraveButton(title: "Submit") {
-                    if viewModel.cravingText.isEmpty {
-                        showAlert = true
-                    } else {
-                        viewModel.submitCraving(context: context)
-                    }
+            VStack(spacing: 16) {
+                TextEditor(text: $viewModel.typedText)
+                    .padding()
+                    .frame(height: 200)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    )
+                    .padding(.horizontal)
+                
+                Button(action: {
+                    viewModel.logCraving()
+                }) {
+                    Text("Submit")
+                        .font(.body)
+                        .padding()
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                 }
-                .alert("Please enter a craving", isPresented: $showAlert) {
-                    Button("OK", role: .cancel) { }
+                .padding()
+                
+                if let loggedCraving = viewModel.currentCraving {
+                    Text("Last logged craving: \(loggedCraving.notes ?? "")")
+                        .foregroundColor(.secondary)
+                        .padding()
                 }
-
-                Spacer()
             }
-            .padding()
-            .navigationTitle("Log Craving")
+            .navigationTitle("Log a Craving")
         }
+    }
+}
+
+struct LogCravingView_Previews: PreviewProvider {
+    public static var previews: some View {
+        LogCravingView()
     }
 }

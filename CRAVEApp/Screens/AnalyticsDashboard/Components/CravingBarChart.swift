@@ -2,10 +2,14 @@
 
 import SwiftUI
 
-struct CravingBarChart: View {
+public struct CravingBarChart: View {
     let data: [Date: Int]
     
-    var body: some View {
+    public init(data: [Date: Int]) {
+        self.data = data
+    }
+    
+    public var body: some View {
         GeometryReader { geometry in
             let sortedData = data.sorted { $0.key < $1.key }
             let maxCount = sortedData.map { $0.value }.max() ?? 1
@@ -33,7 +37,7 @@ struct CravingBarChart: View {
 }
 
 struct CravingBarChart_Previews: PreviewProvider {
-    static var previews: some View {
+    public static var previews: some View {
         CravingBarChart(data: {
             var data = [Date: Int]()
             let calendar = Calendar.current

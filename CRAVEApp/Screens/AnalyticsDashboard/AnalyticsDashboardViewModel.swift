@@ -6,19 +6,18 @@
 import SwiftUI
 
 @MainActor
-class AnalyticsDashboardViewModel: ObservableObject {
-    @Published var basicStats: BasicAnalyticsResult?
+public class AnalyticsDashboardViewModel: ObservableObject {
+    @Published public var basicStats: BasicAnalyticsResult?
     
     private let analyticsManager: AnalyticsManager
     
-    init(analyticsManager: AnalyticsManager) {
+    public init(analyticsManager: AnalyticsManager) {
         self.analyticsManager = analyticsManager
     }
     
-    func loadAnalytics() {
+    public func loadAnalytics() {
         Task {
-            let stats = await analyticsManager.getBasicStats()
-            self.basicStats = stats
+            self.basicStats = await analyticsManager.getBasicStats()
         }
     }
 }

@@ -3,35 +3,17 @@
 //  CRAVE
 //
 
-import SwiftData
 import Foundation
+import SwiftData
 
-@MainActor
-final class CravingManager {
-    static let shared = CravingManager()
-    private init() {}
-
-    // Add a new craving
-    func addCraving(_ text: String, using context: ModelContext) -> Bool {
-        let newCraving = Craving(text)
-        context.insert(newCraving)
-        return save(context, action: "adding craving")
+public final class CravingManager {
+    // Replace with your actual ModelContainer management.
+    public func fetchAllCravings() async -> [CravingModel] {
+        // This is a dummy fetch using the default container.
+        // Replace with your own asynchronous fetching logic.
+        guard let container = ModelContainer.shared else { return [] }
+        return (try? container.viewContext.fetch(FetchDescriptor<CravingModel>())) ?? []
     }
-
-    // Soft-delete a craving by marking 'isArchived = true'
-    func softDeleteCraving(_ craving: Craving, using context: ModelContext) -> Bool {
-        craving.isArchived = true  // Updated property name
-        return save(context, action: "soft deleting craving")
-    }
-
-    private func save(_ context: ModelContext, action: String) -> Bool {
-        do {
-            try context.save()
-            print("Success: \(action)")
-            return true
-        } catch {
-            print("Failed: \(action) - Error: \(error.localizedDescription)")
-            return false
-        }
-    }
+    
+    // Additional CRUD methods can be added here.
 }

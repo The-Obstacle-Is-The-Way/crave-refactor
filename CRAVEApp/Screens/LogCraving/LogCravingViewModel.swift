@@ -4,35 +4,23 @@
 //
 
 import SwiftUI
-import SwiftData
-import Foundation
 
-@Observable
-class LogCravingViewModel {
-    var cravingText: String = ""
-
-    // Extra validation or business logic can go here as needed.
-    func submitCraving(context: ModelContext) {
-        guard !cravingText.isEmpty else {
-            print("🚫 submitCraving() aborted: Empty craving text")
-            return
-        }
-
-        print("📝 submitCraving() called with text: \(cravingText)")
-
-        let newCraving = Craving(cravingText)
-        context.insert(newCraving)
-
-        do {
-            print("💾 Attempting to save craving...")
-            try context.save()
-            print("✅ Craving saved successfully!")
-
-            CRAVEDesignSystem.Haptics.success()
-            cravingText = ""
-        } catch {
-            print("❌ Failed to save new craving: \(error)")
-            CRAVEDesignSystem.Haptics.error()
-        }
+@MainActor
+public class LogCravingViewModel: ObservableObject {
+    @Published public var currentCraving: CravingModel?
+    @Published public var typedText: String = ""
+    
+    private let cravingManager: CravingManager
+    
+    public init(cravingManager: CravingManager = CravingManager()) {
+        self.cravingManager = cravingManager
+    }
+    
+    public func logCraving() {
+        let newCraving = CravingModel(timestamp: Date(), notes: typedText)
+        currentCraving = newCraving
+        // Insert saving logic if needed:
+        // Task { await cravingManager.saveCraving(newCraving) }
+        typedText = ""
     }
 }

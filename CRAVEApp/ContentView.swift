@@ -4,68 +4,34 @@
 //
 
 import SwiftUI
-import SwiftData
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-
-    // Updated: Exclude archived cravings
-    @Query(
-        filter: #Predicate<Craving> { !$0.isArchived },
-        sort: \Craving.timestamp,
-        order: .reverse
-    )
-    private var cravings: [Craving]
-
-    var body: some View {
-        NavigationSplitView {
+public struct ContentView: View {
+    @StateObject private var viewModel = CravingListViewModel(cravingManager: CravingManager())
+    
+    public var body: some View {
+        NavigationView {
             List {
-                ForEach(cravings) { craving in
-                    NavigationLink {
-                        Text("Craving logged at \(craving.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                            .padding()
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(craving.text)
-                                .font(.headline)
-                            Text(craving.timestamp, style: .date)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                .onDelete(perform: deleteCravings)
-            }
-            .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                #endif
-
-                ToolbarItem {
-                    Button(action: addCraving) {
-                        Label("Add Craving", systemImage: "plus")
-                    }
+                ForEach(viewModel.cravings) { craving in
+                    Text("Craving at \(craving.timestamp, formatter: Self.dateFormatter)")
                 }
             }
-        } detail: {
-            Text("Select a Craving")
+            .navigationTitle("CRAVE")
+            .onAppear {
+                viewModel.loadCravings()
+            }
         }
     }
+    
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
+}
 
-    private func addCraving() {
-        _ = withAnimation {
-            CravingManager.shared.addCraving("New Craving from ContentView", using: modelContext)
-        }
-    }
-
-    private func deleteCravings(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                let craving = cravings[index]
-                _ = CravingManager.shared.softDeleteCraving(craving, using: modelContext)
-            }
-        }
+struct ContentView_Previews: PreviewProvider {
+    public static var previews: some View {
+        ContentView()
     }
 }

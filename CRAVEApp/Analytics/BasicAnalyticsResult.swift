@@ -1,5 +1,5 @@
 //
-//  AnalyticsModel.swift
+//  BasicAnalyticsResult.swift
 //  CRAVE
 //
 
