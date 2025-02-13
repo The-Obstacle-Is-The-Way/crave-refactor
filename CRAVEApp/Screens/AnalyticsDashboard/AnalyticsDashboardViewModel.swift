@@ -4,18 +4,19 @@
 //
 
 import SwiftUI
+import Foundation
 
 @MainActor
-public class AnalyticsDashboardViewModel: ObservableObject {
-    @Published public var basicStats: BasicAnalyticsResult?
+class AnalyticsDashboardViewModel: ObservableObject {
+    @Published var basicStats: BasicAnalyticsResult?
     
     private let analyticsManager: AnalyticsManager
     
-    public init(analyticsManager: AnalyticsManager) {
+    init(analyticsManager: AnalyticsManager) {
         self.analyticsManager = analyticsManager
     }
     
-    public func loadAnalytics() {
+    func loadAnalytics() {
         Task {
             self.basicStats = await analyticsManager.getBasicStats()
         }

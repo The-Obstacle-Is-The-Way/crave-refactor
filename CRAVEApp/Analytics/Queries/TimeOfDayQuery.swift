@@ -4,9 +4,10 @@
 //
 
 import Foundation
+import SwiftData
 
-public struct TimeOfDayQuery {
-    public func cravingsByTimeSlot(using cravings: [CravingModel]) -> [String: Int] {
+struct TimeOfDayQuery {
+    func cravingsByTimeSlot(using cravings: [CravingModel]) -> [String: Int] {
         var morning = 0, afternoon = 0, evening = 0, night = 0
         for craving in cravings {
             let hour = Calendar.current.component(.hour, from: craving.timestamp)

@@ -3,22 +3,25 @@
 //  CRAVE
 //
 
-import SwiftUI
+import Foundation
+import SwiftData
 
 @MainActor
-public class AnalyticsManager {
-    public let cravingManager: CravingManager
+class AnalyticsManager {
+    private let cravingManager: CravingManager
     private let frequencyQuery = FrequencyQuery()
     private let timeOfDayQuery = TimeOfDayQuery()
+    private let calendarQuery = CalendarViewQuery()
     
-    public init(cravingManager: CravingManager) {
+    init(cravingManager: CravingManager) {
         self.cravingManager = cravingManager
     }
     
-    public func getBasicStats() async -> BasicAnalyticsResult {
+    func getBasicStats() async -> BasicAnalyticsResult {
         let allCravings = await cravingManager.fetchAllCravings()
         let freqDict = frequencyQuery.cravingsPerDay(using: allCravings)
         let dayParts = timeOfDayQuery.cravingsByTimeSlot(using: allCravings)
+        
         return BasicAnalyticsResult(cravingsPerDay: freqDict, cravingsByTimeSlot: dayParts)
     }
 }

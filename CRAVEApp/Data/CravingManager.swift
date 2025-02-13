@@ -3,17 +3,51 @@
 //  CRAVE
 //
 
-import Foundation
 import SwiftData
+import SwiftUI
 
-public final class CravingManager {
-    // Replace with your actual ModelContainer management.
-    public func fetchAllCravings() async -> [CravingModel] {
-        // This is a dummy fetch using the default container.
-        // Replace with your own asynchronous fetching logic.
-        guard let container = ModelContainer.shared else { return [] }
-        return (try? container.viewContext.fetch(FetchDescriptor<CravingModel>())) ?? []
+@MainActor
+class CravingManager: ObservableObject {
+    private var modelContext: ModelContext
+    
+    // Instead of using a shared container, we require a ModelContext to be passed in.
+    init(context: ModelContext) {
+        self.modelContext = context
     }
     
-    // Additional CRUD methods can be added here.
+    func insert(_ craving: CravingModel) {
+        modelContext.insert(craving)
+        saveContext()
+    }
+    
+    func delete(_ craving: CravingModel) {
+        modelContext.delete(craving)
+        saveContext()
+    }
+    
+    // New method for soft deletion
+    func softDeleteCraving(_ craving: CravingModel, using context: ModelContext) -> Bool {
+        // Optionally, you can check that the passed context is the same as the manager's context.
+        // For now, we simply mark the craving as archived.
+        craving.isArchived = true
+        return true
+    }
+    
+    func fetchAllCravings() async -> [CravingModel] {
+        do {
+            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
+            return try modelContext.fetch(descriptor)
+        } catch {
+            print("Error fetching cravings: \(error)")
+            return []
+        }
+    }
+    
+    private func saveContext() {
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving context: \(error)")
+        }
+    }
 }

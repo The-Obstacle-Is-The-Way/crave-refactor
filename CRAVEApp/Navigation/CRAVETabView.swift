@@ -8,39 +8,44 @@
 import SwiftUI
 import SwiftData
 
-public struct CRAVETabView: View {
-    public init() { }
-    
-    public var body: some View {
+struct CRAVETabView: View {
+    @Environment(\.modelContext) var modelContext
+
+    var body: some View {
         TabView {
-            LogCravingView()
-                .tabItem {
-                    Label("Log", systemImage: "square.and.pencil")
-                }
             CravingListView()
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
                 }
+            
             DateListView()
                 .tabItem {
                     Label("Dates", systemImage: "calendar")
                 }
-            AnalyticsDashboardView(
-                viewModel: AnalyticsDashboardViewModel(
-                    analyticsManager: AnalyticsManager(
-                        cravingManager: CravingManager()
-                    )
-                )
-            )
-            .tabItem {
-                Label("Analytics", systemImage: "chart.bar")
-            }
+            
+            LogCravingView(viewModel: LogCravingViewModel(cravingManager: CravingManager(context: modelContext)))
+                .tabItem {
+                    Label("Log", systemImage: "plus.circle")
+                }
+            
+            AnalyticsDashboardView(viewModel: AnalyticsDashboardViewModel(
+                analyticsManager: AnalyticsManager(cravingManager: CravingManager(context: modelContext))
+            ))
+                .tabItem {
+                    Label("Analytics", systemImage: "chart.bar")
+                }
         }
     }
 }
 
 struct CRAVETabView_Previews: PreviewProvider {
-    public static var previews: some View {
-        CRAVETabView()
+    static var previews: some View {
+        do {
+            let container = try ModelContainer(for: CravingModel.self)
+            return CRAVETabView()
+                .environment(\.modelContext, container.mainContext)
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
     }
 }

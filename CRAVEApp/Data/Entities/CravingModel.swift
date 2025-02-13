@@ -3,15 +3,20 @@
 //  CRAVE
 //
 
-import Foundation
 import SwiftData
+import Foundation
 
-@Model public final class CravingModel {
-    public var timestamp: Date
-    public var notes: String?
-    
-    public init(timestamp: Date = Date(), notes: String? = nil) {
+@Model
+class CravingModel {
+    var timestamp: Date
+    var intensity: Int
+    var note: String?
+    // Use a custom soft-delete flag (do not name it isDeleted)
+    var isArchived: Bool = false
+
+    init(timestamp: Date = Date(), intensity: Int, note: String? = nil) {
         self.timestamp = timestamp
-        self.notes = notes
+        self.intensity = intensity
+        self.note = note
     }
 }

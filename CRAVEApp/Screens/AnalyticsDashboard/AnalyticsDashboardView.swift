@@ -3,21 +3,23 @@
 import SwiftUI
 import SwiftData
 
-public struct AnalyticsDashboardView: View {
-    @StateObject public var viewModel: AnalyticsDashboardViewModel
-
-    public init(viewModel: AnalyticsDashboardViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+struct AnalyticsDashboardView: View {
+    @StateObject var viewModel: AnalyticsDashboardViewModel
     
-    public var body: some View {
+    var body: some View {
         VStack {
             if let stats = viewModel.basicStats {
-                Text("Cravings by Day").font(.headline)
-                CravingBarChart(data: stats.cravingsPerDay)
+                Text("Cravings by Day")
+                    .font(.headline)
+                List(stats.cravingsPerDay.sorted(by: { $0.key < $1.key }), id: \.key) { date, count in
+                    Text("\(date.formattedDate()): \(count)")
+                }
                 
-                Text("Time of Day").font(.headline)
-                TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
+                Text("Time of Day")
+                    .font(.headline)
+                List(stats.cravingsByTimeSlot.sorted(by: { $0.key < $1.key }), id: \.key) { slot, count in
+                    Text("\(slot): \(count)")
+                }
             } else {
                 ProgressView("Loading Analytics...")
             }
@@ -29,9 +31,16 @@ public struct AnalyticsDashboardView: View {
 }
 
 struct AnalyticsDashboardView_Previews: PreviewProvider {
-    public static var previews: some View {
-        let dummyManager = AnalyticsManager(cravingManager: CravingManager())
-        let viewModel = AnalyticsDashboardViewModel(analyticsManager: dummyManager)
-        return AnalyticsDashboardView(viewModel: viewModel)
+    static var previews: some View {
+        do {
+            // Create a ModelContainer using the proper initializer with your model type.
+            let container = try ModelContainer(for: CravingModel.self)
+            let dummyContext = container.mainContext
+            let dummyCravingManager = CravingManager(context: dummyContext)
+            let dummyAnalyticsManager = AnalyticsManager(cravingManager: dummyCravingManager)
+            return AnalyticsDashboardView(viewModel: AnalyticsDashboardViewModel(analyticsManager: dummyAnalyticsManager))
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
     }
 }

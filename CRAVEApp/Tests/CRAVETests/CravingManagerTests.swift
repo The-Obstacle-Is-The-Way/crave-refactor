@@ -15,11 +15,11 @@ final class CravingManagerTests: XCTestCase {
     var cravingManager: CravingManager!
 
     override func setUpWithError() throws {
-        let schema = Schema([Craving.self])
+        let schema = Schema([CravingModel.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: schema, configurations: [config])
+        container = try ModelContainer(for: schema, configurations: config)
         context = container.mainContext
-        cravingManager = CravingManager.shared
+        cravingManager = CravingManager(context: context)
     }
 
     override func tearDownWithError() throws {
@@ -31,8 +31,9 @@ final class CravingManagerTests: XCTestCase {
     // Test Soft Deletion
     func testSoftDeleteCraving() throws {
         // 1. Create and add a new craving
-        let craving = Craving("Test Craving")
-        let cravingID = craving.id  // Store ID for lookup
+        let craving = CravingModel(intensity: 5, note: "Test Craving")
+        // Store the auto-generated id (assuming CravingModel conforms to Identifiable)
+        let cravingID = craving.id
         context.insert(craving)
 
         if context.hasChanges {
@@ -42,7 +43,7 @@ final class CravingManagerTests: XCTestCase {
         // 2. Confirm craving exists and is not archived
         XCTAssertFalse(craving.isArchived, "❌ Craving should NOT be marked as archived initially.")
 
-        // 3. Perform soft delete
+        // 3. Perform soft delete via CravingManager
         let deleteSuccess = cravingManager.softDeleteCraving(craving, using: context)
         XCTAssertTrue(deleteSuccess, "❌ Soft delete should return success.")
 
@@ -50,11 +51,11 @@ final class CravingManagerTests: XCTestCase {
             try context.save()
         }
 
-        // 4. Force SwiftData to commit and sync changes
+        // 4. Force SwiftData to process pending changes
         context.processPendingChanges()
 
-        // 5. Fetch the craving again from storage with correct predicate
-        let fetchDescriptor = FetchDescriptor<Craving>(
+        // 5. Fetch the craving again from storage with the correct predicate
+        let fetchDescriptor = FetchDescriptor<CravingModel>(
             predicate: #Predicate { $0.id == cravingID }
         )
         let fetchedCravings = try context.fetch(fetchDescriptor)

@@ -5,10 +5,18 @@
 
 import Foundation
 
-public extension Date {
-    /// Returns a new Date representing only the year, month, and day components.
+extension Date {
+    /// Returns the date representing only the day (year, month, day)
     var onlyDate: Date {
-        let components = Calendar.current.dateComponents([.year, .month, .day], from: self)
-        return Calendar.current.date(from: components)!
+        Calendar.current.startOfDay(for: self)
+    }
+    
+    /// Returns a medium–style formatted date string
+    func formattedDate() -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: self)
     }
 }
+
+

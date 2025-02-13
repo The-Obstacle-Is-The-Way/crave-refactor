@@ -6,48 +6,40 @@
 import SwiftUI
 import SwiftData
 
-public struct LogCravingView: View {
-    @StateObject public var viewModel: LogCravingViewModel = LogCravingViewModel()
+struct LogCravingView: View {
+    @StateObject var viewModel: LogCravingViewModel
     
-    public init() { }
-    
-    public var body: some View {
-        NavigationView {
-            VStack(spacing: 16) {
-                TextEditor(text: $viewModel.typedText)
-                    .padding()
-                    .frame(height: 200)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                    )
-                    .padding(.horizontal)
-                
-                Button(action: {
-                    viewModel.logCraving()
-                }) {
-                    Text("Submit")
-                        .font(.body)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding()
-                
-                if let loggedCraving = viewModel.currentCraving {
-                    Text("Last logged craving: \(loggedCraving.notes ?? "")")
-                        .foregroundColor(.secondary)
-                        .padding()
-                }
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Log Your Craving")
+                .font(.headline)
+            
+            TextEditor(text: $viewModel.note)
+                .frame(height: 150)
+                .border(Color.gray)
+            
+            Stepper("Intensity: \(viewModel.intensity)", value: $viewModel.intensity, in: 1...10)
+            
+            Button("Save") {
+                viewModel.saveCraving()
             }
-            .navigationTitle("Log a Craving")
+            .buttonStyle(.borderedProminent)
         }
+        .padding()
     }
 }
 
 struct LogCravingView_Previews: PreviewProvider {
-    public static var previews: some View {
-        LogCravingView()
+    static var previews: some View {
+        do {
+            // Create a ModelContainer for CravingModel as per SwiftData documentation
+            let container = try ModelContainer(for: CravingModel.self)
+            let dummyContext = container.mainContext
+            let dummyCravingManager = CravingManager(context: dummyContext)
+            let viewModel = LogCravingViewModel(cravingManager: dummyCravingManager)
+            return LogCravingView(viewModel: viewModel)
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
     }
 }

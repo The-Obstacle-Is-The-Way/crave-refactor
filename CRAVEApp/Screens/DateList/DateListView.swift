@@ -3,29 +3,26 @@
 import SwiftUI
 import SwiftData
 
-public struct DateListView: View {
-    @Query(sort: \CravingModel.timestamp, order: .reverse) public var cravings: [CravingModel]
+struct DateListView: View {
+    @Query(sort: \CravingModel.timestamp, animation: .default)
+    private var cravings: [CravingModel]
     
-    public var body: some View {
-        NavigationView {
-            List {
-                ForEach(cravings) { craving in
-                    Text("\(craving.timestamp, formatter: Self.dateFormatter)")
+    var body: some View {
+        let grouped = Dictionary(grouping: cravings, by: { $0.timestamp.onlyDate })
+        return List {
+            ForEach(grouped.keys.sorted(), id: \.self) { date in
+                Section(header: Text(date.formattedDate())) {
+                    ForEach(grouped[date] ?? []) { craving in
+                        Text("Intensity: \(craving.intensity)")
+                    }
                 }
             }
-            .navigationTitle("Dates")
         }
     }
-    
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        return formatter
-    }()
 }
 
 struct DateListView_Previews: PreviewProvider {
-    public static var previews: some View {
+    static var previews: some View {
         DateListView()
     }
 }

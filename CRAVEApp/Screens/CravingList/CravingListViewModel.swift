@@ -4,18 +4,18 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @MainActor
-public class CravingListViewModel: ObservableObject {
-    @Published public var cravings: [CravingModel] = []
-    
+class CravingListViewModel: ObservableObject {
+    @Published var cravings: [CravingModel] = []
     private let cravingManager: CravingManager
     
-    public init(cravingManager: CravingManager) {
+    init(cravingManager: CravingManager) {
         self.cravingManager = cravingManager
     }
     
-    public func loadCravings() {
+    func loadCravings() {
         Task {
             self.cravings = await cravingManager.fetchAllCravings()
         }
