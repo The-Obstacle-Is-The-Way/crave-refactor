@@ -11,27 +11,26 @@ final class CravingManager {
     static let shared = CravingManager()
     private init() {}
 
-    /// 🚀 Add a new craving to SwiftData
+    // Add a new craving
     func addCraving(_ text: String, using context: ModelContext) -> Bool {
         let newCraving = Craving(text)
         context.insert(newCraving)
         return save(context, action: "adding craving")
     }
 
-    /// 🚀 Soft-delete a craving by marking `isDeleted = true`
+    // Soft-delete a craving by marking 'isArchived = true'
     func softDeleteCraving(_ craving: Craving, using context: ModelContext) -> Bool {
-        craving.isDeleted = true
+        craving.isArchived = true  // ✅ New property name
         return save(context, action: "soft deleting craving")
     }
 
-    /// ✅ Save context changes with error handling
     private func save(_ context: ModelContext, action: String) -> Bool {
         do {
             try context.save()
-            print("✅ Success: \(action)")
+            print("Success: \(action)")
             return true
         } catch {
-            print("❌ Failed: \(action) - Error: \(error.localizedDescription)")
+            print("Failed: \(action) - Error: \(error.localizedDescription)")
             return false
         }
     }

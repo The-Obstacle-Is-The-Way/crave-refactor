@@ -3,7 +3,6 @@
 //  CRAVE
 //
 
-import SwiftUI
 import Foundation
 
 @Observable
@@ -15,16 +14,12 @@ class DateListViewModel {
         let calendar = Calendar.current
         var temp: [Date: [Craving]] = [:]
 
-        for craving in cravings {
+        // Filter out archived cravings
+        for craving in cravings where craving.isActive {
             let comps = calendar.dateComponents([.year, .month, .day], from: craving.timestamp)
             if let dayDate = calendar.date(from: comps) {
                 temp[dayDate, default: []].append(craving)
             }
-        }
-
-        print("🟡 Grouped cravings by date:")
-        temp.forEach { date, cravings in
-            print("📆 \(date): \(cravings.count) cravings")
         }
 
         dateSections = temp.keys.sorted(by: >)
