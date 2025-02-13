@@ -1,7 +1,4 @@
-//
-//  DateListView.swift
-//  CRAVE
-//
+// DateListView.swift
 
 import SwiftUI
 import SwiftData
@@ -10,7 +7,7 @@ struct DateListView: View {
     @Query(
         sort: [SortDescriptor(\Craving.timestamp, order: .reverse)]
     )
-    private var allCravings: [Craving]  // ✅ Removed isDeleted filter to ensure all cravings show
+    private var allCravings: [Craving]
 
     @Environment(\.modelContext) private var context
     @State private var viewModel = DateListViewModel()
@@ -42,31 +39,12 @@ struct DateListView: View {
             .listStyle(InsetGroupedListStyle())
             .navigationTitle("Craving Dates")
             .onAppear {
-                forceUIRefresh()
-                printCravingDebugLogs()
                 viewModel.setData(allCravings)
             }
             .onChange(of: allCravings) { _, newValue in
-                forceUIRefresh()
-                printCravingDebugLogs()
                 viewModel.setData(newValue)
             }
             .accessibilityIdentifier("datesList")
         }
-    }
-
-    /// 🚨 FORCE SWIFTUI TO REFRESH THE VIEW
-    private func forceUIRefresh() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation {
-                viewModel.setData(allCravings)
-            }
-        }
-    }
-
-    /// 🚨 PRINT DEBUG LOGS TO CONFIRM DATA
-    private func printCravingDebugLogs() {
-        print("🟡 `DateListView` appeared. Found cravings: \(allCravings.count)")
-        allCravings.forEach { print("📝 Craving: \($0.text) | Timestamp: \($0.timestamp) | Deleted: \($0.isDeleted)") }
     }
 }

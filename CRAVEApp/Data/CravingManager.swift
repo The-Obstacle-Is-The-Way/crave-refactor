@@ -20,7 +20,7 @@ final class CravingManager {
 
     // Soft-delete a craving by marking 'isArchived = true'
     func softDeleteCraving(_ craving: Craving, using context: ModelContext) -> Bool {
-        craving.isArchived = true  // ✅ New property name
+        craving.isArchived = true  // Updated property name
         return save(context, action: "soft deleting craving")
     }
 

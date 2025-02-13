@@ -12,7 +12,7 @@ class Craving {
     @Attribute var text: String
     @Attribute var timestamp: Date = Date()
 
-    // ✅ Renamed from isDeleted to isArchived
+    // Renamed from isDeleted to isArchived
     @Attribute var isArchived: Bool = false
 
     // Initialize a new craving

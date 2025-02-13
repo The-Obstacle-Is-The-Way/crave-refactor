@@ -1,7 +1,4 @@
-//
-//  DateListViewModel.swift
-//  CRAVE
-//
+// DateListViewModel.swift
 
 import Foundation
 

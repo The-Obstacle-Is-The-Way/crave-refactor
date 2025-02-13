@@ -1,7 +1,4 @@
-//
-//  CravingListView.swift
-//  CRAVE
-//
+// CravingListView.swift
 
 import SwiftUI
 import SwiftData
@@ -9,8 +6,13 @@ import SwiftData
 struct CravingListView: View {
     @Environment(\.modelContext) private var context
 
+    @State private var cravings: [Craving]
     let selectedDate: Date
-    let cravings: [Craving]
+
+    init(selectedDate: Date, cravings: [Craving]) {
+        self.selectedDate = selectedDate
+        self._cravings = State(initialValue: cravings)
+    }
 
     var body: some View {
         List {
@@ -19,19 +21,19 @@ struct CravingListView: View {
             }
             .onDelete { indexSet in
                 for index in indexSet {
-                    // Hard-delete or soft-delete as you prefer:
-                    // For full removal:
-                    context.delete(cravings[index])
-                    // For a soft-delete instead:
-                    // cravings[index].isDeleted = true
-
+                    // Soft-delete the craving
+                    let craving = cravings[index]
+                    craving.isArchived = true
                     try? context.save()
                 }
+                
+                // Update local cravings array immediately
+                cravings.remove(atOffsets: indexSet)
             }
         }
         .navigationTitle(Text(selectedDate, style: .date))
         .toolbar {
-            EditButton() // allows swipe or tap "Edit" to delete
+            EditButton() // Allows swipe or tap "Edit" to delete
         }
     }
 }
