@@ -8,15 +8,14 @@ CRAVE is a SwiftData-powered iOS application designed to help users log and trac
 📂 Project Structure
 
 ```bash
-CRAVE.xcodeproj             # Xcode project
-CRAVEApp/                   # Main source folder
-├── CRAVE.entitlements      # App capabilities (Optional)
-├── Info.plist              # App metadata
-├── CRAVEApp.swift          # SwiftUI entry point
-├── ContentView.swift       # Root SwiftUI View
-├── Assets.xcassets         # Image & Color Assets
-├── Preview Content/        # SwiftUI Previews
-│   └── Preview Assets.xcassets
+
+CRAVEApp/
+├── CRAVE.entitlements
+├── Info.plist
+├── CRAVEApp.swift
+├── ContentView.swift
+├── Assets.xcassets/
+│
 ├── Core/
 │   ├── DesignSystem/
 │   │   ├── CRAVEDesignSystem.swift
@@ -26,10 +25,12 @@ CRAVEApp/                   # Main source folder
 │   └── Extensions/
 │       ├── Date+Formatting.swift
 │       └── View+Extensions.swift
+│
 ├── Data/
 │   ├── Entities/
-│   │   └── CravingModel.swift         # SwiftData model
-│   └── CravingManager.swift           # Data logic
+│   │   └── CravingModel.swift
+│   └── CravingManager.swift
+│
 ├── Screens/
 │   ├── LogCraving/
 │   │   ├── LogCravingView.swift
@@ -40,13 +41,19 @@ CRAVEApp/                   # Main source folder
 │   └── CravingList/
 │       ├── CravingListView.swift
 │       └── CravingListViewModel.swift
+│
 ├── Navigation/
 │   └── CRAVETabView.swift
+│
+├── Preview Content/
+│   └── Preview Assets.xcassets/
+│
 └── Tests/
     ├── CRAVETests/
     │   └── CravingManagerTests.swift
     └── CRAVEUITests/
         └── CRAVEUITests.swift
+
 ```
 
 🏗 Key Features
