@@ -46,8 +46,7 @@ CRAVEApp/                   # Main source folder
     ├── CRAVETests/
     │   └── CravingManagerTests.swift
     └── CRAVEUITests/
-        ├── CRAVEUITests.swift
-        └── CRAVEUITestsLaunchTests.swift
+        └── CRAVEUITests.swift
 ```
 
 🏗 Key Features
