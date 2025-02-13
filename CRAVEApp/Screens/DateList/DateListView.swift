@@ -7,11 +7,20 @@ import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    @Query(sort: \Craving.timestamp, order: .reverse)
+    // ❌ Original (includes deleted cravings):
+    // @Query(sort: \Craving.timestamp, order: .reverse)
+    // private var allCravings: [Craving]
+    
+    // ✅ Updated: exclude soft-deleted cravings
+    @Query(
+        filter: #Predicate<Craving> { !$0.isDeleted },
+        sort: \Craving.timestamp,
+        order: .reverse
+    )
     private var allCravings: [Craving]
-
+    
     @State private var viewModel = DateListViewModel()
-
+    
     var body: some View {
         NavigationView {
             List {

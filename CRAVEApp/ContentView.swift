@@ -5,17 +5,24 @@
 //  Created by John H Jung on 2/12/25.
 //
 
-import UIKit
 import SwiftUI
-import Foundation
 import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     
-    @Query(sort: \Craving.timestamp, order: .reverse)
+    // ❌ Original (includes deleted cravings):
+    // @Query(sort: \Craving.timestamp, order: .reverse)
+    // private var cravings: [Craving]
+    
+    // ✅ Updated: exclude soft-deleted cravings
+    @Query(
+        filter: #Predicate<Craving> { !$0.isDeleted },
+        sort: \Craving.timestamp,
+        order: .reverse
+    )
     private var cravings: [Craving]
-
+    
     var body: some View {
         NavigationSplitView {
             List {
@@ -52,13 +59,13 @@ struct ContentView: View {
             Text("Select a Craving")
         }
     }
-
+    
     private func addCraving() {
         withAnimation {
             CravingManager.shared.addCraving("New Craving from ContentView", using: modelContext)
         }
     }
-
+    
     private func deleteCravings(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
@@ -67,9 +74,4 @@ struct ContentView: View {
             }
         }
     }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Craving.self, inMemory: true)
 }
