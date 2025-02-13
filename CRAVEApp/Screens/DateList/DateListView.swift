@@ -1,36 +1,45 @@
-//
-//  DateListView.swift
-//  CRAVE
-//
+// DateListView.swift
+// Displays a list of dates that have cravings. Tap to see cravings for that day.
 
 import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var cravings: [Craving]
-    
-    @State private var allCravings: [Craving] = []
-    @State private var forceRefresh = false  // ✅ Force UI refresh
+    @Query(sort: \Craving.timestamp, order: .reverse)
+    private var allCravings: [Craving]
+
+    @State private var viewModel = DateListViewModel()
 
     var body: some View {
-        List {
-            ForEach(allCravings.filter { !$0.isArchived }) { craving in
-                Text(craving.text)
-                    .accessibilityIdentifier("historyDateCell_\(craving.id.uuidString)") // ✅ Ensure correct identifier
-            }
-        }
-        .id(forceRefresh) // ✅ Forces SwiftUI to refresh
-        .onAppear {
-            refreshCravings()
-        }
-    }
+        NavigationView {
+            List {
+                if viewModel.dateSections.isEmpty {
+                    Text("No cravings logged yet.")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                } else {
+                    ForEach(viewModel.dateSections, id: \.self) { date in
+                        let cravingsForDate = viewModel.cravingsByDate[date] ?? []
 
-    /// 🚀 Manually re-fetch cravings and update UI
-    private func refreshCravings() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.allCravings = try! modelContext.fetch(FetchDescriptor<Craving>())
-            self.forceRefresh.toggle()
+                        NavigationLink {
+                            CravingListView(selectedDate: date, cravings: cravingsForDate)
+                        } label: {
+                            Text(date, style: .date)
+                        }
+                        .accessibilityIdentifier("historyDateCell_\(date.timeIntervalSince1970)")
+                    }
+                }
+            }
+            .navigationTitle("Craving Dates")
+            .onAppear {
+                viewModel.groupCravings(allCravings)
+            }
+            // For iOS 17: zero-parameter onChange so we only re-group when the array changes
+            .onChange(of: allCravings) {
+                viewModel.groupCravings(allCravings)
+            }
         }
     }
 }

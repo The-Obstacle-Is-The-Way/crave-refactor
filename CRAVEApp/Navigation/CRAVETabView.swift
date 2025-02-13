@@ -1,9 +1,5 @@
-//
-//  CRAVETabView.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
-//
+// CRAVETabView.swift
+// Tab-based navigation for the "Log" and "History" sections.
 
 import SwiftUI
 
@@ -14,7 +10,7 @@ struct CRAVETabView: View {
                 .tabItem {
                     Label("Log", systemImage: "plus.square.on.square")
                 }
-            
+
             DateListView()
                 .tabItem {
                     Label("History", systemImage: "list.bullet.rectangle")

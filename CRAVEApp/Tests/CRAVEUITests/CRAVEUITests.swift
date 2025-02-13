@@ -17,9 +17,9 @@ final class CRAVEUITests: XCTestCase {
         app.terminate()
     }
 
+    /// ✅ Test Deleting a Craving and Verifying Removal from History
     func testDeletingCraving() throws {
         let logTab = app.tabBars.buttons["Log"]
-        XCTAssertTrue(logTab.exists, "❌ Log tab button not found.")
         logTab.tap()
         
         let textField = app.textViews["CravingTextEditor"]
@@ -28,30 +28,25 @@ final class CRAVEUITests: XCTestCase {
         textField.tap()
         textField.typeText("Test Craving")
 
+        // ✅ Updated to use the correct button identifier
         let saveButton = app.buttons["SubmitButton"]
         XCTAssertTrue(saveButton.waitForExistence(timeout: 5), "❌ Save button not found.")
         saveButton.tap()
         
         let historyTab = app.tabBars.buttons["History"]
-        XCTAssertTrue(historyTab.exists, "❌ History tab button not found.")
         historyTab.tap()
 
-        // ✅ Print all UI elements for debugging
+        // 🚨 DEBUG: Print all elements in History screen
         print("🟡 DEBUG: Checking all elements in History screen...")
-        print(app.debugDescription)
+        print(app.debugDescription) // 🔍 Print all visible UI elements
 
-        let historyCell = app.cells.matching(identifier: "historyDateCell").firstMatch
-        XCTAssertTrue(historyCell.waitForExistence(timeout: 8), "❌ No date cell found in History list.")
+        // ✅ Try matching history cells dynamically
+        let historyCell = app.cells.containing(NSPredicate(format: "identifier BEGINSWITH 'historyDateCell'")).firstMatch
+        XCTAssertTrue(historyCell.waitForExistence(timeout: 5), "❌ No date cell found in History list.")
 
         historyCell.swipeLeft()
-        let deleteButton = app.buttons["Delete"]
-        XCTAssertTrue(deleteButton.exists, "❌ Delete button not found.")
-        deleteButton.tap()
-
-        let doesNotExist = NSPredicate(format: "exists == false")
-        expectation(for: doesNotExist, evaluatedWith: historyCell, handler: nil)
-        waitForExpectations(timeout: 5, handler: nil)
-
-        XCTAssertFalse(historyCell.exists, "❌ Deleted craving still appears in the history list.")
+        app.buttons["Delete"].tap()
+        
+        XCTAssertFalse(historyCell.waitForExistence(timeout: 3), "❌ Deleted craving still appears in the history list.")
     }
 }

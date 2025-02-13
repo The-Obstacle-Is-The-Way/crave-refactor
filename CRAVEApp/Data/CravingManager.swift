@@ -1,7 +1,5 @@
-//
-//  CravingManager.swift
-//  CRAVE
-//
+// CravingManager.swift
+// Lightweight manager for adding/deleting cravings.
 
 import SwiftData
 import Foundation
@@ -11,35 +9,46 @@ final class CravingManager {
     static let shared = CravingManager()
     private init() {}
 
-    func addCraving(_ text: String, using context: ModelContext) -> Bool {
-        let newCraving = Craving(text)
+    /// Adds a new Craving with the given text, then saves the context.
+    func addCraving(_ text: String, using context: ModelContext) {
+        let newCraving = Craving(text: text)
         context.insert(newCraving)
-        return save(context, action: "adding craving")
-    }
-
-    func softDeleteCraving(_ craving: Craving, using context: ModelContext) -> Bool {
-        craving.isArchived = true
-
-        // ✅ Force SwiftData to recognize the change
-        context.insert(craving)
-        context.processPendingChanges()
-
-        return save(context, action: "soft deleting craving")
-    }
-
-    private func save(_ context: ModelContext, action: String) -> Bool {
         do {
-            if context.hasChanges {
-                try context.save()
-                print("✅ Success: \(action)")
-                return true
-            } else {
-                print("⚠️ No changes detected: \(action)")
-                return false
-            }
+            try context.save()
         } catch {
-            print("❌ Failed: \(action) - Error: \(error.localizedDescription)")
-            return false
+            print("SwiftData save error while adding craving: \(error)")
+        }
+    }
+
+    /// Soft-deletes a Craving. Record remains in the store, but is hidden in the UI.
+    func softDeleteCraving(_ craving: Craving, using context: ModelContext) {
+        craving.isDeleted = true
+        do {
+            try context.save()
+        } catch {
+            print("SwiftData save error while soft-deleting craving: \(error)")
+        }
+    }
+
+    /// Permanently removes a Craving from the store. Not used if you only do soft-deletes.
+    func permanentlyDeleteCraving(_ craving: Craving, using context: ModelContext) {
+        context.delete(craving)
+        do {
+            try context.save()
+        } catch {
+            print("SwiftData save error while permanently deleting craving: \(error)")
+        }
+    }
+
+    /// Fetch cravings if needed outside a View’s @Query. Excludes soft-deleted by default.
+    func fetchCravings(using context: ModelContext, includingDeleted: Bool = false) -> [Craving] {
+        let descriptor = FetchDescriptor<Craving>()
+        do {
+            let allCravings = try context.fetch(descriptor)
+            return includingDeleted ? allCravings : allCravings.filter { !$0.isDeleted }
+        } catch {
+            print("SwiftData fetch error: \(error)")
+            return []
         }
     }
 }

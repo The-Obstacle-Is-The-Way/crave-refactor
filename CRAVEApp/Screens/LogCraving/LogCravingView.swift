@@ -1,12 +1,8 @@
-//
-//  LogCravingView.swift
-//  CRAVE
-//
+// LogCravingView.swift
+// UI screen for creating a new craving.
 
 import SwiftUI
 import SwiftData
-import UIKit
-import Foundation
 
 struct LogCravingView: View {
     @Environment(\.modelContext) private var context

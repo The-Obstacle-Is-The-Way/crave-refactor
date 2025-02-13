@@ -1,8 +1,7 @@
+// ContentView.swift
+// CRAVE
 //
-//  ContentView.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
+// Created by John H Jung on 2/12/25.
 //
 
 import SwiftUI
@@ -11,7 +10,7 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     
-    // ✅ Updated: exclude soft-deleted cravings
+    // ✅ Excludes soft-deleted cravings
     @Query(
         filter: #Predicate<Craving> { !$0.isDeleted },
         sort: \Craving.timestamp,
@@ -56,17 +55,19 @@ struct ContentView: View {
         }
     }
     
+    // ❌ Removed _ = to avoid warnings
     private func addCraving() {
-        _ = withAnimation {
+        withAnimation {
             CravingManager.shared.addCraving("New Craving from ContentView", using: modelContext)
         }
     }
     
+    // ❌ Removed _ = to avoid warnings
     private func deleteCravings(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
                 let craving = cravings[index]
-                _ = CravingManager.shared.softDeleteCraving(craving, using: modelContext)
+                CravingManager.shared.softDeleteCraving(craving, using: modelContext)
             }
         }
     }

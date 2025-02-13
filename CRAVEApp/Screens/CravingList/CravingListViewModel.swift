@@ -1,9 +1,8 @@
-//
-//  CravingListViewModel.swift
-//  CRAVE
-//
+// CravingListViewModel.swift
+// Use if you want specialized logic for a date’s cravings.
 
 import SwiftUI
+import SwiftData
 import Foundation
 
 @Observable

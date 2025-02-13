@@ -1,20 +1,25 @@
-//
-//  CravingModel.swift
-//  CRAVE
-//
+// CravingModel.swift
+// SwiftData model for CRAVE.
 
 import SwiftData
 import Foundation
 
 @Model
 class Craving {
-    @Attribute(.unique) var id: UUID = UUID()
-    @Attribute var text: String
-    @Attribute var timestamp: Date = Date()
-    @Attribute var isArchived: Bool = false  // ✅ Soft delete flag
+    @Attribute(.unique) var id: UUID
+    var text: String
+    var timestamp: Date
+    var isDeleted: Bool  // Soft-delete flag
 
-    init(_ text: String) {
+    init(
+        id: UUID = UUID(),
+        text: String,
+        timestamp: Date = Date(),
+        isDeleted: Bool = false
+    ) {
+        self.id = id
         self.text = text
-        self.isArchived = false
+        self.timestamp = timestamp
+        self.isDeleted = isDeleted
     }
 }
