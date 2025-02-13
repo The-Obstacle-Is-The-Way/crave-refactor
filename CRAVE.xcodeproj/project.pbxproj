@@ -34,6 +34,7 @@
 		2865868C2D5D0D8D00F6FD8B /* Exceptions for "CRAVEApp" folder in "CRAVE" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Tests/CRAVETests/AnalyticsManagerTests.swift,
 				Tests/CRAVETests/CravingManagerTests.swift,
 				Tests/CRAVEUITests/CRAVEUITests.swift,
 			);
@@ -55,6 +56,7 @@
 		28B8D9CB2D5CE04900FA0F1E /* Exceptions for "CRAVEApp" folder in "CRAVETests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Tests/CRAVETests/AnalyticsManagerTests.swift,
 				Tests/CRAVETests/CravingManagerTests.swift,
 			);
 			target = 28B8D8F12D5CD84100FA0F1E /* CRAVETests */;
