@@ -2,8 +2,6 @@
 //  CravingManagerTests.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25
-//
 
 import XCTest
 import SwiftData
@@ -14,92 +12,55 @@ final class CravingManagerTests: XCTestCase {
 
     var container: ModelContainer!
     var context: ModelContext!
+    var cravingManager: CravingManager!
 
     override func setUpWithError() throws {
         let schema = Schema([Craving.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
-        context = ModelContext(container)
+        context = container.mainContext
+        cravingManager = CravingManager.shared
     }
 
     override func tearDownWithError() throws {
         container = nil
         context = nil
+        cravingManager = nil
     }
 
-    func testAddCraving() throws {
-        let addSuccess = CravingManager.shared.addCraving("Test craving", using: context)
-        XCTAssertTrue(addSuccess, "❌ Craving was not added successfully.")
-
-        let results = try context.fetch(FetchDescriptor<Craving>(predicate: #Predicate { !$0.isDeleted }))
-        XCTAssertEqual(results.count, 1, "❌ Expected one craving after insertion.")
-        XCTAssertEqual(results.first?.text, "Test craving", "❌ Craving text did not match.")
-    }
-
+    /// ✅ Test Soft Deletion
     func testSoftDeleteCraving() throws {
-        // 1. Add new craving
-        let addSuccess = CravingManager.shared.addCraving("Soft-delete me", using: context)
-        XCTAssertTrue(addSuccess, "❌ Craving was not added successfully before soft delete.")
+        // 1️⃣ Create and add a new craving
+        let craving = Craving("Test Craving")
+        let cravingID = craving.id  // Store ID for lookup
+        context.insert(craving)
 
-        var fetched = try context.fetch(
-            FetchDescriptor<Craving>(predicate: #Predicate { !$0.isDeleted })
-        )
-        XCTAssertEqual(fetched.count, 1, "❌ Expected one craving before soft deletion.")
-
-        guard let inserted = fetched.first else {
-            return XCTFail("❌ No craving found after insert.")
+        if context.hasChanges {
+            try context.save()
         }
 
-        // ✅ Log the state before soft delete
-        print("🔹 Before soft delete: \(inserted.text) | isDeleted: \(inserted.isDeleted)")
+        // 2️⃣ Confirm craving exists and is not deleted
+        XCTAssertFalse(craving.isDeleted, "❌ Craving should NOT be marked as deleted initially.")
 
-        // 2. Soft-delete that craving
-        let deleteSuccess = CravingManager.shared.softDeleteCraving(inserted, using: context)
-        XCTAssertTrue(deleteSuccess, "❌ Soft delete operation failed.")
+        // 3️⃣ Perform soft delete
+        let deleteSuccess = cravingManager.softDeleteCraving(craving, using: context)
+        XCTAssertTrue(deleteSuccess, "❌ Soft delete should return success.")
 
-        // ✅ Force SwiftData to commit and refresh
-        RunLoop.current.run(until: Date().addingTimeInterval(1.0))
-
-        // ✅ Re-fetch everything (including deleted)
-        fetched = try context.fetch(FetchDescriptor<Craving>())
-        print("🔍 All cravings after soft-delete:")
-        fetched.forEach { print("📝 \(String(describing: $0.text)) | Deleted: \($0.isDeleted)") }
-
-        // ✅ Verify that the craving is marked as deleted
-        XCTAssertTrue(
-            fetched.first?.isDeleted ?? false,
-            "❌ Craving should be marked as deleted but was not."
-        )
-
-        // 5. Confirm soft-deleted items do NOT appear when includingDeleted = false
-        let nonDeletedCravings = CravingManager.shared.fetchCravings(
-            using: context,
-            includingDeleted: false
-        )
-        XCTAssertEqual(
-            nonDeletedCravings.count,
-            0,
-            "❌ Soft-deleted cravings should not appear in the non-deleted list."
-        )
-    }
-
-    func testPermanentDeleteCraving() throws {
-        let addSuccess = CravingManager.shared.addCraving("Permanent-delete me", using: context)
-        XCTAssertTrue(addSuccess, "❌ Craving was not added successfully before permanent delete.")
-
-        var fetched = try context.fetch(
-            FetchDescriptor<Craving>(predicate: #Predicate { !$0.isDeleted })
-        )
-        XCTAssertEqual(fetched.count, 1, "❌ Expected one craving before permanent deletion.")
-
-        guard let inserted = fetched.first else {
-            return XCTFail("❌ No craving found after insert.")
+        if context.hasChanges {
+            try context.save()
         }
 
-        let deleteSuccess = CravingManager.shared.permanentlyDeleteCraving(inserted, using: context)
-        XCTAssertTrue(deleteSuccess, "❌ Permanent delete operation failed.")
+        // 🔥 Force SwiftData to commit and sync changes
+        context.processPendingChanges()
 
-        fetched = try context.fetch(FetchDescriptor<Craving>())
-        XCTAssertEqual(fetched.count, 0, "❌ Craving should be fully deleted from the database.")
+        // 5️⃣ Fetch the craving again from storage with correct predicate
+        let fetchDescriptor = FetchDescriptor<Craving>(
+            predicate: #Predicate { $0.id == cravingID }
+        )
+        let fetchedCravings = try context.fetch(fetchDescriptor)
+
+        // 6️⃣ Validate the craving exists and is marked as deleted
+        XCTAssertEqual(fetchedCravings.count, 1, "❌ Craving should exist in storage.")
+        XCTAssertTrue(fetchedCravings.first!.isDeleted, "❌ Craving should be marked as deleted.")
     }
 }

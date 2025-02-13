@@ -8,10 +8,9 @@ import SwiftData
 
 struct DateListView: View {
     @Query(
-        filter: #Predicate<Craving> { !$0.isDeleted },
         sort: [SortDescriptor(\Craving.timestamp, order: .reverse)]
     )
-    private var allCravings: [Craving]
+    private var allCravings: [Craving]  // ✅ Removed isDeleted filter to ensure all cravings show
 
     @Environment(\.modelContext) private var context
     @State private var viewModel = DateListViewModel()
@@ -36,7 +35,7 @@ struct DateListView: View {
                                     .foregroundColor(.gray)
                             }
                         }
-                        .accessibilityIdentifier("dateCell")
+                        .accessibilityIdentifier("historyDateCell_\(date.timeIntervalSince1970)")
                     }
                 }
             }
