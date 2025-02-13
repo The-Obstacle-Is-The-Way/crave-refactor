@@ -55,6 +55,32 @@ CRAVEApp/
 ---
 📄 YC MVP Planning Document → https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
 
+# CRAVE - A Next-Gen Craving Tracker
+
+Welcome to **CRAVE** – a cutting-edge app built with SwiftData & SwiftUI. Check out the architecture and flow diagrams below.
+
+---
+
+## Architecture
+
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-architecture.png" alt="CRAVE Architecture" width="800"/>
+
+---
+
+## Logging Flow
+
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-logging-flow.png" alt="CRAVE Logging Flow" width="800"/>
+
+---
+
+## Navigation States
+
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-navigation-states.png" alt="CRAVE Navigation States" width="800"/>
+
+---
+
+*This MVP has a solid MVVM foundation, and I'm in the process of pivoting to find a technical cofounder for YC. Once that's secured, I'll revisit and refine the code further.*
+
 ## 🌟 Architecture & Features
 
 ### Data Layer
