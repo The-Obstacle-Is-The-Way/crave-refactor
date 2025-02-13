@@ -20,6 +20,7 @@ final class CRAVEUITests: XCTestCase {
     /// ✅ Test Deleting a Craving and Verifying Removal from History
     func testDeletingCraving() throws {
         let logTab = app.tabBars.buttons["Log"]
+        XCTAssertTrue(logTab.exists, "❌ Log tab button not found.")
         logTab.tap()
         
         let textField = app.textViews["CravingTextEditor"]
@@ -28,25 +29,27 @@ final class CRAVEUITests: XCTestCase {
         textField.tap()
         textField.typeText("Test Craving")
 
-        // ✅ Updated to use the correct button identifier
         let saveButton = app.buttons["SubmitButton"]
         XCTAssertTrue(saveButton.waitForExistence(timeout: 5), "❌ Save button not found.")
         saveButton.tap()
         
         let historyTab = app.tabBars.buttons["History"]
+        XCTAssertTrue(historyTab.exists, "❌ History tab button not found.")
         historyTab.tap()
 
-        // 🚨 DEBUG: Print all elements in History screen
         print("🟡 DEBUG: Checking all elements in History screen...")
-        print(app.debugDescription) // 🔍 Print all visible UI elements
+        print(app.debugDescription)
 
-        // ✅ Try matching history cells dynamically
         let historyCell = app.cells.containing(NSPredicate(format: "identifier BEGINSWITH 'historyDateCell'")).firstMatch
         XCTAssertTrue(historyCell.waitForExistence(timeout: 5), "❌ No date cell found in History list.")
 
         historyCell.swipeLeft()
-        app.buttons["Delete"].tap()
-        
-        XCTAssertFalse(historyCell.waitForExistence(timeout: 3), "❌ Deleted craving still appears in the history list.")
+        let deleteButton = app.buttons["Delete"]
+        XCTAssertTrue(deleteButton.exists, "❌ Delete button not found.")
+        deleteButton.tap()
+
+        sleep(2)
+
+        XCTAssertFalse(historyCell.exists, "❌ Deleted craving still appears in the history list.")
     }
 }
