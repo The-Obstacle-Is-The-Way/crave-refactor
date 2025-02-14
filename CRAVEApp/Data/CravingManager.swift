@@ -8,11 +8,11 @@ import SwiftUI
 
 @MainActor
 class CravingManager: ObservableObject {
-    private let modelContext: ModelContext
+    private var modelContext: ModelContext
 
-    // Updated initializer with external label "cravingManager:"
-    init(cravingManager context: ModelContext) {
-        self.modelContext = context
+    // New initializer that takes a ModelContext
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
     
     func insert(_ craving: CravingModel) {
@@ -41,5 +41,11 @@ class CravingManager: ObservableObject {
         } catch {
             print("Error saving context: \(error)")
         }
+    }
+    
+    // Example soft delete method
+    func softDeleteCraving(_ craving: CravingModel) -> Bool {
+        craving.isArchived = true
+        return true
     }
 }

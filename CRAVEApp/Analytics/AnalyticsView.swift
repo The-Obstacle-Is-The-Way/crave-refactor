@@ -3,6 +3,7 @@
 //  CRAVE
 //
 
+
 import SwiftUI
 import SwiftData
 
@@ -18,7 +19,7 @@ struct AnalyticsView: View {
                 ProgressView("Loading analytics...")
             }
         }
-        .onAppear {
+      .onAppear {
             viewModel.loadAnalytics()
         }
     }
@@ -36,7 +37,7 @@ struct AnalyticsView_Previews: PreviewProvider {
             // Create AnalyticsViewModel using the CravingManager.
             let viewModel = AnalyticsViewModel(cravingManager: cravingManager)
             return AnalyticsView(viewModel: viewModel)
-                .modelContainer(container)
+              .modelContainer(container)
         } catch {
             return Text("Failed to create preview: \(error.localizedDescription)")
         }
