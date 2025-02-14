@@ -24,8 +24,9 @@ struct CRAVETabView: View {
                 }
                 .tag(1)
 
-            // ✅ Pass modelContext to DateListViewModel initializer
-            DateListView(viewModel: DateListViewModel(modelContext: modelContext))
+            // ✅ DateListView is NOW placed within .environment modifier
+            DateListView()
+                .environment(\.modelContext, modelContext) // ⭐️⭐️⭐️ PROVIDE modelContext HERE! ⭐️⭐️⭐️
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                 }

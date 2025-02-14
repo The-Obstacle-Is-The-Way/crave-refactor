@@ -1,3 +1,4 @@
+
 //
 //  DateListView.swift
 //  CRAVE
@@ -8,7 +9,12 @@ import SwiftData
 
 struct DateListView: View {
     @Environment(\.modelContext) private var modelContext // ✅ Get ModelContext from Environment
-    @StateObject private var viewModel = DateListViewModel() // ✅ Initialize ViewModel with default init
+    @StateObject private var viewModel: DateListViewModel // ✅ Use StateObject, but DECLARE it, don't initialize here
+
+    // ✅ Custom initializer to pass modelContext
+    init() {
+        _viewModel = StateObject(wrappedValue: DateListViewModel(modelContext: ModelContext())) // ⭐️ Provide a DUMMY ModelContext here
+    }
 
     var body: some View {
         NavigationView {
@@ -36,7 +42,7 @@ struct DateListView: View {
             }
             .navigationTitle("Cravings by Date")
             .onAppear {
-                viewModel.setModelContext(modelContext!) // ✅ Set modelContext in onAppear (force unwrap is now safe here)
+                viewModel.setModelContext(modelContext!) // ✅ NOW set the REAL modelContext in onAppear
                 viewModel.loadCravings() // ✅ THEN load data
             }
         }
@@ -50,5 +56,4 @@ struct DateListView_Previews: PreviewProvider {
             .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }
-
 
