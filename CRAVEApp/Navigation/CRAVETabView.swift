@@ -12,25 +12,25 @@ struct CRAVETabView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
+        // Create one CravingManager from the environment’s modelContext.
+        let cravingManager = CravingManager(cravingManager: modelContext)
         TabView {
-            CravingListView(viewModel: CravingListViewModel(context: modelContext))
+            CravingListView(viewModel: CravingListViewModel(cravingManager: cravingManager))
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
                         .accessibilityIdentifier("Cravings")
                 }
-            DateListView(viewModel: DateListViewModel(context: modelContext))
+            DateListView(viewModel: DateListViewModel(cravingManager: cravingManager))
                 .tabItem {
                     Label("Dates", systemImage: "calendar")
                         .accessibilityIdentifier("Dates")
                 }
-            LogCravingView(viewModel: LogCravingViewModel(context: modelContext))
+            LogCravingView(viewModel: LogCravingViewModel(cravingManager: cravingManager))
                 .tabItem {
                     Label("Log", systemImage: "plus.circle")
                         .accessibilityIdentifier("Log")
                 }
-            AnalyticsView(viewModel: AnalyticsViewModel(
-                cravingManager: CravingManager(cravingManager: modelContext)
-            ))
+            AnalyticsView(viewModel: AnalyticsViewModel(cravingManager: cravingManager))
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                         .accessibilityIdentifier("Analytics")

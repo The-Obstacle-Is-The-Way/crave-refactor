@@ -9,8 +9,9 @@ final class AnalyticsViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
     private let analyticsManager: AnalyticsManager
 
-    // This initializer expects a CravingManager.
+    // This initializer accepts a CravingManager.
     init(cravingManager: CravingManager) {
+        // AnalyticsManager is initialized with a CravingManager.
         self.analyticsManager = AnalyticsManager(cravingManager: cravingManager)
     }
 

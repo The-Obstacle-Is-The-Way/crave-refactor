@@ -9,8 +9,8 @@ import SwiftUI
 @MainActor
 class CravingManager: ObservableObject {
     private let modelContext: ModelContext
-    
-    // Change the external parameter label from "context" to "cravingManager"
+
+    // Updated initializer with external label "cravingManager:"
     init(cravingManager context: ModelContext) {
         self.modelContext = context
     }

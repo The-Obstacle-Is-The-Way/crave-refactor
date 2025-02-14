@@ -27,16 +27,14 @@ struct AnalyticsView: View {
 struct AnalyticsView_Previews: PreviewProvider {
     static var previews: some View {
         do {
-            // Create an in-memory ModelContainer for preview purposes.
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
             let container = try ModelContainer(for: [CravingModel.self], configurations: [config])
             // Retrieve the preview context.
             let context = container.mainContext
-            // Instantiate CravingManager using its new initializer.
+            // Initialize CravingManager with the preview context using the new initializer.
             let cravingManager = CravingManager(cravingManager: context)
-            // Create the AnalyticsViewModel with the CravingManager.
+            // Create AnalyticsViewModel using the CravingManager.
             let viewModel = AnalyticsViewModel(cravingManager: cravingManager)
-            // Inject the container into the view's environment.
             return AnalyticsView(viewModel: viewModel)
                 .modelContainer(container)
         } catch {
