@@ -3,10 +3,10 @@
 //  CRAVE
 //
 
+
 import Foundation
 import SwiftData
 
-@MainActor
 class AnalyticsManager {
     private let cravingManager: CravingManager
     private let frequencyQuery = FrequencyQuery()

@@ -9,30 +9,30 @@ import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) var modelContext
+    @Environment(\.modelContext) private var context
 
     var body: some View {
         TabView {
-            CravingListView()
+            CravingListView(viewModel: CravingListViewModel(context: context))
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
+                        .accessibilityIdentifier("Cravings")
                 }
-            
-            DateListView()
+            DateListView(viewModel: DateListViewModel(context: context))
                 .tabItem {
                     Label("Dates", systemImage: "calendar")
+                        .accessibilityIdentifier("Dates")
                 }
-            
-            LogCravingView(viewModel: LogCravingViewModel(cravingManager: CravingManager(context: modelContext)))
+            LogCravingView(viewModel: LogCravingViewModel(context: context))
                 .tabItem {
                     Label("Log", systemImage: "plus.circle")
+                        .accessibilityIdentifier("Log")
                 }
-            
-            AnalyticsDashboardView(viewModel: AnalyticsDashboardViewModel(
-                analyticsManager: AnalyticsManager(cravingManager: CravingManager(context: modelContext))
-            ))
+            // Note: AnalyticsViewModel expects a CravingManager instance.
+            AnalyticsView(viewModel: AnalyticsViewModel(cravingManager: CravingManager()))
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
+                        .accessibilityIdentifier("Analytics")
                 }
         }
     }
@@ -40,12 +40,6 @@ struct CRAVETabView: View {
 
 struct CRAVETabView_Previews: PreviewProvider {
     static var previews: some View {
-        do {
-            let container = try ModelContainer(for: CravingModel.self)
-            return CRAVETabView()
-                .environment(\.modelContext, container.mainContext)
-        } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
-        }
+        CRAVETabView()
     }
 }
