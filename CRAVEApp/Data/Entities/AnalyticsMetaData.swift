@@ -13,40 +13,40 @@ final class AnalyticsMetadata {
     var id: UUID
     var cravingId: UUID
     var timestamp: Date
-    
+
     // MARK: - Time-based Metrics
     var timeOfDay: TimeOfDay
     var dayOfWeek: DayOfWeek
     var weekNumber: Int
     var monthNumber: Int
     var year: Int
-    
+
     // MARK: - Session Data
     var sessionDuration: TimeInterval
     var interactionCount: Int
-    
+
     // MARK: - Transformed Complex Data
     @Attribute(.transformable(by: UserActionsTransformer.self))
     var userActions: [UserAction]
-    
+
     @Attribute(.transformable(by: PatternIdentifiersTransformer.self))
     var patternIdentifiers: [String]
-    
+
     @Attribute(.transformable(by: CorrelationFactorsTransformer.self))
     var correlationFactors: [CorrelationFactor]
-    
+
     @Attribute(.transformable(by: StreakDataTransformer.self))
     var streakData: StreakData
-    
+
     // MARK: - Processing Status
     var processingState: ProcessingState
     var lastProcessed: Date
     var processingAttempts: Int
-    
+
     // MARK: - Relationships
     @Relationship(inverse: \CravingModel.analyticsMetadata)
     var craving: CravingModel?
-    
+
     // MARK: - Initialization
     init(cravingId: UUID) {
         self.id = UUID()
@@ -76,7 +76,7 @@ extension AnalyticsMetadata {
         case afternoon // 12:00 - 16:59
         case evening   // 17:00 - 21:59
         case night     // 22:00 - 4:59
-        
+
         static var current: TimeOfDay {
             let hour = Calendar.current.component(.hour, from: Date())
             switch hour {
@@ -87,10 +87,10 @@ extension AnalyticsMetadata {
             }
         }
     }
-    
+
     enum DayOfWeek: String, Codable {
         case sunday, monday, tuesday, wednesday, thursday, friday, saturday
-        
+
         static var current: DayOfWeek {
             let weekday = Calendar.current.component(.weekday, from: Date())
             switch weekday {
@@ -105,12 +105,12 @@ extension AnalyticsMetadata {
             }
         }
     }
-    
+
     struct UserAction: Codable {
         let timestamp: Date
         let actionType: ActionType
         let metadata: [String: String]
-        
+
         enum ActionType: String, Codable {
             case viewEntry
             case createEntry
@@ -120,27 +120,27 @@ extension AnalyticsMetadata {
             case exportData
         }
     }
-    
+
     struct CorrelationFactor: Codable {
         let factor: String
         let correlation: Double // -1.0 to 1.0
         let confidence: Double // 0.0 to 1.0
         let sampleSize: Int
     }
-    
+
     struct StreakData: Codable {
         var currentStreak: Int = 0
         var longestStreak: Int = 0
         var totalStreaks: Int = 0
         var streakHistory: [StreakPeriod] = []
-        
+
         struct StreakPeriod: Codable {
             let startDate: Date
             let endDate: Date
             let duration: Int
         }
     }
-    
+
     enum ProcessingState: String, Codable {
         case pending
         case processing
@@ -150,87 +150,80 @@ extension AnalyticsMetadata {
 }
 
 // MARK: - Value Transformers
-class UserActionsTransformer: ValueTransformer {
+class UserActionsTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
+    static var supportsSecureCoding = true
+
     override func transformedValue(_ value: Any?) -> Any? {
         guard let actions = value as? [AnalyticsMetadata.UserAction] else { return nil }
         return try? JSONEncoder().encode(actions)
     }
-    
+
     override func reverseTransformedValue(_ value: Any?) -> Any? {
         guard let data = value as? Data else { return nil }
         return try? JSONDecoder().decode([AnalyticsMetadata.UserAction].self, from: data)
     }
+
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
+
+    override func encode(with coder: NSCoder) { // Added encode method
+    }
 }
 
-class PatternIdentifiersTransformer: ValueTransformer {
+class PatternIdentifiersTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
+    static var supportsSecureCoding = true
     override func transformedValue(_ value: Any?) -> Any? {
         guard let patterns = value as? [String] else { return nil }
         return try? JSONEncoder().encode(patterns)
     }
-    
+
     override func reverseTransformedValue(_ value: Any?) -> Any? {
         guard let data = value as? Data else { return nil }
         return try? JSONDecoder().decode([String].self, from: data)
     }
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
+
+    override func encode(with coder: NSCoder) { // Added encode method
+    }
 }
 
-class CorrelationFactorsTransformer: ValueTransformer {
+class CorrelationFactorsTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
+    static var supportsSecureCoding = true
     override func transformedValue(_ value: Any?) -> Any? {
         guard let factors = value as? [AnalyticsMetadata.CorrelationFactor] else { return nil }
         return try? JSONEncoder().encode(factors)
     }
-    
+
     override func reverseTransformedValue(_ value: Any?) -> Any? {
         guard let data = value as? Data else { return nil }
         return try? JSONDecoder().decode([AnalyticsMetadata.CorrelationFactor].self, from: data)
     }
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
+
+    override func encode(with coder: NSCoder) { // Added encode method
+    }
 }
 
-class StreakDataTransformer: ValueTransformer {
+class StreakDataTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
+    static var supportsSecureCoding = true
     override func transformedValue(_ value: Any?) -> Any? {
         guard let streakData = value as? AnalyticsMetadata.StreakData else { return nil }
         return try? JSONEncoder().encode(streakData)
     }
-    
+
     override func reverseTransformedValue(_ value: Any?) -> Any? {
         guard let data = value as? Data else { return nil }
         return try? JSONDecoder().decode(AnalyticsMetadata.StreakData.self, from: data)
     }
-}
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
 
-// MARK: - Analytics Processing
-extension AnalyticsMetadata {
-    func processMetadata() async throws {
-        guard processingState != .processing else { return }
-        
-        processingState = .processing
-        processingAttempts += 1
-        
-        do {
-            try await performAnalysis()
-            processingState = .completed
-            lastProcessed = Date()
-        } catch {
-            processingState = .failed
-            throw AnalyticsError.processingFailed(error)
-        }
-    }
-    
-    private func performAnalysis() async throws {
-        try await updatePatternIdentifiers()
-        try await updateCorrelationFactors()
-        try await updateStreakData()
-    }
-    
-    private func updatePatternIdentifiers() async throws {
-        // Pattern recognition logic
-    }
-    
-    private func updateCorrelationFactors() async throws {
-        // Correlation analysis logic
-    }
-    
-    private func updateStreakData() async throws {
-        // Streak calculation logic
+    override func encode(with coder: NSCoder) { // Added encode method
     }
 }

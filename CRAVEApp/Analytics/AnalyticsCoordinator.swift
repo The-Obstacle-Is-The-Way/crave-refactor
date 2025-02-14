@@ -24,10 +24,10 @@ class AnalyticsCoordinator: ObservableObject { // Marked as ObservableObject and
     // MARK: - Initialization
     init(modelContext: ModelContext) { // Removed storage and configuration from init - Using ModelContext directly
         self.modelContext = modelContext
-        self.analyticsStorage = AnalyticsStorage() // Initialize AnalyticsStorage - adjust as needed
-        self.analyticsService = AnalyticsService(analyticsStorage: self.analyticsStorage) // Initialize AnalyticsService with storage
-        self.eventTrackingService = EventTrackingService(analyticsStorage: self.analyticsStorage) // Initialize EventTrackingService with storage
-        self.patternDetectionService = PatternDetectionService(analyticsStorage: self.analyticsStorage) // Initialize PatternDetectionService with storage
+        self.analyticsStorage = AnalyticsStorage(modelContext: modelContext) // Initialize AnalyticsStorage - adjust as needed
+        self.analyticsService = AnalyticsService(modelContext: modelContext) // Initialize AnalyticsService with storage
+        self.eventTrackingService = EventTrackingService(storage: self.analyticsStorage, configuration: .shared) // Initialize EventTrackingService with storage
+        self.patternDetectionService = PatternDetectionService(storage: self.analyticsStorage) // Initialize PatternDetectionService with storage
 
         setupObservers()
     }
@@ -100,4 +100,5 @@ extension AnalyticsCoordinator {
 
     }
 }
+
 

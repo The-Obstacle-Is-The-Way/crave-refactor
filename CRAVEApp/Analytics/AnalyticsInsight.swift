@@ -1,5 +1,7 @@
-// File: AnalyticsInsight.swift
+//
+// CRAVEApp/Analytics/AnalyticsInsight.swift
 // Purpose: Defines the insight generation system for analytics data
+//
 
 import Foundation
 import SwiftData

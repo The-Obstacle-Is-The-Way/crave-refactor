@@ -1,4 +1,7 @@
+//
 // CravingModel.swift
+//
+
 import Foundation
 import SwiftData
 import NaturalLanguage
@@ -10,7 +13,7 @@ final class CravingModel: Identifiable {
     var cravingText: String
     var timestamp: Date
     var isArchived: Bool
-    
+
     // MARK: - Analytics Properties
     var intensity: Int
     var duration: TimeInterval
@@ -21,7 +24,7 @@ final class CravingModel: Identifiable {
     var location: LocationData?
     var contextualFactors: [ContextualFactor] // Use this for structured context
     var successfulResistance: Bool
-    
+
     // MARK: - NLP Extracted Entities (NEW)
     var extractedEntities: [String: String] = [:] // e.g., ["food": "chocolate", "place": "home"]
 
@@ -29,15 +32,15 @@ final class CravingModel: Identifiable {
     var createdAt: Date
     var modifiedAt: Date
     var analyticsProcessed: Bool
-    
+
     // MARK: - Relationships
     @Relationship(.cascade) var analyticsData: CravingAnalyticsData? // You might not need this
-    
+
     // MARK: - Computed Properties
     var durationInMinutes: Double {
         return duration / 60.0
     }
-    
+
     var isActive: Bool {
         return !isArchived
     }
@@ -61,24 +64,24 @@ final class CravingModel: Identifiable {
         self.createdAt = Date()
         self.modifiedAt = Date()
         self.analyticsProcessed = false
-        
+
         // Perform initial NLP analysis (NEW)
         Task {
             await analyzeCravingText()
         }
     }
-    
+
     // MARK: - Validation
     func validate() throws {
         guard !cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw CravingModelError.emptyText
         }
-        
+
         guard intensity >= 0 && intensity <= 10 else {
             throw CravingModelError.invalidIntensity
         }
     }
-    
+
     // MARK: - Analytics
     func prepareForAnalytics() -> CravingAnalytics {
         return CravingAnalytics(
@@ -89,18 +92,18 @@ final class CravingModel: Identifiable {
             metadata: [:] // Add relevant metadata here
         )
     }
-    
+
     func updateAnalytics() {
         modifiedAt = Date()
         analyticsProcessed = false
     }
-    
+
     // MARK: - NLP Analysis (NEW)
     func analyzeCravingText() async {
         let analyzer = CravingAnalyzer()
         let results = await analyzer.analyze(text: cravingText)
         self.extractedEntities = results
-        
+
         // Extract triggers based on keywords (basic example)
         let triggerKeywords = ["stress", "bored", "sad", "lonely", "tired"]
         self.triggers = Set(results.keys.filter { triggerKeywords.contains($0) })
@@ -131,7 +134,7 @@ struct LocationData: Codable {
 struct ContextualFactor: Codable {
     let factor: String
     let impact: Impact
-    
+
     enum Impact: String, Codable {
         case positive
         case negative
@@ -146,7 +149,7 @@ enum CravingModelError: Error {
     case invalidDuration
     case invalidCategory
     case invalidLocation
-    
+
     var localizedDescription: String {
         switch self {
         case .emptyText:
@@ -162,4 +165,5 @@ enum CravingModelError: Error {
         }
     }
 }
+
 

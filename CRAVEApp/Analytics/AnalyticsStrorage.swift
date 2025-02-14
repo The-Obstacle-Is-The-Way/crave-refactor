@@ -248,3 +248,4 @@ extension AnalyticsStorage {
         return AnalyticsStorage(modelContext: container.mainContext)
     }
 }
+

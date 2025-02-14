@@ -1,4 +1,6 @@
+//
 // CRAVEApp/CRAVEApp.swift
+//
 
 import SwiftUI
 import SwiftData
@@ -6,11 +8,11 @@ import SwiftData
 @main
 struct CRAVEApp: App {
     let container: ModelContainer
-    
+
     init() {
         // Register value transformers
         registerValueTransformers()
-        
+
         // Initialize container
         do {
             let config = ModelConfiguration(isStoredInMemoryOnly: false)
@@ -22,7 +24,7 @@ struct CRAVEApp: App {
             fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
             NavigationStack {
@@ -31,26 +33,26 @@ struct CRAVEApp: App {
         }
         .modelContainer(container)
     }
-    
+
     private func registerValueTransformers() {
         // User Actions Transformer
         ValueTransformer.setValueTransformer(
             UserActionsTransformer(),
             forName: NSValueTransformerName("UserActionsTransformer")
         )
-        
+
         // Pattern Identifiers Transformer
         ValueTransformer.setValueTransformer(
             PatternIdentifiersTransformer(),
             forName: NSValueTransformerName("PatternIdentifiersTransformer")
         )
-        
+
         // Correlation Factors Transformer
         ValueTransformer.setValueTransformer(
             CorrelationFactorsTransformer(),
             forName: NSValueTransformerName("CorrelationFactorsTransformer")
         )
-        
+
         // Streak Data Transformer
         ValueTransformer.setValueTransformer(
             StreakDataTransformer(),
@@ -58,3 +60,4 @@ struct CRAVEApp: App {
         )
     }
 }
+

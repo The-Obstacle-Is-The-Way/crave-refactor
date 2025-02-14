@@ -41,5 +41,3 @@ class AnalyticsManager: ObservableObject {
     }
 }
 
-
-
