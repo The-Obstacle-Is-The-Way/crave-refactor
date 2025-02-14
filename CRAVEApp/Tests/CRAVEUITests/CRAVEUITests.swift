@@ -2,55 +2,82 @@
 //  CRAVEUITests.swift
 //  CRAVEUITests
 //
+//
 
 import XCTest
 
 final class CRAVEUITests: XCTestCase {
-    let app = XCUIApplication()
+    private var app: XCUIApplication!
 
+    // MARK: - Setup Before Each Test
     override func setUpWithError() throws {
         continueAfterFailure = false
+        app = XCUIApplication()
         app.launch()
     }
 
-    override func tearDownWithError() throws {
-        app.terminate()
+    // MARK: - Test Tab Navigation
+    func testTabNavigation() {
+        let cravingsTab = app.tabBars.buttons["CravingsTab"]
+        let logTab = app.tabBars.buttons["LogCravingTab"]
+        let analyticsTab = app.tabBars.buttons["AnalyticsTab"]
+
+        XCTAssertTrue(cravingsTab.exists)
+        XCTAssertTrue(logTab.exists)
+        XCTAssertTrue(analyticsTab.exists)
+
+        logTab.tap()
+        XCTAssertTrue(app.navigationBars["Log Craving"].exists)
+
+        analyticsTab.tap()
+        XCTAssertTrue(app.navigationBars["Analytics"].exists)
+
+        cravingsTab.tap()
+        XCTAssertTrue(app.navigationBars["Cravings"].exists)
     }
 
-    // Test Deleting a Craving and Verifying Removal from History
-    func testDeletingCraving() throws {
-        // Tap the "Log" tab
-        let logTab = app.tabBars.buttons["Log"]
-        XCTAssertTrue(logTab.waitForExistence(timeout: 5), "Log tab not found.")
+    // MARK: - Test Adding a Craving
+    func testAddingCraving() {
+        let logTab = app.tabBars.buttons["LogCravingTab"]
         logTab.tap()
+
+        let cravingField = app.textFields["Enter craving..."]
+        XCTAssertTrue(cravingField.exists)
         
-        // Look for the text view with accessibility identifier "CravingTextEditor"
-        let textEditor = app.textViews["CravingTextEditor"]
-        XCTAssertTrue(textEditor.waitForExistence(timeout: 5), "❌ Craving input field not found.")
-        textEditor.tap()
-        textEditor.typeText("Test Craving")
-        
-        // Find and tap the Submit button (with accessibility identifier "SubmitButton")
-        let submitButton = app.buttons["SubmitButton"]
-        XCTAssertTrue(submitButton.waitForExistence(timeout: 5), "❌ Save button not found.")
-        submitButton.tap()
-        
-        // Tap the "History" tab (ensure your app has this tab in its TabView)
-        let historyTab = app.tabBars.buttons["History"]
-        XCTAssertTrue(historyTab.waitForExistence(timeout: 5), "History tab not found.")
-        historyTab.tap()
-        
-        // Wait for the history list to update
-        let firstCell = app.cells.firstMatch
-        XCTAssertTrue(firstCell.waitForExistence(timeout: 5), "❌ No date cell found in History list.")
-        
-        // Swipe left on the cell to reveal the Delete button and tap it
-        firstCell.swipeLeft()
-        let deleteButton = app.buttons["Delete"]
-        XCTAssertTrue(deleteButton.waitForExistence(timeout: 5), "❌ Delete button not found.")
+        cravingField.tap()
+        cravingField.typeText("Test Craving")
+
+        let logButton = app.buttons["Log Craving"]
+        XCTAssertTrue(logButton.isEnabled) // ✅ Ensure button is enabled after input
+        logButton.tap()
+
+        let cravingsTab = app.tabBars.buttons["CravingsTab"]
+        cravingsTab.tap()
+
+        XCTAssertTrue(app.staticTexts["Test Craving"].exists) // ✅ Ensure new craving appears
+    }
+
+    // MARK: - Test Soft Deleting a Craving
+    func testSoftDeleteCraving() {
+        let cravingsTab = app.tabBars.buttons["CravingsTab"]
+        cravingsTab.tap()
+
+        let firstCraving = app.cells.firstMatch
+        XCTAssertTrue(firstCraving.exists)
+
+        let deleteButton = firstCraving.buttons["trash"]
+        XCTAssertTrue(deleteButton.exists)
+
         deleteButton.tap()
-        
-        // Verify the cell no longer exists
-        XCTAssertFalse(firstCell.exists, "❌ Deleted craving still appears in the history list.")
+
+        XCTAssertFalse(firstCraving.exists) // ✅ Ensure craving disappears after soft delete
+    }
+
+    // MARK: - Test Analytics UI
+    func testAnalyticsDisplays() {
+        let analyticsTab = app.tabBars.buttons["AnalyticsTab"]
+        analyticsTab.tap()
+
+        XCTAssertTrue(app.staticTexts["Cravings Analytics"].exists)
     }
 }

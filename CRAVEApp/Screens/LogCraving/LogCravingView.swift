@@ -7,39 +7,49 @@ import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @StateObject var viewModel: LogCravingViewModel
-    
+    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
+    @Environment(\.dismiss) private var dismiss // ✅ Allows dismissing the view
+
+    @State private var cravingText: String = ""
+
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Log Your Craving")
-                .font(.headline)
-            
-            TextEditor(text: $viewModel.note)
-                .frame(height: 150)
-                .border(Color.gray)
-            
-            Stepper("Intensity: \(viewModel.intensity)", value: $viewModel.intensity, in: 1...10)
-            
-            Button("Save") {
-                viewModel.saveCraving()
+        NavigationView {
+            VStack {
+                TextField("Enter craving...", text: $cravingText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+
+                Button(action: saveCraving) {
+                    Text("Log Craving")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(cravingText.isEmpty ? Color.gray : Color.blue) // ✅ Disable button for empty input
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .disabled(cravingText.isEmpty) // ✅ Prevents empty cravings
+                .padding()
+
+                Spacer()
             }
-            .buttonStyle(.borderedProminent)
+            .navigationTitle("Log Craving")
+            .padding()
         }
-        .padding()
+    }
+
+    // MARK: - Save Craving
+    private func saveCraving() {
+        let newCraving = CravingModel(cravingText: cravingText, timestamp: Date()) // ✅ Create new craving
+        modelContext.insert(newCraving) // ✅ Insert into SwiftData
+        try? modelContext.save() // ✅ Save immediately
+        dismiss() // ✅ Close view after saving
     }
 }
 
+// ✅ Preview with sample data
 struct LogCravingView_Previews: PreviewProvider {
     static var previews: some View {
-        do {
-            // Create a ModelContainer for CravingModel as per SwiftData documentation
-            let container = try ModelContainer(for: CravingModel.self)
-            let dummyContext = container.mainContext
-            let dummyCravingManager = CravingManager(context: dummyContext)
-            let viewModel = LogCravingViewModel(cravingManager: dummyCravingManager)
-            return LogCravingView(viewModel: viewModel)
-        } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
-        }
+        LogCravingView()
+            .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }

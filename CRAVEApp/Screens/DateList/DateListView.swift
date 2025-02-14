@@ -1,28 +1,54 @@
-// DateListView.swift
+//
+//  DateListView.swift
+//  CRAVE
+//
 
 import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    @Query(sort: \CravingModel.timestamp, animation: .default)
-    private var cravings: [CravingModel]
-    
+    @StateObject private var viewModel: DateListViewModel
+
+    init(viewModel: DateListViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel) // ✅ Ensures proper initialization
+    }
+
     var body: some View {
-        let grouped = Dictionary(grouping: cravings, by: { $0.timestamp.onlyDate })
-        return List {
-            ForEach(grouped.keys.sorted(), id: \.self) { date in
-                Section(header: Text(date.formattedDate())) {
-                    ForEach(grouped[date] ?? []) { craving in
-                        Text("Intensity: \(craving.intensity)")
+        NavigationView {
+            List {
+                if viewModel.cravings.isEmpty {
+                    Text("No cravings logged yet.")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding()
+                } else {
+                    ForEach(viewModel.groupedCravings.keys.sorted(), id: \.self) { date in
+                        Section(header: Text(date).font(.headline)) {
+                            ForEach(viewModel.groupedCravings[date] ?? []) { craving in
+                                VStack(alignment: .leading) {
+                                    Text(craving.cravingText)
+                                        .font(.headline)
+                                    Text(craving.timestamp, style: .time)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
                     }
                 }
+            }
+            .navigationTitle("Cravings by Date")
+            .onAppear {
+                viewModel.loadCravings() // ✅ Fetch cravings when view appears
             }
         }
     }
 }
 
+// ✅ Preview with sample data
 struct DateListView_Previews: PreviewProvider {
     static var previews: some View {
-        DateListView()
+        DateListView(viewModel: DateListViewModel())
+            .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }

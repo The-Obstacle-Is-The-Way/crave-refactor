@@ -1,86 +1,52 @@
-// TimeOfDayPieChart.swift
+//
+//  TimeOfDayPieChart.swift
+//  CRAVE
+//
 
 import SwiftUI
+import Charts
 
-public struct TimeOfDayPieChart: View {
-    let data: [String: Int]
-    
-    public init(data: [String: Int]) {
-        self.data = data
-    }
-    
-    // Define a slice model for the pie chart.
-    struct Slice: Identifiable {
-        let id = UUID()
-        let key: String
-        let startAngle: Angle
-        let endAngle: Angle
-    }
-    
-    // Compute slices from the input dictionary.
-    var slices: [Slice] {
-        var slices = [Slice]()
-        let total = data.values.reduce(0, +)
-        var currentAngle = Angle(degrees: -90)
-        for key in data.keys.sorted() {
-            let value = data[key] ?? 0
-            let proportion = total > 0 ? Double(value) / Double(total) : 0
-            let angleDelta = Angle(degrees: proportion * 360)
-            let slice = Slice(key: key, startAngle: currentAngle, endAngle: currentAngle + angleDelta)
-            slices.append(slice)
-            currentAngle += angleDelta
-        }
-        return slices
-    }
-    
-    public var body: some View {
-        GeometryReader { geometry in
-            let center = CGPoint(x: geometry.size.width/2, y: geometry.size.height/2)
-            ZStack {
-                ForEach(slices) { slice in
-                    PieSlice(startAngle: slice.startAngle, endAngle: slice.endAngle)
-                        .fill(color(for: slice.key))
+struct TimeOfDayPieChart: View {
+    let data: [String: Int] // ✅ Data passed from AnalyticsViewModel
+
+    private let colors: [String: Color] = [
+        "Morning": .yellow,
+        "Afternoon": .orange,
+        "Evening": .purple,
+        "Night": .blue
+    ] // ✅ Distinct colors for clarity
+
+    var body: some View {
+        VStack {
+            if data.isEmpty {
+                Text("No cravings logged yet.")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .padding()
+            } else {
+                Chart {
+                    ForEach(data.sorted(by: { $0.key < $1.key }), id: \.key) { time, count in
+                        SectorMark(
+                            angle: .value("Cravings", count),
+                            innerRadius: .ratio(0.5)
+                        )
+                        .foregroundStyle(colors[time, default: .gray]) // ✅ Uses defined colors
+                        .accessibilityLabel("\(time): \(count) cravings") // ✅ VoiceOver support
+                    }
                 }
+                .chartLegend(position: .bottom) // ✅ Adds a clear legend
+                .frame(height: 300)
+                .padding()
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .position(x: center.x, y: center.y)
-        }
-    }
-    
-    private func color(for key: String) -> Color {
-        switch key {
-        case "Morning": return .yellow
-        case "Afternoon": return .orange
-        case "Evening": return .red
-        case "Night": return .blue
-        default: return .gray
         }
     }
 }
 
-public struct PieSlice: Shape {
-    let startAngle: Angle
-    let endAngle: Angle
-    
-    public func path(in rect: CGRect) -> Path {
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
-        var path = Path()
-        path.move(to: center)
-        path.addArc(center: center,
-                    radius: radius,
-                    startAngle: startAngle,
-                    endAngle: endAngle,
-                    clockwise: false)
-        path.closeSubpath()
-        return path
-    }
-}
-
+// ✅ Preview with sample data
 struct TimeOfDayPieChart_Previews: PreviewProvider {
-    public static var previews: some View {
-        TimeOfDayPieChart(data: ["Morning": 3, "Afternoon": 2, "Evening": 4, "Night": 1])
-            .frame(width: 200, height: 200)
+    static var previews: some View {
+        TimeOfDayPieChart(data: ["Morning": 5, "Afternoon": 3, "Evening": 7, "Night": 2])
+            .previewLayout(.sizeThatFits)
             .padding()
     }
 }

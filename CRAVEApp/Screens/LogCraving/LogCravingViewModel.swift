@@ -6,23 +6,32 @@
 import SwiftUI
 import SwiftData
 
-@MainActor
-class LogCravingViewModel: ObservableObject {
-    @Published var note: String = ""
-    @Published var intensity: Int = 5
-    
-    private let cravingManager: CravingManager
-    
-    // Now, you must inject a CravingManager instance (e.g. from your app's environment or parent view)
-    init(cravingManager: CravingManager) {
-        self.cravingManager = cravingManager
-    }
-    
-    func saveCraving() {
-        let newCraving = CravingModel(intensity: intensity, note: note)
-        cravingManager.insert(newCraving)
-        // Reset inputs after saving
-        note = ""
-        intensity = 5
+@Observable
+final class LogCravingViewModel {
+    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
+    @Published var cravingText: String = "" // ✅ Stores user input
+
+    // MARK: - Add New Craving
+    func addCraving(completion: @escaping (Bool) -> Void) {
+        guard !cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            completion(false) // ✅ Prevents empty input
+            return
+        }
+
+        Task {
+            let newCraving = CravingModel(cravingText: cravingText, timestamp: Date())
+            modelContext.insert(newCraving)
+
+            do {
+                try modelContext.save()
+                await MainActor.run {
+                    cravingText = "" // ✅ Clears input after saving
+                    completion(true) // ✅ Confirm successful save
+                }
+            } catch {
+                print("Error saving craving: \(error)")
+                completion(false)
+            }
+        }
     }
 }

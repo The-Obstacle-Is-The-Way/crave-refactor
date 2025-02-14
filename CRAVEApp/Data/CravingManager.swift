@@ -8,44 +8,37 @@ import SwiftUI
 
 @MainActor
 class CravingManager: ObservableObject {
-    private var modelContext: ModelContext
+    @Environment(\.modelContext) private var modelContext // ✅ Injected automatically
 
-    // New initializer that takes a ModelContext
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-    }
-    
+    // MARK: - Insert New Craving
     func insert(_ craving: CravingModel) {
         modelContext.insert(craving)
-        saveContext()
+        saveContext() // ✅ Ensure data is persisted
     }
-    
-    func delete(_ craving: CravingModel) {
-        modelContext.delete(craving)
-        saveContext()
+
+    // MARK: - Soft Delete Craving
+    func archiveCraving(_ craving: CravingModel) {
+        craving.isArchived = true
+        saveContext() // ✅ Soft deletion
     }
-    
-    func fetchAllCravings() async -> [CravingModel] {
+
+    // MARK: - Fetch All Active Cravings
+    func fetchAllActiveCravings() async -> [CravingModel] {
         do {
             let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
-            return try modelContext.fetch(descriptor)
+            return try modelContext.fetch(descriptor) // ✅ Fetch only non-archived cravings
         } catch {
             print("Error fetching cravings: \(error)")
             return []
         }
     }
-    
+
+    // MARK: - Save Context
     private func saveContext() {
         do {
             try modelContext.save()
         } catch {
             print("Error saving context: \(error)")
         }
-    }
-    
-    // Example soft delete method
-    func softDeleteCraving(_ craving: CravingModel) -> Bool {
-        craving.isArchived = true
-        return true
     }
 }

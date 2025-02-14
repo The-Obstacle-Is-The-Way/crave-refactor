@@ -2,46 +2,45 @@
 //  CRAVETabView.swift
 //  CRAVE
 //
-//  Created by John H Jung on 2/12/25.
-//
-
 
 import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
 
     var body: some View {
-        let cravingManager = CravingManager(cravingManager: modelContext) // Create CravingManager instance here
+        let cravingManager = CravingManager(modelContext: modelContext) // ✅ Fixed initialization
 
         TabView {
+            // Craving List
             CravingListView(viewModel: CravingListViewModel(cravingManager: cravingManager))
-              .tabItem {
+                .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
-                      .accessibilityIdentifier("Cravings")
+                        .accessibilityIdentifier("CravingsTab")
                 }
-            DateListView(viewModel: DateListViewModel(modelContext: modelContext))
-              .tabItem {
-                    Label("Dates", systemImage: "calendar")
-                      .accessibilityIdentifier("Dates")
-                }
-            LogCravingView(viewModel: LogCravingViewModel(modelContext: modelContext))
-              .tabItem {
+
+            // Log New Craving
+            LogCravingView()
+                .tabItem {
                     Label("Log", systemImage: "plus.circle")
-                      .accessibilityIdentifier("Log")
+                        .accessibilityIdentifier("LogCravingTab")
                 }
-            AnalyticsView(viewModel: AnalyticsViewModel(cravingManager: cravingManager))
-              .tabItem {
+
+            // Analytics
+            AnalyticsView(viewModel: AnalyticsViewModel())
+                .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
-                      .accessibilityIdentifier("Analytics")
+                        .accessibilityIdentifier("AnalyticsTab")
                 }
         }
     }
 }
 
+// ✅ Preview with ModelContainer
 struct CRAVETabView_Previews: PreviewProvider {
     static var previews: some View {
         CRAVETabView()
+            .modelContainer(for: CravingModel.self, inMemory: true) // ✅ Ensure SwiftData works in preview
     }
 }

@@ -3,43 +3,54 @@
 //  CRAVE
 //
 
-
 import SwiftUI
 import SwiftData
 
 struct AnalyticsView: View {
-    @StateObject var viewModel: AnalyticsViewModel
+    @StateObject private var viewModel: AnalyticsViewModel // ✅ Ensures reactivity
+
+    init(viewModel: AnalyticsViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel) // ✅ Proper initialization
+    }
 
     var body: some View {
-        VStack {
-            if let stats = viewModel.basicStats {
-                Text("Cravings Per Day: \(stats.cravingsPerDay.description)")
-                Text("Cravings by Time Slot: \(stats.cravingsByTimeSlot.description)")
-            } else {
-                ProgressView("Loading analytics...")
+        NavigationView {
+            VStack {
+                if viewModel.cravings.isEmpty {
+                    Text("No cravings logged yet.")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding()
+                } else {
+                    VStack {
+                        Text("Cravings Analytics")
+                            .font(.title2)
+                            .bold()
+                            .padding(.top)
+
+                        // Example: Bar chart of cravings per day
+                        CravingBarChart(data: viewModel.cravingsByDate)
+
+                        // Example: Pie chart for time-of-day cravings
+                        TimeOfDayPieChart(data: viewModel.cravingsByTimeOfDay)
+
+                        Spacer()
+                    }
+                    .padding()
+                }
             }
-        }
-      .onAppear {
-            viewModel.loadAnalytics()
+            .navigationTitle("Analytics")
+            .onAppear {
+                viewModel.loadAnalytics() // ✅ Load analytics only when view appears
+            }
         }
     }
 }
 
+// ✅ Preview with sample data
 struct AnalyticsView_Previews: PreviewProvider {
     static var previews: some View {
-        do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: true)
-            let container = try ModelContainer(for: [CravingModel.self], configurations: [config])
-            // Retrieve the preview context.
-            let context = container.mainContext
-            // Initialize CravingManager with the preview context using the new initializer.
-            let cravingManager = CravingManager(cravingManager: context)
-            // Create AnalyticsViewModel using the CravingManager.
-            let viewModel = AnalyticsViewModel(cravingManager: cravingManager)
-            return AnalyticsView(viewModel: viewModel)
-              .modelContainer(container)
-        } catch {
-            return Text("Failed to create preview: \(error.localizedDescription)")
-        }
+        AnalyticsView(viewModel: AnalyticsViewModel())
+            .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }

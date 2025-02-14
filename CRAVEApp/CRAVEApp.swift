@@ -1,5 +1,5 @@
 //
-//  CraveApp.swift
+//  CRAVEApp.swift
 //  CRAVE
 //
 
@@ -7,31 +7,19 @@ import SwiftUI
 import SwiftData
 
 @main
-struct CraveApp: App {
-    private let container: ModelContainer
-
-    init() {
-        do {
-            let schema = Schema([CravingModel.self])
-            let config = ModelConfiguration(isStoredInMemoryOnly: false)
-            
-            // 🚨 RESET DATABASE IF NEEDED
-            let storeURL = URL.documentsDirectory.appendingPathComponent("CRAVE.sqlite")
-            if FileManager.default.fileExists(atPath: storeURL.path) {
-                try FileManager.default.removeItem(at: storeURL)
-                print("🗑 Deleted old SwiftData database to reset")
-            }
-            
-            container = try ModelContainer(for: schema, configurations: [config])
-        } catch {
-            fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
+struct CRAVEApp: App {
+    var body: some Scene {
+        WindowGroup {
+            CRAVETabView() // ✅ Main entry point
+                .modelContainer(for: CravingModel.self) // ✅ Ensures SwiftData persistence
+                .onAppear {
+                    configureGlobalAppearance() // ✅ Apply UI tweaks globally
+                }
         }
     }
 
-    var body: some Scene {
-        WindowGroup {
-            CRAVETabView()
-                .modelContainer(container)
-        }
+    // MARK: - Global UI Configuration
+    private func configureGlobalAppearance() {
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.systemBlue] // ✅ Custom navigation bar styling
     }
 }

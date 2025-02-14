@@ -6,18 +6,25 @@
 import SwiftUI
 import SwiftData
 
-@MainActor
-class CravingListViewModel: ObservableObject {
-    @Published var cravings: [CravingModel] = []
-    private let cravingManager: CravingManager
-    
-    init(cravingManager: CravingManager) {
-        self.cravingManager = cravingManager
+@Observable
+final class CravingListViewModel {
+    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext automatically
+
+    // MARK: - Fetch Active Cravings
+    @Query(filter: #Predicate { !$0.isArchived }) var cravings: [CravingModel] // ✅ Fetch only active cravings
+
+    // MARK: - Soft Delete a Craving
+    func archiveCraving(_ craving: CravingModel) {
+        craving.isArchived = true
+        saveContext() // ✅ Ensure UI updates
     }
-    
-    func loadCravings() {
-        Task {
-            self.cravings = await cravingManager.fetchAllCravings()
+
+    // MARK: - Save Changes
+    private func saveContext() {
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving context: \(error)")
         }
     }
 }

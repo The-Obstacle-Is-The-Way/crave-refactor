@@ -4,19 +4,19 @@
 //
 
 import SwiftData
-import Foundation
 
-@Model
-class CravingModel {
+@Model // ✅ Enables SwiftData Persistence
+final class CravingModel: Identifiable {
+    var id: UUID // ✅ Ensures stable identity for UI updates
+    var cravingText: String
     var timestamp: Date
-    var intensity: Int
-    var note: String?
-    // Use a custom soft-delete flag (do not name it isDeleted)
-    var isArchived: Bool = false
+    var isArchived: Bool  // ✅ Soft delete flag
 
-    init(timestamp: Date = Date(), intensity: Int, note: String? = nil) {
+    // MARK: - Initializer
+    init(cravingText: String, timestamp: Date, isArchived: Bool = false) {
+        self.id = UUID()
+        self.cravingText = cravingText
         self.timestamp = timestamp
-        self.intensity = intensity
-        self.note = note
+        self.isArchived = isArchived
     }
 }
