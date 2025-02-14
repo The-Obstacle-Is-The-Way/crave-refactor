@@ -1,71 +1,34 @@
-//
-//  DateListViewModel.swift
-//  CRAVE
-//
-
 import SwiftUI
 import SwiftData
 
 @MainActor
-final class DateListViewModel: ObservableObject { // ✅ Fixed `@ObservableObject`
-    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
-
-    @Published var cravings: [CravingModel] = [] // ✅ Stores cravings
-
-    // ✅ Removed `@Published` from computed property
+final class DateListViewModel: ObservableObject {
+    @Environment(\.modelContext) private var modelContext
+    @Published var cravings: [CravingModel] = []
+    
+    /// Groups cravings by the day they occurred.
     var groupedCravings: [String: [CravingModel]] {
-        Dictionary(grouping: cravings) { $0.timestamp.formatted(date: .abbreviated, time: .omitted) }
+        Dictionary(grouping: cravings) { craving in
+            // Use the date style appropriate for your UI needs
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            return formatter.string(from: craving.timestamp)
+        }
     }
-
-    // MARK: - Load Cravings
+    
+    /// Loads cravings from the persistent store asynchronously.
     func loadCravings() {
         Task {
-            let allCravings = await fetchCravings()
+            let fetchedCravings = await fetchCravings()
             await MainActor.run {
-                cravings = allCravings
+                cravings = fetchedCravings
             }
         }
     }
-
-    private func fetchCravings(//
-    //  DateListViewModel.swift
-    //  CRAVE
-    //
-
-    import SwiftUI
-    import SwiftData
-
-    @MainActor
-    final class DateListViewModel: ObservableObject { // ✅ Fixed `@ObservableObject`
-        @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
-
-        @Published var cravings: [CravingModel] = [] // ✅ Stores cravings
-
-        // ✅ Removed `@Published` from computed property
-        var groupedCravings: [String: [CravingModel]] {
-            Dictionary(grouping: cravings) { $0.timestamp.formatted(date: .abbreviated, time: .omitted) }
-        }
-
-        // MARK: - Load Cravings
-        func loadCravings() {
-            Task {
-                let allCravings = await fetchCravings()
-                await MainActor.run {
-                    cravings = allCravings
-                }
-            }
-        }
-
-        private func fetchCravings() async -> [CravingModel] {
-            do {
-                let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
-                return try modelContext.fetch(descriptor)
-            } catch {
-                print("Error fetching cravings: \(error)")
-                return []
-            }
-        }
-    }) async -> [CravingModel] {
+    
+    /// Asynchronously fetches only active (non-archived) cravings.
+    private func fetchCravings() async -> [CravingModel] {
         do {
             let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
             return try modelContext.fetch(descriptor)

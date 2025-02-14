@@ -1,33 +1,26 @@
-//
-//  CRAVETabView.swift
-//  CRAVE
-//
-
 import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
-
+    @Environment(\.modelContext) private var modelContext
+    
     var body: some View {
-        let cravingManager = CravingManager() // ✅ Fixed initialization
-
         TabView {
-            // Craving List
-            CravingListView(viewModel: CravingListViewModel()) // ✅ No arguments needed
+            // Craving List – note that we now call CravingListView() with no parameters.
+            CravingListView()
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
                         .accessibilityIdentifier("CravingsTab")
                 }
-
+            
             // Log New Craving
             LogCravingView()
                 .tabItem {
                     Label("Log", systemImage: "plus.circle")
                         .accessibilityIdentifier("LogCravingTab")
                 }
-
-            // Analytics
+            
+            // Analytics – AnalyticsView requires a view model.
             AnalyticsView(viewModel: AnalyticsViewModel())
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
@@ -37,10 +30,9 @@ struct CRAVETabView: View {
     }
 }
 
-// ✅ Preview with ModelContainer
 struct CRAVETabView_Previews: PreviewProvider {
     static var previews: some View {
         CRAVETabView()
-            .modelContainer(for: CravingModel.self, inMemory: true) // ✅ Ensure SwiftData works in preview
+            .modelContainer(for: CravingModel.self, inMemory: true) // Preview configuration for SwiftData
     }
 }
