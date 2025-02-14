@@ -1,9 +1,9 @@
 //
-// DateListViewModel.swift
+//  DateListViewModel.swift
 //  CRAVE
 //
 
-import SwiftUI
+import Foundation
 import SwiftData
 
 @MainActor
@@ -11,9 +11,9 @@ final class DateListViewModel: ObservableObject {
     @Published var cravings: [CravingModel] = []
     private var modelContext: ModelContext?
 
-    init(modelContext: ModelContext) { // ✅ ViewModel now REQUIRES ModelContext in initializer
-        self.modelContext = modelContext
-        loadCravings()
+    init() { //  ViewModel DOES NOT require ModelContext on initialization
+        //self.modelContext = modelContext  REMOVE THIS
+        //loadCravings() REMOVE THIS.  Don't load here.
     }
 
     /// Groups cravings by the day they occurred.
@@ -56,6 +56,7 @@ final class DateListViewModel: ObservableObject {
 
     func setModelContext(_ context: ModelContext) { // Still keep setModelContext for other views
         self.modelContext = context
+        loadCravings() //Load cravings when context is set.
     }
 }
 
