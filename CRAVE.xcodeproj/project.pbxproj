@@ -35,16 +35,25 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Tests/CRAVETests/AnalyticsAggregatorTests.swift,
+				Tests/CRAVETests/AnalyticsConfigurationTests.swift,
 				Tests/CRAVETests/AnalyticsCoordinatorTests.swift,
 				Tests/CRAVETests/AnalyticsEventTests.swift,
+				Tests/CRAVETests/AnalyticsFormatterTests.swift,
+				Tests/CRAVETests/AnalyticsInsightTests.swift,
 				Tests/CRAVETests/AnalyticsManagerTests.swift,
 				Tests/CRAVETests/AnalyticsMetadataTests.swift,
 				Tests/CRAVETests/AnalyticsPatternTests.swift,
+				Tests/CRAVETests/AnalyticsPredictionTests.swift,
+				Tests/CRAVETests/AnalyticsProcessorTests.swift,
+				Tests/CRAVETests/AnalyticsReporterTests.swift,
+				Tests/CRAVETests/AnalyticsServiceTests.swift,
 				Tests/CRAVETests/ContextualDataTests.swift,
 				Tests/CRAVETests/CravingAnalyticsIntegrationTests.swift,
 				Tests/CRAVETests/CravingManagerTests.swift,
 				Tests/CRAVETests/CravingModelTests.swift,
+				Tests/CRAVETests/EventTrackingServiceTests.swift,
 				Tests/CRAVETests/InteractionDataTests.swift,
+				Tests/CRAVETests/PatternDetectionServiceTests.swift,
 				Tests/CRAVEUITests/CRAVEUITests.swift,
 			);
 			platformFiltersByRelativePath = {
@@ -66,16 +75,25 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Tests/CRAVETests/AnalyticsAggregatorTests.swift,
+				Tests/CRAVETests/AnalyticsConfigurationTests.swift,
 				Tests/CRAVETests/AnalyticsCoordinatorTests.swift,
 				Tests/CRAVETests/AnalyticsEventTests.swift,
+				Tests/CRAVETests/AnalyticsFormatterTests.swift,
+				Tests/CRAVETests/AnalyticsInsightTests.swift,
 				Tests/CRAVETests/AnalyticsManagerTests.swift,
 				Tests/CRAVETests/AnalyticsMetadataTests.swift,
 				Tests/CRAVETests/AnalyticsPatternTests.swift,
+				Tests/CRAVETests/AnalyticsPredictionTests.swift,
+				Tests/CRAVETests/AnalyticsProcessorTests.swift,
+				Tests/CRAVETests/AnalyticsReporterTests.swift,
+				Tests/CRAVETests/AnalyticsServiceTests.swift,
 				Tests/CRAVETests/ContextualDataTests.swift,
 				Tests/CRAVETests/CravingAnalyticsIntegrationTests.swift,
 				Tests/CRAVETests/CravingManagerTests.swift,
 				Tests/CRAVETests/CravingModelTests.swift,
+				Tests/CRAVETests/EventTrackingServiceTests.swift,
 				Tests/CRAVETests/InteractionDataTests.swift,
+				Tests/CRAVETests/PatternDetectionServiceTests.swift,
 			);
 			target = 28B8D8F12D5CD84100FA0F1E /* CRAVETests */;
 		};

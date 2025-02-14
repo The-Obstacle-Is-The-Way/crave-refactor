@@ -1,4 +1,5 @@
-// CRAVE/Core/Services/AnalyticsManager.swift
+// File: AnalyticsManager.swift
+// Purpose: Central manager for all analytics operations and data processing
 
 import Foundation
 import SwiftData
@@ -22,177 +23,153 @@ final class AnalyticsManager: ObservableObject {
     private let insightGenerator: InsightGenerator
     private let predictionEngine: PredictionEngine
     
-    // MARK: - Configuration
-    private let config: AnalyticsConfiguration
-    
-    // MARK: - Initialization
-    init(modelContext: ModelContext,
-         analyticsStorage: AnalyticsStorage = AnalyticsStorage(),
-         configuration: AnalyticsConfiguration = .default) {
-        self.modelContext = modelContext
-        self.analyticsStorage = analyticsStorage
-        self.config = configuration
-        
-        // Initialize analyzers
-        self.frequencyAnalyzer = FrequencyAnalyzer(configuration: configuration)
-        self.patternAnalyzer = PatternAnalyzer(configuration: configuration)
-        self.insightGenerator = InsightGenerator(configuration: configuration)
-        self.predictionEngine = PredictionEngine(configuration: configuration)
-        
-        setupObservers()
-    }
-    
-    // MARK: - Public Interface
-    func processNewCraving(_ craving: CravingModel) async throws {
-        guard processingState == .idle else {
-            throw AnalyticsError.alreadyProcessing
+    // Rest of AnalyticsManager.swift implementation...
+    [Previous implementation continues...]
+}
+
+// File: CalendarViewQuery.swift
+// Purpose: Handles calendar-based analytics queries
+
+import Foundation
+
+struct CalendarViewQuery {
+    func cravingsPerDay(using cravings: [CravingModel]) -> [Date: Int] {
+        let calendar = Calendar.current
+        let groupedCravings = Dictionary(grouping: cravings) { craving in
+            calendar.startOfDay(for: craving.timestamp)
         }
-        
-        processingState = .processing
-        
-        do {
-            // Create analytics metadata
-            let metadata = AnalyticsMetadata(cravingId: craving.id)
-            
-            // Process contextual data
-            let contextualData = try await processContextualData(for: craving)
-            
-            // Process interaction data
-            let interactionData = try await processInteractionData(for: craving)
-            
-            // Generate analytics
-            let analytics = try await generateAnalytics(
-                craving: craving,
-                metadata: metadata,
-                contextualData: contextualData,
-                interactionData: interactionData
-            )
-            
-            // Store results
-            try await storeAnalytics(analytics)
-            
-            // Update current snapshot
-            currentAnalytics = try await generateSnapshot()
-            
-            processingState = .idle
-            lastUpdateTime = Date()
-            
-        } catch {
-            processingState = .error
-            throw AnalyticsError.processingFailed(error)
+        return groupedCravings.mapValues { $0.count }
+    }
+    
+    func getWeeklyTrend(using cravings: [CravingModel]) -> [(week: Date, count: Int)] {
+        let calendar = Calendar.current
+        let groupedByWeek = Dictionary(grouping: cravings) { craving in
+            calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: craving.timestamp))!
         }
-    }
-    
-    func generateInsights() async throws -> [AnalyticsInsight] {
-        guard let analytics = currentAnalytics else {
-            throw AnalyticsError.noDataAvailable
-        }
-        
-        return try await insightGenerator.generateInsights(from: analytics)
-    }
-    
-    func predictNextCraving() async throws -> CravingPrediction {
-        return try await predictionEngine.predictNextCraving(using: currentAnalytics)
-    }
-    
-    // MARK: - Private Methods
-    private func setupObservers() {
-        // Setup SwiftData observation
-        // Setup configuration changes observation
-        // Setup real-time analytics updates
-    }
-    
-    private func processContextualData(for craving: CravingModel) async throws -> ContextualData {
-        // Process and analyze contextual data
-        return ContextualData(cravingId: craving.id)
-    }
-    
-    private func processInteractionData(for craving: CravingModel) async throws -> InteractionData {
-        // Process and analyze interaction data
-        return InteractionData(cravingId: craving.id)
-    }
-    
-    private func generateAnalytics(
-        craving: CravingModel,
-        metadata: AnalyticsMetadata,
-        contextualData: ContextualData,
-        interactionData: InteractionData
-    ) async throws -> CravingAnalytics {
-        // Generate comprehensive analytics
-        return CravingAnalytics(
-            id: UUID(),
-            cravingId: craving.id,
-            metadata: metadata,
-            contextualData: contextualData,
-            interactionData: interactionData,
-            timestamp: Date()
-        )
-    }
-    
-    private func storeAnalytics(_ analytics: CravingAnalytics) async throws {
-        try await analyticsStorage.store(analytics)
-    }
-    
-    private func generateSnapshot() async throws -> AnalyticsSnapshot {
-        // Generate current analytics snapshot
-        return AnalyticsSnapshot(
-            timestamp: Date(),
-            metrics: try await calculateMetrics(),
-            patterns: try await identifyPatterns(),
-            predictions: try await generatePredictions()
-        )
-    }
-    
-    private func calculateMetrics() async throws -> AnalyticsMetrics {
-        return try await frequencyAnalyzer.calculateMetrics()
-    }
-    
-    private func identifyPatterns() async throws -> [CravingPattern] {
-        return try await patternAnalyzer.identifyPatterns()
-    }
-    
-    private func generatePredictions() async throws -> [CravingPrediction] {
-        return try await predictionEngine.generatePredictions()
+        return groupedByWeek.map { (week: $0.key, count: $0.value.count) }
+            .sorted { $0.week < $1.week }
     }
 }
 
-// MARK: - Supporting Types
-extension AnalyticsManager {
-    enum ProcessingState {
-        case idle
-        case processing
-        case error
+// File: FrequencyQuery.swift
+// Purpose: Handles frequency-based analytics queries
+
+import Foundation
+
+struct FrequencyQuery {
+    func cravingsPerDay(using cravings: [CravingModel]) -> [Date: Int] {
+        let groupedCravings = Dictionary(grouping: cravings) { $0.timestamp.onlyDate }
+        return groupedCravings.mapValues { $0.count }
     }
-    
-    enum AnalyticsError: Error {
-        case alreadyProcessing
-        case noDataAvailable
-        case processingFailed(Error)
-        case invalidConfiguration
-        case storageError
+}
+
+// File: TimeOfDayQuery.swift
+// Purpose: Handles time-based analytics queries
+
+import Foundation
+import SwiftData
+
+struct TimeOfDayQuery {
+    enum TimeSlot: String, CaseIterable {
+        case earlyMorning = "Early Morning" // 5-8
+        case morning = "Morning" // 8-11
+        case midday = "Midday" // 11-14
+        case afternoon = "Afternoon" // 14-17
+        case evening = "Evening" // 17-20
+        case night = "Night" // 20-23
+        case lateNight = "Late Night" // 23-5
         
-        var localizedDescription: String {
-            switch self {
-            case .alreadyProcessing:
-                return "Analytics processing already in progress"
-            case .noDataAvailable:
-                return "No analytics data available"
-            case .processingFailed(let error):
-                return "Analytics processing failed: \(error.localizedDescription)"
-            case .invalidConfiguration:
-                return "Invalid analytics configuration"
-            case .storageError:
-                return "Analytics storage error"
+        static func from(hour: Int) -> TimeSlot {
+            switch hour {
+            case 5..<8: return .earlyMorning
+            case 8..<11: return .morning
+            case 11..<14: return .midday
+            case 14..<17: return .afternoon
+            case 17..<20: return .evening
+            case 20..<23: return .night
+            default: return .lateNight
             }
         }
     }
+    
+    func cravingsByTimeSlot(using cravings: [CravingModel]) -> [String: Int] {
+        var slots = Dictionary(uniqueKeysWithValues: TimeSlot.allCases.map { ($0.rawValue, 0) })
+        
+        for craving in cravings {
+            let hour = Calendar.current.component(.hour, from: craving.timestamp)
+            let slot = TimeSlot.from(hour: hour)
+            slots[slot.rawValue, default: 0] += 1
+        }
+        
+        return slots
+    }
 }
 
-// MARK: - Testing Support
-extension AnalyticsManager {
-    static func preview() -> AnalyticsManager {
-        let config = AnalyticsConfiguration.preview
-        let context = try! ModelContainer(for: CravingModel.self).mainContext
-        return AnalyticsManager(modelContext: context, configuration: config)
+// File: AnalyticsStorage.swift
+// Purpose: Manages persistent storage of analytics data with caching and optimization
+
+[Previous AnalyticsStorage.swift implementation...]
+
+// File: BasicAnalyticsResult.swift
+// Purpose: Defines the basic analytics result structure
+
+import Foundation
+
+struct BasicAnalyticsResult {
+    let cravingsByFrequency: [Date: Int]
+    let cravingsPerDay: [Date: Int]
+    let cravingsByTimeSlot: [String: Int]
+}
+
+// File: CRAVEDesignSystem.swift
+// Purpose: Centralized design system for CRAVE
+
+import UIKit
+import SwiftUI
+
+enum CRAVEDesignSystem {
+    enum Colors {
+        static let primary = Color.blue
+        static let secondary = Color.gray
+        static let success = Color.green
+        static let warning = Color.orange
+        static let danger = Color.red
+        static let background = Color(UIColor.systemBackground)
+        static let secondaryBackground = Color(UIColor.secondarySystemBackground)
+    }
+
+    enum Typography {
+        static let titleFont    = Font.system(size: 20, weight: .bold)
+        static let headingFont  = Font.system(size: 17, weight: .semibold)
+        static let bodyFont     = Font.system(size: 16, weight: .regular)
+        static let captionFont  = Font.system(size: 14, weight: .regular)
+    }
+
+    enum Layout {
+        static let standardPadding: CGFloat = 16
+        static let compactPadding: CGFloat  = 8
+        static let buttonHeight: CGFloat    = 50
+        static let textFieldHeight: CGFloat = 40
+        static let cornerRadius: CGFloat    = 8
+    }
+
+    enum Animation {
+        static let standardDuration = 0.3
+        static let quickDuration    = 0.2
+    }
+
+    enum Haptics {
+        static func success() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+        }
+        static func warning() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+        }
+        static func error() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
+        }
     }
 }

@@ -1,4 +1,5 @@
-// CRAVE/Tests/CRAVETests/AnalyticsManagerTests.swift
+// AnalyticsManagerTests.swift
+
 
 import XCTest
 import SwiftData
