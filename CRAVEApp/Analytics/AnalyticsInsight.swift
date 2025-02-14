@@ -5,6 +5,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI // Keep SwiftUI import
 
 // MARK: - Insight Protocol
 protocol AnalyticsInsight: Identifiable, Codable {
@@ -17,7 +18,7 @@ protocol AnalyticsInsight: Identifiable, Codable {
     var relevanceScore: Double { get }
     var metadata: InsightMetadata { get }
     var recommendations: [InsightRecommendation] { get }
-    
+
     func validate() -> Bool
     func calculateRelevance() -> Double
 }
@@ -33,7 +34,7 @@ struct BaseInsight: AnalyticsInsight {
     var relevanceScore: Double
     let metadata: InsightMetadata
     var recommendations: [InsightRecommendation]
-    
+
     init(
         type: InsightType,
         title: String,
@@ -51,25 +52,25 @@ struct BaseInsight: AnalyticsInsight {
         self.relevanceScore = 0.0
         self.metadata = metadata
         self.recommendations = recommendations
-        
+
         self.relevanceScore = calculateRelevance()
     }
-    
+
     func validate() -> Bool {
         guard !title.isEmpty, !description.isEmpty else { return false }
         guard confidence >= 0 && confidence <= 1 else { return false }
         guard recommendations.allSatisfy({ $0.validate() }) else { return false }
         return true
     }
-    
+
     func calculateRelevance() -> Double {
         let timeDecay = calculateTimeDecay()
         let confidenceFactor = confidence
         let importanceFactor = type.importanceWeight
-        
+
         return timeDecay * confidenceFactor * importanceFactor
     }
-    
+
     private func calculateTimeDecay() -> Double {
         let hoursSinceGeneration = Date().timeIntervalSince(timestamp) / 3600
         return exp(-hoursSinceGeneration / 24) // Decay over 24 hours
@@ -77,7 +78,7 @@ struct BaseInsight: AnalyticsInsight {
 }
 
 // MARK: - Specific Insight Types
-struct TimePatternInsight: AnalyticsInsight {
+struct TimePatternInsight: AnalyticsInsight { // ✅ Conformed to AnalyticsInsight Protocol
     let id: UUID = UUID()
     let type: InsightType = .timePattern
     let title: String
@@ -87,42 +88,42 @@ struct TimePatternInsight: AnalyticsInsight {
     var relevanceScore: Double
     let metadata: InsightMetadata
     var recommendations: [InsightRecommendation]
-    
+
     let peakHours: [Int]
     let averageIntensity: Double
-    
+
     init(peakHours: [Int], averageIntensity: Double, confidence: Double) {
         self.peakHours = peakHours
         self.averageIntensity = averageIntensity
         self.confidence = confidence
         self.metadata = InsightMetadata()
         self.recommendations = []
-        
+
         self.title = "Time-based Craving Pattern Detected"
         self.description = generateDescription()
         self.relevanceScore = calculateRelevance()
-        
+
         generateRecommendations()
     }
-    
+
     private func generateDescription() -> String {
         let formattedHours = peakHours
             .map { String(format: "%02d:00", $0) }
             .joined(separator: ", ")
-        
+
         return "You tend to experience cravings around \(formattedHours) with an average intensity of \(String(format: "%.1f", averageIntensity))/10"
     }
-    
+
     private func generateRecommendations() {
         // Generate time-specific recommendations
     }
-    
+
     func validate() -> Bool {
         guard !peakHours.isEmpty else { return false }
         guard averageIntensity >= 0 && averageIntensity <= 10 else { return false }
         return true
     }
-    
+
     func calculateRelevance() -> Double {
         let baseRelevance = confidence * type.importanceWeight
         let intensityFactor = averageIntensity / 10.0
@@ -138,7 +139,7 @@ enum InsightType: String, Codable {
     case behaviorChange
     case milestone
     case warning
-    
+
     var importanceWeight: Double {
         switch self {
         case .warning: return 1.0
@@ -157,7 +158,7 @@ struct InsightMetadata: Codable {
     var relatedInsights: [UUID] = []
     var tags: Set<String> = []
     var source: InsightSource = .analytics
-    
+
     enum InsightSource: String, Codable {
         case analytics
         case userFeedback
@@ -172,19 +173,19 @@ struct InsightRecommendation: Codable {
     let action: String
     let priority: Priority
     let difficulty: Difficulty
-    
+
     enum Priority: Int, Codable {
         case low = 1
         case medium = 2
         case high = 3
     }
-    
+
     enum Difficulty: Int, Codable {
         case easy = 1
         case moderate = 2
         case challenging = 3
     }
-    
+
     func validate() -> Bool {
         return !title.isEmpty && !action.isEmpty
     }
@@ -193,36 +194,36 @@ struct InsightRecommendation: Codable {
 // MARK: - Insight Generator
 class InsightGenerator {
     private let configuration: InsightConfiguration
-    private var insights: [AnalyticsInsight] = []
-    
+    private var insights: [any AnalyticsInsight] = [] // ✅ Use 'any AnalyticsInsight'
+
     init(configuration: InsightConfiguration = .default) {
         self.configuration = configuration
     }
-    
-    func generateInsights(from analyticsData: [CravingAnalytics]) -> [AnalyticsInsight] { // Change the input
-        var newInsights: [AnalyticsInsight] = []
-        
+
+    func generateInsights(from analyticsData: [CravingAnalytics]) -> [any AnalyticsInsight] { // ✅ Use 'any AnalyticsInsight'
+        var newInsights: [any AnalyticsInsight] = [] // ✅ Use 'any AnalyticsInsight'
+
         // Generate time pattern insights
-        if let timeInsight = generateTimePatternInsight(from: analyticsData) { //Change the input
+        if let timeInsight = generateTimePatternInsight(from: analyticsData) {
             newInsights.append(timeInsight)
         }
-        
+
         // Generate other types of insights...
-        
+
         // Filter and sort insights
         newInsights = filterInsights(newInsights)
         insights.append(contentsOf: newInsights)
-        
+
         return newInsights
     }
-    
-    private func generateTimePatternInsight(from analyticsData: [CravingAnalytics]) -> TimePatternInsight? { //Change the input
+
+    private func generateTimePatternInsight(from analyticsData: [CravingAnalytics]) -> TimePatternInsight? {
         // Implement time pattern detection logic using analyticsData
         // 1. Group cravings by hour of the day.
         let cravingsByHour = Dictionary(grouping: analyticsData, by: {
             Calendar.current.component(.hour, from: $0.timestamp)
         })
-        
+
         // 2. Find the hours with the most cravings.  (This is a *very* basic
         //    example.  You'd likely want to use a more sophisticated
         //    statistical approach.)
@@ -230,7 +231,7 @@ class InsightGenerator {
         guard let (peakHour, cravings) = sortedByCount.first else {
             return nil // No data
         }
-        
+
         let peakHours: [Int]
         //Added this condition to include cravings that happened in the surrounding hour
         if let secondPeak = sortedByCount.dropFirst().first, Double(secondPeak.value.count) / Double(cravings.count) > 0.60 {
@@ -238,12 +239,12 @@ class InsightGenerator {
         } else{
             peakHours = [peakHour]
         }
-        
-        
+
+
         // 3. Calculate the average intensity for those hours.
         let totalIntensity = cravings.reduce(0) { $0 + $1.intensity }
         let averageIntensity = Double(totalIntensity) / Double(cravings.count)
-        
+
         // 4.  Create an insight if the count is above a threshold.  (This
         //     threshold would ideally be determined through data analysis
         //     and potentially user-specific.)
@@ -251,12 +252,12 @@ class InsightGenerator {
         guard cravings.count >= 3 else { // Example threshold
             return nil
         }
-        
+
         // 5.  Create and return the insight.
         return TimePatternInsight(peakHours: peakHours, averageIntensity: Double(averageIntensity), confidence: confidence)
     }
-    
-    private func filterInsights(_ insights: [AnalyticsInsight]) -> [AnalyticsInsight] {
+
+    private func filterInsights(_ insights: [any AnalyticsInsight]) -> [any AnalyticsInsight] { // ✅ Use 'any AnalyticsInsight'
         insights
             .filter { $0.validate() }
             .filter { $0.confidence >= configuration.minimumConfidence }
@@ -271,7 +272,7 @@ struct InsightConfiguration {
     let minimumConfidence: Double
     let maximumInsights: Int
     let relevanceThreshold: Double
-    
+
     static let `default` = InsightConfiguration(
         minimumConfidence: 0.6,
         maximumInsights: 10,
@@ -290,3 +291,4 @@ extension BaseInsight {
         )
     }
 }
+

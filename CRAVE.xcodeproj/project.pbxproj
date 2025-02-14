@@ -67,7 +67,7 @@
 				Analytics/AnalyticsPrediction.swift = (ios, );
 				Analytics/AnalyticsProcessor.swift = (ios, );
 				Analytics/AnalyticsReporter.swift = (ios, );
-				Analytics/AnalyticsStrorage.swift = (ios, );
+				Analytics/AnalyticsStorage.swift = (ios, );
 				Analytics/AnalyticsView.swift = (ios, );
 				Analytics/AnalyticsViewModel.swift = (ios, );
 				Analytics/BasicAnalyticsResult.swift = (ios, );

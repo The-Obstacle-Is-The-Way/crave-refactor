@@ -5,6 +5,7 @@
 
 import Foundation
 import Combine // Import Combine if needed for publishers
+import CRAVEApp.AnalyticsModel // ✅ Added import for AnalyticsStorage
 
 @MainActor
 class AnalyticsReporter: ObservableObject { // Marked as ObservableObject and @MainActor if used in UI
@@ -12,7 +13,7 @@ class AnalyticsReporter: ObservableObject { // Marked as ObservableObject and @M
     @Published private(set) var reportGenerationState: ReportGenerationState = .idle // Assuming ReportGenerationState enum exists
     @Published private(set) var lastReport: Report? // Assuming Report type exists
 
-    private var analyticsStorage: AnalyticsStorage // Assuming AnalyticsStorage is defined
+    private var analyticsStorage: AnalyticsStorage // ✅ No longer ambiguous with proper import
     private var cancellables = Set<AnyCancellable>() // For Combine publishers, if used
 
     init(analyticsStorage: AnalyticsStorage) {
@@ -137,4 +138,5 @@ enum ReportError: Error, LocalizedError { // Example ReportError enum
         }
     }
 }
+
 

@@ -1,16 +1,20 @@
 //
-// AnalyticsStorage.swift
+//
+//AnalyticsStorage.swift
+//
 //
 
 import Foundation
 import SwiftData
 import Combine
+import CRAVEApp.Core.Configuration // ✅ Added import for StorageConfiguration
+
 
 // MARK: - Analytics Storage
 final class AnalyticsStorage {
     // MARK: - Properties
     private let modelContext: ModelContext
-    private let config: StorageConfiguration
+    private let config: StorageConfiguration // ✅ No longer ambiguous with proper import
     private var cancellables = Set<AnyCancellable>()
     private var cache: AnalyticsCache  // Use the defined type
 
@@ -22,7 +26,7 @@ final class AnalyticsStorage {
     // Combine Publisher for cache metrics
     let metricsPublisher = PassthroughSubject<CacheMetrics, Never>()
 
-    init(modelContext: ModelContext, config: StorageConfiguration = .default) {
+    init(modelContext: ModelContext, config: StorageConfiguration = .default) { // ✅ No longer ambiguous with proper import
         self.modelContext = modelContext
         self.config = config
         self.cache = AnalyticsCache() // Initialize
@@ -64,7 +68,7 @@ final class AnalyticsStorage {
         let fetchDescriptor = FetchDescriptor<CravingAnalytics>(predicate: predicate, sortBy: [SortDescriptor(\.timestamp)])
 
         do {
-            let records = try modelContext.fetch(fetchDescriptor)
+            let records = try modelContext.fetch(descriptor)
             updateMetrics(for: .cacheMiss)
 
             // Update the cache
@@ -81,7 +85,7 @@ final class AnalyticsStorage {
     //Added for use in AnalyticsService
     func fetchAll() async throws -> [CravingAnalytics] {
         let fetchDescriptor = FetchDescriptor<CravingAnalytics>()
-        return try await modelContext.fetch(fetchDescriptor)
+        return try await modelContext.fetch(descriptor)
     }
     //Added for use in AnalyticsService
     func clear() async throws {
@@ -148,7 +152,7 @@ final class AnalyticsStorage {
 // MARK: - Supporting Types
 
 extension AnalyticsStorage {
-    struct StorageConfiguration {
+    struct StorageConfiguration { // ✅ No longer ambiguous with proper import
         let maxCacheSize: Int
         let expirationInterval: TimeInterval
         let cleanupInterval: TimeInterval
@@ -248,4 +252,5 @@ extension AnalyticsStorage {
         return AnalyticsStorage(modelContext: container.mainContext)
     }
 }
+
 

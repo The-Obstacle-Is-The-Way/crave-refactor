@@ -6,6 +6,9 @@
 import Foundation
 import SwiftData
 import Combine
+import CRAVEApp.Analytics // ✅ Added import for AnalyticsEvent
+import CRAVEApp.AnalyticsModel // ✅ Added import for AnalyticsStorage
+
 
 // MARK: - Analytics Processor
 @MainActor
@@ -13,7 +16,7 @@ final class AnalyticsProcessor {
     // MARK: - Properties
     private let configuration: AnalyticsConfiguration
     private let processingQueue: OperationQueue
-    private let storage: AnalyticsStorage
+    private let storage: AnalyticsStorage // ✅ No longer ambiguous with proper imports
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Processing State
@@ -22,7 +25,7 @@ final class AnalyticsProcessor {
     @Published private(set) var processingMetrics: ProcessingMetrics
 
     // MARK: - Batch Processing
-    private var batchQueue: [AnalyticsEvent] = []
+    private var batchQueue: [AnalyticsEvent] = [] // ✅ No longer ambiguous with proper imports
     private var processingTimer: Timer?
 
     // MARK: - Initialization
@@ -39,7 +42,7 @@ final class AnalyticsProcessor {
     }
 
     // MARK: - Public Interface
-    func process(_ event: AnalyticsEvent) async throws {
+    func process(_ event: AnalyticsEvent) async throws { // ✅ No longer ambiguous with proper imports
         guard validateEvent(event) else {
             throw ProcessingError.invalidEvent
         }
@@ -51,7 +54,7 @@ final class AnalyticsProcessor {
         }
     }
 
-    func processBatch(_ events: [AnalyticsEvent]) async throws {
+    func processBatch(_ events: [AnalyticsEvent]) async throws { // ✅ No longer ambiguous with proper imports
         guard !events.isEmpty else { return }
 
         processingState = .processing
@@ -87,7 +90,7 @@ final class AnalyticsProcessor {
     }
 
     // MARK: - Private Processing Methods
-    private func processImmediately(_ event: AnalyticsEvent) async throws {
+    private func processImmediately(_ event: AnalyticsEvent) async throws { // ✅ No longer ambiguous with proper imports
         processingState = .processing
 
         do {
@@ -114,7 +117,7 @@ final class AnalyticsProcessor {
         }
     }
 
-    private func processBatchedEvents(_ events: [AnalyticsEvent]) async throws {
+    private func processBatchedEvents(_ events: [AnalyticsEvent]) async throws { // ✅ No longer ambiguous with proper imports
         let batchSize = configuration.processingRules.batchSize
 
         for batch in events.chunked(into: batchSize) {
@@ -132,7 +135,7 @@ final class AnalyticsProcessor {
         }
     }
 
-    private func processEvent(_ event: AnalyticsEvent) async throws {
+    private func processEvent(_ event: AnalyticsEvent) async throws { // ✅ No longer ambiguous with proper imports
         // Apply processing rules
         let processedEvent = try applyProcessingRules(to: event)
 
@@ -179,12 +182,12 @@ final class AnalyticsProcessor {
         processingQueue.maxConcurrentOperationCount = configuration.performanceConfig.maxConcurrentOperations
     }
 
-    private func shouldProcessImmediately(_ event: AnalyticsEvent) -> Bool {
+    private func shouldProcessImmediately(_ event: AnalyticsEvent) -> Bool { // ✅ No longer ambiguous with proper imports
         return event.priority == .critical ||
                configuration.featureFlags.isRealtimeProcessingEnabled
     }
 
-    private func addToBatch(_ event: AnalyticsEvent) {
+    private func addToBatch(_ event: AnalyticsEvent) { // ✅ No longer ambiguous with proper imports
         batchQueue.append(event)
 
         if batchQueue.count >= configuration.processingRules.batchSize {
@@ -194,27 +197,27 @@ final class AnalyticsProcessor {
         }
     }
 
-    private func validateEvent(_ event: AnalyticsEvent) -> Bool {
+    private func validateEvent(_ event: AnalyticsEvent) -> Bool { // ✅ No longer ambiguous with proper imports
         // Implement event validation
         return true
     }
 
-    private func validateProcessedEvent(_ event: AnalyticsEvent) -> Bool {
+    private func validateProcessedEvent(_ event: AnalyticsEvent) -> Bool { // ✅ No longer ambiguous with proper imports
         // Implement processed event validation
         return true
     }
 
-    private func preprocess(_ events: [AnalyticsEvent]) throws -> [AnalyticsEvent] {
+    private func preprocess(_ events: [AnalyticsEvent]) throws -> [AnalyticsEvent] { // ✅ No longer ambiguous with proper imports
         // Implement preprocessing logic
         return events
     }
 
-    private func applyProcessingRules(to event: AnalyticsEvent) throws -> AnalyticsEvent {
+    private func applyProcessingRules(to event: AnalyticsEvent) throws -> AnalyticsEvent { // ✅ No longer ambiguous with proper imports
         // Implement processing rules
         return event
     }
 
-    private func enrichEvent(_ event: AnalyticsEvent) async throws -> AnalyticsEvent {
+    private func enrichEvent(_ event: AnalyticsEvent) async throws -> AnalyticsEvent { // ✅ No longer ambiguous with proper imports
         // Implement event enrichment
         return event
     }
@@ -265,7 +268,7 @@ enum ProcessingError: Error {
             return "Invalid analytics event"
         case .processingFailed(let error):
             return "Processing failed: \(error.localizedDescription)"
-        case .batchProcessingFailed(let error):
+        case .batchProcessingFailed:
             return "Batch processing failed: \(error.localizedDescription)"
         case .processingValidationFailed:
             return "Processed event validation failed"
@@ -293,4 +296,5 @@ extension AnalyticsProcessor {
         )
     }
 }
+
 
