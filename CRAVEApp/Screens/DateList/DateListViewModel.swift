@@ -5,7 +5,7 @@ import SwiftData
 @MainActor
 final class DateListViewModel: ObservableObject {
     @Published var cravings: [CravingModel] = []
-    private var modelContext: ModelContext?
+    private var modelContext: ModelContext? // Keep this as an optional
 
     init() {
     }
@@ -20,11 +20,9 @@ final class DateListViewModel: ObservableObject {
         }
     }
 
+    /// Loads cravings from the persistent store asynchronously.
       func loadCravings() {
-        guard let context = modelContext else {
-              print("ModelContext is nil. Cannot load cravings.")
-              return
-          }
+        // No guard needed here, we handle the optional context in fetchCravings
         Task {
             let fetchedCravings = await fetchCravings()
             await MainActor.run {
@@ -34,13 +32,13 @@ final class DateListViewModel: ObservableObject {
     }
 
     private func fetchCravings() async -> [CravingModel] {
-        guard let modelContext = self.modelContext else {  // Directly use self.modelContext
+        guard let modelContext = self.modelContext else { // Correct unwrapping
             print("ModelContext not available.")
             return []
         }
         do {
-            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)]) //sort desc
-            return try modelContext.fetch(descriptor) // Directly use self.modelContext
+            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+            return try modelContext.fetch(descriptor) // Correctly use the LOCAL 'modelContext'
         } catch {
             print("Error fetching cravings: \(error)")
             return []
