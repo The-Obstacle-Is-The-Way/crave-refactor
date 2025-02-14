@@ -26,17 +26,21 @@ struct AnalyticsView: View {
 
 struct AnalyticsView_Previews: PreviewProvider {
     static var previews: some View {
-        // Create an in-memory ModelContainer for preview purposes.
-        let container = try! ModelContainer(for: [CravingModel.self],
-                                            configurations: [.init(isStoredInMemoryOnly: true)])
-        // Explicitly cast container.mainContext to ModelContext.
-        let context = container.mainContext as ModelContext
-        // Instantiate CravingManager using its initializer that takes a ModelContext.
-        let cravingManager = CravingManager(context: context)
-        // Create the AnalyticsViewModel with the CravingManager.
-        let viewModel = AnalyticsViewModel(cravingManager: cravingManager)
-        // Inject the container into the view's environment.
-        return AnalyticsView(viewModel: viewModel)
-            .modelContainer(container)
+        do {
+            // Create an in-memory ModelContainer for preview purposes.
+            let config = ModelConfiguration(isStoredInMemoryOnly: true)
+            let container = try ModelContainer(for: [CravingModel.self], configurations: [config])
+            // Retrieve the preview context.
+            let context = container.mainContext
+            // Instantiate CravingManager using its new initializer.
+            let cravingManager = CravingManager(cravingManager: context)
+            // Create the AnalyticsViewModel with the CravingManager.
+            let viewModel = AnalyticsViewModel(cravingManager: cravingManager)
+            // Inject the container into the view's environment.
+            return AnalyticsView(viewModel: viewModel)
+                .modelContainer(container)
+        } catch {
+            return Text("Failed to create preview: \(error.localizedDescription)")
+        }
     }
 }
