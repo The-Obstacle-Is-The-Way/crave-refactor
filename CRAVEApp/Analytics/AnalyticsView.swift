@@ -1,14 +1,13 @@
 //
-//  AnalyticsView.swift
+//  CRAVEApp/Analytics/AnalyticsView.swift
 //  CRAVE
 //
-
 
 import SwiftUI
 import SwiftData
 
 struct AnalyticsView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var modelContext // Correct @Environment syntax
     @StateObject private var viewModel = AnalyticsViewModel()
 
     var body: some View {
@@ -37,9 +36,18 @@ struct AnalyticsView: View {
                 }
             }
             .navigationTitle("Analytics")
-            .onAppear {
-                viewModel.loadAnalytics(modelContext: modelContext)
+            .onAppear { // Correct onAppear usage
+                viewModel.loadAnalytics(modelContext: modelContext) // Pass modelContext to viewModel method
             }
         }
     }
 }
+
+#Preview { // Basic Preview Provider
+    MainActor.assumeIsolated {
+        let container = try! ModelContainer(for: CravingModel.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        return AnalyticsView()
+            .modelContainer(container)
+    }
+}
+

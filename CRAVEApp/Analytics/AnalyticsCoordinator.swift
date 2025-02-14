@@ -1,146 +1,103 @@
-// File: AnalyticsCoordinator.swift
+//
+// CRAVEApp/Analytics/AnalyticsCoordinator.swift
 // Purpose: Coordinates and orchestrates all analytics operations across the app
+//
 
 import Foundation
 import SwiftData
-import Combine
+import Combine // Make sure to import Combine
 
-// This class acts as a central point for coordinating analytics operations.
-// It's responsible for:
-// - Receiving analytics events
-// - Processing events (using AnalyticsProcessor)
-// - Generating insights (using AnalyticsInsightGenerator)
-// - Making predictions (using PredictionEngine)
-// - Storing and retrieving analytics data (using AnalyticsStorage)
-// - Generating reports (using AnalyticsReporter)
+@MainActor
+class AnalyticsCoordinator: ObservableObject { // Marked as ObservableObject and @MainActor
 
-final class AnalyticsCoordinator: ObservableObject {
+    // MARK: - Published Properties (if needed for UI updates)
+    // Example: @Published var currentReport: Report?
 
-    // MARK: - Dependencies
-    private let analyticsService: AnalyticsService
-    private let eventTrackingService: EventTrackingService
-    private let patternDetectionService: PatternDetectionService
-    private let configuration: AnalyticsConfiguration
+    // MARK: - Dependencies (Assuming these services exist and are defined elsewhere)
+    private let analyticsService: AnalyticsService // Assuming AnalyticsService is defined
+    private let eventTrackingService: EventTrackingService // Assuming EventTrackingService is defined
+    private let patternDetectionService: PatternDetectionService // Assuming PatternDetectionService is defined
+    private let analyticsStorage: AnalyticsStorage // Assuming AnalyticsStorage is defined
 
-    // MARK: - Published Properties (for UI updates)
-    @Published private(set) var currentInsights: [AnalyticsInsight] = []
-    @Published private(set) var currentPredictions: [AnalyticsPrediction] = []
-    @Published private(set) var processingState: ProcessingState = .idle // Define this enum
-
-    // MARK: - Private Properties
-    private var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>() // For Combine publishers, if used
 
     // MARK: - Initialization
-    init(analyticsService: AnalyticsService,
-         eventTrackingService: EventTrackingService,
-         patternDetectionService: PatternDetectionService,
-         configuration: AnalyticsConfiguration = .shared) {
-
-        self.analyticsService = analyticsService
-        self.eventTrackingService = eventTrackingService
-        self.patternDetectionService = patternDetectionService
-        self.configuration = configuration
+    init(modelContext: ModelContext) { // Removed storage and configuration from init - Using ModelContext directly
+        self.modelContext = modelContext
+        self.analyticsStorage = AnalyticsStorage() // Initialize AnalyticsStorage - adjust as needed
+        self.analyticsService = AnalyticsService(analyticsStorage: self.analyticsStorage) // Initialize AnalyticsService with storage
+        self.eventTrackingService = EventTrackingService(analyticsStorage: self.analyticsStorage) // Initialize EventTrackingService with storage
+        self.patternDetectionService = PatternDetectionService(analyticsStorage: self.analyticsStorage) // Initialize PatternDetectionService with storage
 
         setupObservers()
     }
 
-    // MARK: - Setup
+    private let modelContext: ModelContext // Storing model context
+
+
     private func setupObservers() {
-        // Observe changes to analytics events
-        eventTrackingService.eventPublisher
-            .receive(on: DispatchQueue.main) // Ensure updates on main thread
-            .sink { [weak self] event in
-                Task {
-                    try? await self?.processEvent(event)
+        // Example: Observing events from EventTrackingService (if EventTrackingService publishes events)
+        eventTrackingService.eventPublisher // Assuming eventPublisher is a PassthroughSubject in EventTrackingService
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    print("Error receiving event: \(error)")
+                case .finished:
+                    print("Event stream finished")
                 }
+            } receiveValue: { [weak self] event in
+                self?.handleEvent(event)
             }
             .store(in: &cancellables)
 
-        // Observe changes to detected patterns
-        patternDetectionService.patternsPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] patterns in
-                self?.updateInsights(with: patterns)
+        patternDetectionService.patternsPublisher // Assuming patternsPublisher is a PassthroughSubject in PatternDetectionService
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    print("Error receiving patterns: \(error)")
+                case .finished:
+                    print("Pattern stream finished")
+                }
+            } receiveValue: { [weak self] patterns in // Explicit type annotation for 'patterns'
+                self?.handleDetectedPatterns(patterns: patterns)
             }
             .store(in: &cancellables)
-
-        // Observe changes to configuration (optional)
-         configuration.$currentEnvironment
-             .sink { [weak self] _ in
-                 self?.refreshAnalytics()
-             }
-             .store(in: &cancellables)
     }
 
-
-    // MARK: - Event Processing
-    private func processEvent(_ event: any AnalyticsEvent) async throws {
-        processingState = .processing
-        do {
-            try await analyticsService.processEvent(event)
-            try await analyticsService.analyzeData() // Aggregate and analyze
-            processingState = .idle
-        } catch {
-            processingState = .error
-            // Handle the error appropriately (log, display message, etc.)
-            print("Error processing event: \(error)")
-        }
-    }
-
-
-    // MARK: - Insight and Prediction Updates
-    private func updateInsights(with patterns: [DetectedPattern]) {
-        // This is a *very* simplified example.  You would likely use the
-        // AnalyticsInsightGenerator and PredictionEngine here.
-        let newInsights = patterns.map { pattern -> BaseInsight in
-            BaseInsight(type: .triggerPattern, title: pattern.name, description: pattern.description, confidence: pattern.strength) // Example
-        }
-
-        currentInsights = newInsights
-        // Generate predictions based on patterns (simplified example)
-        //  let newPredictions = ...
-        //  currentPredictions = newPredictions
-    }
-
-
-
-    // MARK: - Public Interface (for UI interaction)
-
-    func refreshAnalytics() {
+    private func handleEvent(event: any AnalyticsEvent) { // Use 'any AnalyticsEvent'
         Task {
-            do {
-                try await analyticsService.analyzeData()
-            } catch {
-                // Handle error
-                print("Error refreshing analytics: \(error)")
-            }
+             await analyticsService.processEvent(event: event) // Assuming processEvent is async and defined in AnalyticsService
         }
     }
 
-    func generateReport(type: AnalyticsService.ReportType, timeRange: DateInterval) async throws -> AnalyticsService.Report {
-         try await analyticsService.generateReport(type: type, timeRange: timeRange)
+    private func handleDetectedPatterns(patterns: [any DetectedPattern]) { // Use 'any DetectedPattern'
+        Task {
+            await analyticsService.analyzeData(patterns: patterns) // Assuming analyzeData is async and defined in AnalyticsService
+        }
+    }
+
+
+    func generateReport(for type: ReportType, format: ReportFormat) async throws -> Report { // Assuming ReportType, ReportFormat, Report are defined
+        return try await analyticsService.generateReport(for: type, format: format) // Assuming generateReport is async and defined in AnalyticsService
+    }
+
+    func fetchInsights() async throws -> [any AnalyticsInsight] { // Use 'any AnalyticsInsight'
+        return try await analyticsService.fetchInsights() // Assuming fetchInsights is async and defined in AnalyticsService
+    }
+
+    func fetchPredictions() async throws -> [any AnalyticsPrediction] { // Use 'any AnalyticsPrediction'
+        return try await analyticsService.fetchPredictions() // Assuming fetchPredictions is async and defined in AnalyticsService
     }
 }
 
-
-// MARK: - Preview (Simplified for compilation)
+// MARK: - Preview (Adjust PreviewProvider as needed for your testing/preview setup)
 extension AnalyticsCoordinator {
-    static func preview() -> AnalyticsCoordinator {
-        // Use in-memory store for previews
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: CravingModel.self, configurations: config) //, configurations: config
+    static var preview: AnalyticsCoordinator {
+        let config = AnalyticsConfiguration.preview // Assuming AnalyticsConfiguration.preview is defined
+        let container = try! ModelContainer(for: CravingModel.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)) // In-memory config for preview
         let context = container.mainContext
+        return AnalyticsCoordinator(modelContext: context) // Initialize with context
 
-        let analyticsService = AnalyticsService(modelContext: context)
-        let eventTrackingService = EventTrackingService.preview() // You'll need a preview version
-        let patternDetectionService = PatternDetectionService() // Use a basic instance
-
-        return AnalyticsCoordinator(
-            analyticsService: analyticsService,
-            eventTrackingService: eventTrackingService,
-            patternDetectionService: patternDetectionService,
-            configuration: .preview
-        )
     }
 }
 

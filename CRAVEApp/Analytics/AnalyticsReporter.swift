@@ -1,184 +1,140 @@
-// File: AnalyticsReporter.swift
+//
+// CRAVEApp/Analytics/AnalyticsReporter.swift
 // Purpose: Generates and manages analytics reports with customizable formats and delivery mechanisms
+//
 
 import Foundation
-import SwiftData
-import Charts
+import Combine // Import Combine if needed for publishers
 
-// MARK: - Analytics Reporter
 @MainActor
-final class AnalyticsReporter {
-    // MARK: - Properties
-    private let configuration: AnalyticsConfiguration
-    private let storage: AnalyticsStorage
-    private let formatter: AnalyticsFormatter
+class AnalyticsReporter: ObservableObject { // Marked as ObservableObject and @MainActor if used in UI
 
-    // MARK: - Report Cache
-    private var reportCache: [ReportType: Report] = [:]
-    private let cacheTimeout: TimeInterval = 300 // 5 minutes
+    @Published private(set) var reportGenerationState: ReportGenerationState = .idle // Assuming ReportGenerationState enum exists
+    @Published private(set) var lastReport: Report? // Assuming Report type exists
 
-    // MARK: - Report Generation State
-    @Published private(set) var generationState: ReportGenerationState = .idle
-    @Published private(set) var lastGeneratedReport: Report?
-    @Published private(set) var generationProgress: Double = 0.0
+    private var analyticsStorage: AnalyticsStorage // Assuming AnalyticsStorage is defined
+    private var cancellables = Set<AnyCancellable>() // For Combine publishers, if used
 
-    // MARK: - Initialization
-    init(
-        configuration: AnalyticsConfiguration = .shared,
-        storage: AnalyticsStorage
-    ) {
-        self.configuration = configuration
-        self.storage = storage
-        self.formatter = AnalyticsFormatter()
+    init(analyticsStorage: AnalyticsStorage) {
+        self.analyticsStorage = analyticsStorage
+        setupObservers()
     }
 
-    // MARK: - Public Interface
-    func generateReport(
-        type: ReportType,
-        timeRange: DateInterval,
-        format: ReportFormat = .json
-    ) async throws -> Report {
-        // Check cache first
-        if let cachedReport = getCachedReport(type: type, timeRange: timeRange) {
-            return cachedReport
-        }
-
-        generationState = .generating
-        generationProgress = 0.0
-
-        do {
-            // Fetch data
-            let analytics = try await fetchAnalyticsData(for: timeRange)
-            updateProgress(0.3)
-
-            // Process data
-            let processedData = try await processAnalyticsData(analytics, for: type)
-            updateProgress(0.6)
-
-            // Generate report
-            let report = try await createReport(
-                type: type,
-                data: processedData,
-                timeRange: timeRange,
-                format: format
-            )
-            updateProgress(0.9)
-
-            // Cache report
-            cacheReport(report)
-
-            generationState = .completed
-            lastGeneratedReport = report
-            generationProgress = 1.0
-
-            return report
-
-        } catch {
-            generationState = .error
-            throw ReportError.generationFailed(error) // Use the defined ReportError
-        }
+    private func setupObservers() {
+        // Observer setup if needed, e.g., for report generation status updates
     }
 
-    func exportReport(_ report: Report, to format: ReportFormat) async throws -> Data {
-        switch format {
-        case .json:
-            return try JSONEncoder().encode(report)
-        case .csv:
-            return try exportToCSV(report)
-        case .pdf:
-            return try await exportToPDF(report)
-        }
-    }
+    func generateReport(for type: ReportType, format: ReportFormat) async throws -> Report { // Assuming ReportType, ReportFormat, Report are defined
+        reportGenerationState = .generating // Assuming .generating is a case in ReportGenerationState
 
-    // MARK: - Private Methods
-    private func fetchAnalyticsData(for timeRange: DateInterval) async throws -> [CravingAnalytics] {
-        return try await storage.fetchRange(timeRange)
-    }
+        // Placeholder report data - replace with actual data retrieval and report generation logic
+        let reportData = generateMockReportData(for: type) // Placeholder function for mock data
+        let reportMetadata = ReportMetadata(reportType: type, format: format, creationDate: Date()) // Placeholder metadata
 
-    private func processAnalyticsData(_ analytics: [CravingAnalytics], for type: ReportType) async throws -> ReportData {
-        switch type {
-        case .daily:
-            return try processDailyReport(analytics)
-        case .weekly:
-            return try processWeeklyReport(analytics)
-        case .monthly:
-            return try processMonthlyReport(analytics)
-        case .custom:
-            return try processCustomReport(analytics)
-        }
-    }
-
-    private func createReport(
-        type: ReportType,
-        data: ReportData,
-        timeRange: DateInterval,
-        format: ReportFormat
-    ) async throws -> Report {
-        return Report(
-            id: UUID(),
-            type: type,
-            data: data,
-            timeRange: timeRange,
+        let report = Report(
+            metadata: reportMetadata,
+            data: reportData,
             format: format,
-            generatedAt: Date(),
-            metadata: generateReportMetadata()
+            generationDate: Date(),
+            state: .completed // Assuming .completed is a case in ReportGenerationState
         )
+
+        lastReport = report
+        reportGenerationState = .completed // Assuming .completed is a case in ReportGenerationState
+        return report
     }
 
-    private func processDailyReport(_ analytics: [CravingAnalytics]) throws -> ReportData {
-        // Implement daily report processing
-        return ReportData() // Placeholder
+    private func generateMockReportData(for type: ReportType) -> ReportData { // Placeholder for mock data generation
+        // Replace with actual data fetching and formatting logic based on ReportType
+        return ReportData(title: "Mock Report", content: "This is mock report data for \(type.rawValue) report.")
     }
 
-    private func processWeeklyReport(_ analytics: [CravingAnalytics]) throws -> ReportData {
-        // Implement weekly report processing
-         return ReportData() // Placeholder
+    func exportReport(report: Report, format: ReportFormat) async throws -> URL { // Assuming Report, ReportFormat are defined
+        // Placeholder export logic
+        print("Exporting report of type \(report.metadata.reportType.rawValue) in format \(format.rawValue)")
+        return URL(fileURLWithPath: "path/to/exported/report") // Return a dummy URL for now
     }
 
-    private func processMonthlyReport(_ analytics: [CravingAnalytics]) throws -> ReportData {
-        // Implement monthly report processing
-        return ReportData() // Placeholder
+    func getReportMetadata(for type: ReportType) async throws -> ReportMetadata { // Assuming ReportType, ReportMetadata are defined
+        // Placeholder metadata retrieval logic
+        return ReportMetadata(reportType: type, format: .pdf, creationDate: Date())
     }
 
-    private func processCustomReport(_ analytics: [CravingAnalytics]) throws -> ReportData {
-        // Implement custom report processing
-         return ReportData() // Placeholder
+    func getReportData(for type: ReportType) async throws -> ReportData { // Assuming ReportType, ReportData are defined
+        // Placeholder data retrieval logic
+        return ReportData(title: "Sample Data", content: "Sample report data for \(type.rawValue) report.")
     }
 
-    private func exportToCSV(_ report: Report) throws -> Data {
-        // Implement CSV export.  This is a placeholder.  You'll need to
-        // format the report.data into a CSV string and then encode it to Data.
-        return Data() // Placeholder
+    func getLatestReport(for type: ReportType) async throws -> Report? { // Assuming ReportType, Report are defined
+        // Placeholder: return last generated report or fetch from storage
+        return lastReport // For now, return the last generated report in memory
     }
 
-    private func exportToPDF(_ report: Report) async throws -> Data {
-        // Implement PDF export. This typically involves using a library like PDFKit
-        // or a third-party PDF generation library.
-        return Data() // Placeholder
-    }
-
-    private func generateReportMetadata() -> ReportMetadata {
-        return ReportMetadata(
-            version: "1.0",
-            generator: "CRAVE Analytics Reporter",
-            environment: configuration.currentEnvironment.rawValue
-        )
-    }
-
-    private func getCachedReport(type: ReportType, timeRange: DateInterval) -> Report? {
-        guard let cached = reportCache[type],
-              cached.timeRange == timeRange,
-              Date().timeIntervalSince(cached.generatedAt) < cacheTimeout else {
-            return nil
-        }
-        return cached
-    }
-
-    private func cacheReport(_ report: Report) {
-        reportCache[report.type] = report
-    }
-
-    private func updateProgress(_ progress: Double) {
-        generationProgress = progress
+    func getAllReportsMetadata(for type: ReportType) async throws -> [ReportMetadata] { // Assuming ReportType, ReportMetadata are defined
+        // Placeholder: return array of metadata, e.g., from storage query
+        return [ReportMetadata(reportType: type, format: .pdf, creationDate: Date())]
     }
 }
+
+// MARK: - Supporting Types - Define these enums/structs as per your AnalyticsModel if not already defined
+enum ReportType: String, CaseIterable, Codable { // Example ReportType enum
+    case summary = "Summary"
+    case detailed = "Detailed"
+    case trend = "Trend"
+}
+
+enum ReportFormat: String, CaseIterable, Codable { // Example ReportFormat enum
+    case pdf = "PDF"
+    case csv = "CSV"
+    case json = "JSON"
+}
+
+enum ReportGenerationState: String, Codable { // Example ReportGenerationState enum
+    case idle
+    case generating
+    case completed
+    case error
+}
+
+struct ReportMetadata: Codable { // Example ReportMetadata struct
+    let reportType: ReportType
+    let format: ReportFormat
+    let creationDate: Date
+    // ... other metadata properties ...
+}
+
+struct ReportData: Codable { // Example ReportData struct
+    let title: String
+    let content: String
+    // ... report content properties ...
+}
+
+struct Report: Codable { // Example Report struct
+    let metadata: ReportMetadata
+    let data: ReportData
+    let format: ReportFormat
+    let generationDate: Date
+    let state: ReportGenerationState
+}
+
+// MARK: - ReportError (Define if you have custom report error handling)
+enum ReportError: Error, LocalizedError { // Example ReportError enum
+    case generationFailed(Error)
+    case exportFailed(Error)
+    case dataNotFound
+    case invalidConfiguration
+
+    var errorDescription: String? {
+        switch self {
+        case .generationFailed(let error):
+            return "Report generation failed: \(error.localizedDescription)"
+        case .exportFailed(let error):
+            return "Report export failed: \(error.localizedDescription)"
+        case .dataNotFound:
+            return "No data found to generate report."
+        case .invalidConfiguration:
+            return "Invalid report configuration."
+        }
+    }
+}
+
