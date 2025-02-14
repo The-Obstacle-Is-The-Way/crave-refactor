@@ -1,232 +1,144 @@
 // File: AnalyticsCoordinator.swift
 // Purpose: Coordinates and orchestrates all analytics operations across the app
-import Combine
+
 import Foundation
 import SwiftData
+import Combine
 
-@MainActor
+// This class acts as a central point for coordinating analytics operations.
+// It's responsible for:
+// - Receiving analytics events
+// - Processing events (using AnalyticsProcessor)
+// - Generating insights (using AnalyticsInsightGenerator)
+// - Making predictions (using PredictionEngine)
+// - Storing and retrieving analytics data (using AnalyticsStorage)
+// - Generating reports (using AnalyticsReporter)
+
 final class AnalyticsCoordinator: ObservableObject {
-    
-    // MARK: - Dependencies
 
+    // MARK: - Dependencies
     private let analyticsService: AnalyticsService
     private let eventTrackingService: EventTrackingService
     private let patternDetectionService: PatternDetectionService
     private let configuration: AnalyticsConfiguration
 
-    // MARK: - Published State
+    // MARK: - Published Properties (for UI updates)
+    @Published private(set) var currentInsights: [AnalyticsInsight] = []
+    @Published private(set) var currentPredictions: [AnalyticsPrediction] = []
+    @Published private(set) var processingState: ProcessingState = .idle // Define this enum
 
-    @Published private(set) var coordinatorState: CoordinatorState = .inactive
-    @Published private(set) var processingMetrics: CoordinationMetrics = CoordinationMetrics()
-    @Published private(set) var lastProcessingTime: Date?
-
-    // MARK: - Internal
-
+    // MARK: - Private Properties
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
+    init(analyticsService: AnalyticsService,
+         eventTrackingService: EventTrackingService,
+         patternDetectionService: PatternDetectionService,
+         configuration: AnalyticsConfiguration = .shared) {
 
-    init(
-        analyticsService: AnalyticsService,
-        eventTrackingService: EventTrackingService,
-        patternDetectionService: PatternDetectionService,
-        configuration: AnalyticsConfiguration
-    ) {
         self.analyticsService = analyticsService
         self.eventTrackingService = eventTrackingService
         self.patternDetectionService = patternDetectionService
         self.configuration = configuration
-        
-        setupCoordination()
+
+        setupObservers()
     }
 
-    // MARK: - Public Interface
-    func start() {
-        guard coordinatorState != .active else { return }
-        
-        coordinatorState = .starting
-        // Start services, setup subscriptions, etc.
-        setupSubscriptions()
-        
-        coordinatorState = .active
+    // MARK: - Setup
+    private func setupObservers() {
+        // Observe changes to analytics events
+        eventTrackingService.eventPublisher
+            .receive(on: DispatchQueue.main) // Ensure updates on main thread
+            .sink { [weak self] event in
+                Task {
+                    try? await self?.processEvent(event)
+                }
+            }
+            .store(in: &cancellables)
+
+        // Observe changes to detected patterns
+        patternDetectionService.patternsPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] patterns in
+                self?.updateInsights(with: patterns)
+            }
+            .store(in: &cancellables)
+
+        // Observe changes to configuration (optional)
+         configuration.$currentEnvironment
+             .sink { [weak self] _ in
+                 self?.refreshAnalytics()
+             }
+             .store(in: &cancellables)
     }
-    
-    func stop() {
-        guard coordinatorState == .active else { return }
-        
-        coordinatorState = .stopping
-        // Stop services, cancel subscriptions, etc.
-        cancellables.removeAll()
-        
-        coordinatorState = .inactive
-    }
-    
-    func processAnalytics() async throws {
-        guard coordinatorState == .active else {
-            throw CoordinatorError.notActive
-        }
-        
-        coordinatorState = .processing
-        let startTime = Date()
-        
+
+
+    // MARK: - Event Processing
+    private func processEvent(_ event: any AnalyticsEvent) async throws {
+        processingState = .processing
         do {
-            try await analyticsService.processAnalytics()
-            // Trigger pattern detection
-            let _ = try await patternDetectionService.detectPatterns()
-            // Generate reports (optional)
-            
-            // Update metrics
-            processingMetrics.update(for: .processed)
-            processingMetrics.updateProcessingTime(Date().timeIntervalSince(startTime))
-            lastProcessingTime = Date()
-            
-            // Notify completion (optional)
-            NotificationCenter.default.post(name: .analyticsProcessingCompleted, object: nil)
-            
-            coordinatorState = .active
-            
+            try await analyticsService.processEvent(event)
+            try await analyticsService.analyzeData() // Aggregate and analyze
+            processingState = .idle
         } catch {
-            processingMetrics.update(for: .error)
-            coordinatorState = .error(error)
-            throw CoordinatorError.processingFailed(error)
+            processingState = .error
+            // Handle the error appropriately (log, display message, etc.)
+            print("Error processing event: \(error)")
         }
     }
-    
-    func generateReport(type: AnalyticsService.ReportType) async throws -> AnalyticsService.Report { //Added ReportType and Report to AnalyticsService
-        return try await analyticsService.generateReport(type: type, timeRange: .day(Date()))
-    }
-    
-    func resetAnalytics() async throws {
-        guard coordinatorState == .active else {
-            throw CoordinatorError.notActive
+
+
+    // MARK: - Insight and Prediction Updates
+    private func updateInsights(with patterns: [DetectedPattern]) {
+        // This is a *very* simplified example.  You would likely use the
+        // AnalyticsInsightGenerator and PredictionEngine here.
+        let newInsights = patterns.map { pattern -> BaseInsight in
+            BaseInsight(type: .triggerPattern, title: pattern.name, description: pattern.description, confidence: pattern.strength) // Example
         }
-        
-        coordinatorState = .resetting
-        
-        do {
-            try await analyticsService.reset()
-            // Additional reset logic if needed
-            
-            coordinatorState = .active
-        } catch {
-            coordinatorState = .error(error)
-            throw CoordinatorError.resetFailed(error)
+
+        currentInsights = newInsights
+        // Generate predictions based on patterns (simplified example)
+        //  let newPredictions = ...
+        //  currentPredictions = newPredictions
+    }
+
+
+
+    // MARK: - Public Interface (for UI interaction)
+
+    func refreshAnalytics() {
+        Task {
+            do {
+                try await analyticsService.analyzeData()
+            } catch {
+                // Handle error
+                print("Error refreshing analytics: \(error)")
+            }
         }
     }
-    
-    // MARK: - Private Methods
-    private func setupCoordination() {
-        // Setup initial state, load configurations, etc.
-    }
-    
-    private func setupSubscriptions() {
-        // Setup Combine subscriptions to react to events,
-        // configuration changes, etc.
+
+    func generateReport(type: AnalyticsService.ReportType, timeRange: DateInterval) async throws -> AnalyticsService.Report {
+         try await analyticsService.generateReport(type: type, timeRange: timeRange)
     }
 }
 
-// MARK: - Supporting Types
-enum CoordinatorState: Equatable {
-    case inactive
-    case starting
-    case active
-    case processing
-    case stopping
-    case resetting
-    case error(Error)
-    
-    static func == (lhs: CoordinatorState, rhs: CoordinatorState) -> Bool {
-        switch (lhs, rhs) {
-        case (.inactive, .inactive),
-             (.starting, .starting),
-             (.active, .active),
-             (.processing, .processing),
-             (.stopping, .stopping),
-             (.resetting, .resetting):
-            return true
-        case (.error(let lhsError), .error(let rhsError)):
-            return lhsError.localizedDescription == rhsError.localizedDescription
-        default:
-            return false
-        }
-    }
-}
 
-enum CoordinationOperation {
-    case started
-    case stopped
-    case processed
-    case reportGenerated
-    case reset
-    case error
-}
-
-struct CoordinationMetrics {
-    private(set) var totalProcessingRuns: Int = 0
-    private(set) var totalReportsGenerated: Int = 0
-    private(set) var totalErrors: Int = 0
-    private(set) var averageProcessingTime: TimeInterval = 0
-    private(set) var lastOperationTime: Date?
-    
-    mutating func update(for operation: CoordinationOperation) {
-        lastOperationTime = Date()
-        
-        switch operation {
-        case .processed:
-            totalProcessingRuns += 1
-        case .reportGenerated:
-            totalReportsGenerated += 1
-        case .error:
-            totalErrors += 1
-        default:
-            break
-        }
-    }
-    
-    mutating func updateProcessingTime(_ time: TimeInterval) {
-        let totalTime = averageProcessingTime * Double(totalProcessingRuns)
-        averageProcessingTime = (totalTime + time) / Double(totalProcessingRuns + 1)
-    }
-}
-
-enum CoordinatorError: Error {
-    case notActive
-    case alreadyActive
-    case processingFailed(Error)
-    case reportGenerationFailed(Error)
-    case resetFailed(Error)
-    case serviceInitializationFailed(Error)
-    
-    var localizedDescription: String {
-        switch self {
-        case .notActive:
-            return "Coordinator is not active"
-        case .alreadyActive:
-            return "Coordinator is already active"
-        case .processingFailed(let error):
-            return "Processing failed: \(error.localizedDescription)"
-        case .reportGenerationFailed(let error):
-            return "Report generation failed: \(error.localizedDescription)"
-        case .resetFailed(let error):
-            return "Reset failed: \(error.localizedDescription)"
-        case .serviceInitializationFailed(let error):
-            return "Service initialization failed: \(error.localizedDescription)"
-        }
-    }
-}
-
-// MARK: - Notification Extensions
-extension Notification.Name {
-    static let analyticsProcessingCompleted = Notification.Name("analyticsProcessingCompleted")
-}
-
-// MARK: - Testing Support
+// MARK: - Preview (Simplified for compilation)
 extension AnalyticsCoordinator {
     static func preview() -> AnalyticsCoordinator {
-        AnalyticsCoordinator(
-            analyticsService: .preview(modelContext: PreviewContainer.modelContext),
-            eventTrackingService: .preview(),
-            patternDetectionService: .preview(),
+        // Use in-memory store for previews
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: CravingModel.self, configurations: config) //, configurations: config
+        let context = container.mainContext
+
+        let analyticsService = AnalyticsService(modelContext: context)
+        let eventTrackingService = EventTrackingService.preview() // You'll need a preview version
+        let patternDetectionService = PatternDetectionService() // Use a basic instance
+
+        return AnalyticsCoordinator(
+            analyticsService: analyticsService,
+            eventTrackingService: eventTrackingService,
+            patternDetectionService: patternDetectionService,
             configuration: .preview
         )
     }

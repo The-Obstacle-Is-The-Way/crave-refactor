@@ -9,7 +9,7 @@ protocol AnalyticsEvent: Codable, Identifiable {
     var id: UUID { get }
     var timestamp: Date { get }
     var eventType: AnalyticsEventType { get }
-    var metadata: [String: AnyHashable] { get }
+    var metadata: [String: AnyHashable] { get set } // Make mutable
     var priority: EventPriority { get }
 }
 
@@ -18,7 +18,7 @@ struct BaseAnalyticsEvent: AnalyticsEvent {
     let id: UUID
     let timestamp: Date
     let eventType: AnalyticsEventType
-    let metadata: [String: AnyHashable]
+    var metadata: [String: AnyHashable] // Use AnyHashable for Codable with mixed types
     let priority: EventPriority
     
     init(
@@ -101,7 +101,7 @@ final class AnalyticsEventPipeline {
         setupPipeline()
     }
     
-    func process(_ event: AnalyticsEvent) async throws {
+    func process(_ event: any AnalyticsEvent) async throws { // Use 'any'
         await eventQueue.enqueue(event)
     }
     
@@ -121,7 +121,7 @@ final class AnalyticsEventPipeline {
         }
     }
     
-    private func processEvent(_ event: AnalyticsEvent) async throws {
+    private func processEvent(_ event: any AnalyticsEvent) async throws { // Use 'any'
         for processor in processors {
             try await processor.process(event)
         }
@@ -129,59 +129,109 @@ final class AnalyticsEventPipeline {
 }
 
 // MARK: - Event Queue
+//actor AsyncEventQueue: AsyncSequence {
+//    typealias Element = AnalyticsEvent // Use 'any AnalyticsEvent'
+//
+//    private var events: [QueuedEvent] = []
+//    private var continuation: AsyncStream<Element>.Continuation?
+//    private let stream: AsyncStream<Element>
+//
+//    init() {
+//        var continuation: AsyncStream<Element>.Continuation!
+//        self.stream = AsyncStream { continuation = $0 }
+//        self.continuation = continuation
+//    }
+//
+//    func enqueue(_ event: AnalyticsEvent) { // Use 'any AnalyticsEvent'
+//        let queuedEvent = QueuedEvent(event: event, enqueuedAt: Date())
+//        events.append(queuedEvent)
+//        processNextEvent()
+//    }
+//
+//    private func processNextEvent() {
+//        guard let event = events.first else { return }
+//
+//        let processingDelay = event.event.priority.processingDelay
+//        let delayElapsed = Date().timeIntervalSince(event.enqueuedAt) >= processingDelay
+//
+//        if delayElapsed {
+//            events.removeFirst()
+//            continuation?.yield(event.event)
+//        }
+//    }
+//
+//    nonisolated func makeAsyncIterator() -> AsyncStream<Element>.AsyncIterator {
+//        stream.makeAsyncIterator()
+//    }
+//
+//    private struct QueuedEvent {
+//        let event: any AnalyticsEvent // Use 'any AnalyticsEvent'
+//        let enqueuedAt: Date
+//    }
+//}
+
+// MARK: - Event Queue (Corrected Implementation)
 actor AsyncEventQueue: AsyncSequence {
-    typealias Element = AnalyticsEvent
-    
+    typealias Element = any AnalyticsEvent // Use 'any'
+
     private var events: [QueuedEvent] = []
-    private var continuation: AsyncStream<Element>.Continuation?
-    private let stream: AsyncStream<Element>
-    
-    init() {
-        var continuation: AsyncStream<Element>.Continuation!
-        self.stream = AsyncStream { continuation = $0 }
-        self.continuation = continuation
-    }
-    
-    func enqueue(_ event: AnalyticsEvent) {
-        let queuedEvent = QueuedEvent(event: event, enqueuedAt: Date())
-        events.append(queuedEvent)
-        processNextEvent()
-    }
-    
-    private func processNextEvent() {
-        guard let event = events.first else { return }
-        
-        let processingDelay = event.event.priority.processingDelay
-        let delayElapsed = Date().timeIntervalSince(event.enqueuedAt) >= processingDelay
-        
-        if delayElapsed {
-            events.removeFirst()
-            continuation?.yield(event.event)
+    private var continuations: [CheckedContinuation<any AnalyticsEvent?, Never>] = []
+
+    func enqueue(_ event: any AnalyticsEvent) {
+        if let continuation = continuations.popLast() {
+            continuation.resume(returning: event)
+        } else {
+            events.append(QueuedEvent(event: event, enqueuedAt: Date()))
         }
     }
-    
-    func makeAsyncIterator() -> AsyncStream<Element>.AsyncIterator {
-        stream.makeAsyncIterator()
+
+     func dequeue() async -> (any AnalyticsEvent)? {
+        if !events.isEmpty {
+            return events.removeFirst().event
+        } else {
+            return await withCheckedContinuation { continuation in
+                continuations.append(continuation)
+            }
+        }
     }
-    
+
+     func peek() -> (any AnalyticsEvent)? {
+        return events.first?.event
+    }
+
+    // AsyncSequence conformance
+    struct AsyncQueueIterator: AsyncIteratorProtocol {
+        let queue: AsyncEventQueue
+
+        mutating func next() async -> (any AnalyticsEvent)? {
+            await queue.dequeue() // Await the dequeue
+        }
+    }
+
+    nonisolated func makeAsyncIterator() -> AsyncQueueIterator {
+        return AsyncQueueIterator(queue: self)
+    }
+
+
     private struct QueuedEvent {
-        let event: AnalyticsEvent
+        let event: any AnalyticsEvent
         let enqueuedAt: Date
     }
 }
 
+
 // MARK: - Event Processing Protocols
 protocol EventProcessor {
-    func process(_ event: AnalyticsEvent) async throws
+    func process(_ event: any AnalyticsEvent) async throws // Use 'any'
 }
 
 protocol EventErrorHandler {
-    func handle(_ error: Error, for event: AnalyticsEvent) async
+    func handle(_ error: Error, for event: any AnalyticsEvent) async // Use 'any'
 }
 
 // MARK: - Default Implementations
 struct DefaultEventErrorHandler: EventErrorHandler {
-    func handle(_ error: Error, for event: AnalyticsEvent) async {
+    func handle(_ error: Error, for event: any AnalyticsEvent) async { // Use 'any'
         print("Error processing event \(event.id): \(error.localizedDescription)")
     }
 }
