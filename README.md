@@ -10,10 +10,10 @@
 
 CRAVEApp/
 ├── Docs/
-│   ├── Images/
+│   ├── Images/ 
 │   │   ├── architecture-diagram.png
-│   │   ├── crave-ui-preview.png
-│   │   └── README-assets.png
+│   │   ├── crave-logging-flow.png
+│   │   └── crave-navigation-states.png
 │   ├── AnalyticsArchitecture.md
 │   ├── AnalyticsImplementationGuide.md
 │   └── AnalyticsAPIReference.md
