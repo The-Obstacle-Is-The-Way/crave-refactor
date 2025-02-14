@@ -15,19 +15,14 @@ struct LogCravingView: View {
     var body: some View {
         NavigationView {
             VStack {
-                TextField("Enter craving...", text: $cravingText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
+                CraveTextEditor(text: $cravingText, placeholder: "Enter craving...") // Using custom text editor
 
-                Button(action: saveCraving) {
-                    Text("Log Craving")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(cravingText.isEmpty ? Color.gray : Color.blue) // ✅ Disable button for empty input
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                CraveButton(title: "Log Craving") { // Using custom button
+                    if !cravingText.isEmpty {
+                        saveCraving()
+                    }
                 }
-                .disabled(cravingText.isEmpty) // ✅ Prevents empty cravings
+                .disabled(cravingText.isEmpty) // Disable button for empty input
                 .padding()
 
                 Spacer()
