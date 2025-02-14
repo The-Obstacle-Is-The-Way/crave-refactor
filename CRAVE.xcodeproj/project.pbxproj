@@ -57,17 +57,55 @@
 				Tests/CRAVEUITests/CRAVEUITests.swift,
 			);
 			platformFiltersByRelativePath = {
+				Analytics/AnalyticsAggregator.swift = (ios, );
+				Analytics/AnalyticsCoordinator.swift = (ios, );
+				Analytics/AnalyticsEvent.swift = (ios, );
+				Analytics/AnalyticsInsight.swift = (ios, );
+				Analytics/AnalyticsManager.swift = (ios, );
+				Analytics/AnalyticsModel.swift = (ios, );
+				Analytics/AnalyticsPattern.swift = (ios, );
+				Analytics/AnalyticsPrediction.swift = (ios, );
+				Analytics/AnalyticsProcessor.swift = (ios, );
+				Analytics/AnalyticsReporter.swift = (ios, );
+				Analytics/AnalyticsStrorage.swift = (ios, );
+				Analytics/AnalyticsView.swift = (ios, );
+				Analytics/AnalyticsViewModel.swift = (ios, );
+				Analytics/BasicAnalyticsResult.swift = (ios, );
 				CRAVEApp.swift = (ios, );
 				ContentView.swift = (ios, );
+				Core/Configuration/AnalyticsConfiguration.swift = (ios, );
+				Core/Configuration/AnalyticsConstants.swift = (ios, );
 				Core/DesignSystem/CRAVEDesignSystem.swift = (ios, );
 				Core/DesignSystem/Components/CraveButton.swift = (ios, );
 				Core/DesignSystem/Components/CraveTextEditor.swift = (ios, );
+				"Core/Extensions/Array+Analytics.swift" = (ios, );
 				"Core/Extensions/View+Extensions.swift" = (ios, );
+				Core/Services/AnalyticsService.swift = (ios, );
+				Core/Services/EventTrackingService.swift = (ios, );
+				Core/Services/PatternDetectionService.swift = (ios, );
+				Core/Utilities/AnalyticsError.swift = (ios, );
+				Core/Utilities/AnalyticsFormatter.swift = (ios, );
+				Core/Utilities/AnalyticsValidator.swift = (ios, );
+				Data/CravingAnalyzer.swift = (ios, );
 				Data/CravingManager.swift = (ios, );
 				Navigation/CRAVETabView.swift = (ios, );
+				Screens/AnalyticsDashboard/AnalyticsDashboardView.swift = (ios, );
+				Screens/AnalyticsDashboard/AnalyticsDashboardViewModel.swift = (ios, );
+				Screens/AnalyticsDashboard/Components/AnalyticsInsightView.swift = (ios, );
+				Screens/AnalyticsDashboard/Components/CalendarHeatmapView.swift = (ios, );
+				Screens/AnalyticsDashboard/Components/CravingBarChart.swift = (ios, );
+				Screens/AnalyticsDashboard/Components/PatternVisualizationView.swift = (ios, );
+				Screens/AnalyticsDashboard/Components/TimeOfDayPieChart.swift = (ios, );
+				Screens/CravingList/CravingListAnalytics.swift = (ios, );
 				Screens/CravingList/CravingListView.swift = (ios, );
+				Screens/CravingList/CravingListViewModel.swift = (ios, );
+				Screens/DateList/DateListAnalytics.swift = (ios, );
 				Screens/DateList/DateListView.swift = (ios, );
+				Screens/DateList/DateListViewModel.swift = (ios, );
+				Screens/LogCraving/LogCravingAnalytics.swift = (ios, );
 				Screens/LogCraving/LogCravingView.swift = (ios, );
+				Screens/LogCraving/LogCravingViewModel.swift = (ios, );
+				"Utilities/Date+Extensions.swift" = (ios, );
 			};
 			target = 28B8D8DE2D5CD84000FA0F1E /* CRAVE */;
 		};
@@ -95,6 +133,28 @@
 				Tests/CRAVETests/InteractionDataTests.swift,
 				Tests/CRAVETests/PatternDetectionServiceTests.swift,
 			);
+			platformFiltersByRelativePath = {
+				Tests/CRAVETests/AnalyticsAggregatorTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsConfigurationTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsCoordinatorTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsEventTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsFormatterTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsInsightTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsManagerTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsMetadataTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsPatternTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsPredictionTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsProcessorTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsReporterTests.swift = (ios, );
+				Tests/CRAVETests/AnalyticsServiceTests.swift = (ios, );
+				Tests/CRAVETests/ContextualDataTests.swift = (ios, );
+				Tests/CRAVETests/CravingAnalyticsIntegrationTests.swift = (ios, );
+				Tests/CRAVETests/CravingManagerTests.swift = (ios, );
+				Tests/CRAVETests/CravingModelTests.swift = (ios, );
+				Tests/CRAVETests/EventTrackingServiceTests.swift = (ios, );
+				Tests/CRAVETests/InteractionDataTests.swift = (ios, );
+				Tests/CRAVETests/PatternDetectionServiceTests.swift = (ios, );
+			};
 			target = 28B8D8F12D5CD84100FA0F1E /* CRAVETests */;
 		};
 		28B8D9CC2D5CE04900FA0F1E /* Exceptions for "CRAVEApp" folder in "CRAVEUITests" target */ = {
