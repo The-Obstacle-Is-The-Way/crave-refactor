@@ -1,8 +1,4 @@
-//
-//  CravingManager.swift
-//  CRAVE
-//
-
+//CRAVEApp/Data/CravingManager.swift
 import Foundation
 import SwiftData
 
@@ -47,4 +43,5 @@ final class CravingManager: ObservableObject {
         }
     }
 }
+
 

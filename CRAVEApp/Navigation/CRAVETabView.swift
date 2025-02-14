@@ -1,8 +1,4 @@
-//
-//  CRAVETabView.swift
-//  CRAVE
-//
-
+//CRAVEApp/Navigation/CRAVETabView.swift
 import SwiftUI
 import SwiftData
 
@@ -39,5 +35,4 @@ struct CRAVETabView: View {
     CRAVETabView()
         .modelContainer(for: CravingModel.self, inMemory: true)
 }
-
 

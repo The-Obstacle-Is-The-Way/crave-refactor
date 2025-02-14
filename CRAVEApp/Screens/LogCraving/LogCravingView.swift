@@ -1,7 +1,5 @@
-//
-//  LogCravingView.swift
-//  CRAVE
-//
+// CRAVEApp/Screens/LogCraving/LogCravingView.swift
+
 
 import SwiftUI
 import SwiftData
@@ -76,4 +74,7 @@ struct LogCravingView: View {
     LogCravingView()
         .modelContainer(for: CravingModel.self)
 }
+
+
+
 

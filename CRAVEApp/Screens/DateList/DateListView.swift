@@ -1,7 +1,4 @@
-//
-//  DateListView.swift
-//  CRAVE
-//
+// CRAVEApp/Screens/DateList/DateListView.swift
 
 import SwiftUI
 import SwiftData
@@ -52,4 +49,5 @@ struct DateListView: View {
 #Preview {
     DateListView()
 }
+
 

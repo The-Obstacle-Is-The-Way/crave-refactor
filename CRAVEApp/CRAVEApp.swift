@@ -1,8 +1,4 @@
-//
-//  CRAVEApp.swift
-//  CRAVE
-//
-
+// CRAVEApp/CRAVEApp.swift
 import SwiftUI
 import SwiftData
 
@@ -22,3 +18,5 @@ struct CRAVEApp: App {
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.systemBlue]
     }
 }
+
+

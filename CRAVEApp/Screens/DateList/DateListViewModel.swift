@@ -1,8 +1,4 @@
-//
-//  DateListViewModel.swift
-//  CRAVE
-//
-
+// CRAVEApp/Screens/DateList/DateListViewModel.swift
 import Foundation
 import SwiftData
 
@@ -59,5 +55,4 @@ final class DateListViewModel: ObservableObject {
         loadCravings() //Load cravings when context is set.
     }
 }
-
 

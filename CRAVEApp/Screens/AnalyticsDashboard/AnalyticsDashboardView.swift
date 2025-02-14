@@ -1,8 +1,4 @@
-//
-//  AnalyticsDashboardView.swift
-//  CRAVE
-//
-
+//CRAVEApp/Screens/AnalyticsDashboard/AnalyticsDashboardView.swift
 import SwiftUI
 import SwiftData
 
@@ -40,4 +36,5 @@ struct AnalyticsDashboardView: View {
         }
     }
 }
+
 
