@@ -4,47 +4,40 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = CravingListViewModel()
     
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.cravings) { craving in
-                    HStack {
+                    VStack(alignment: .leading) {
                         Text(craving.cravingText)
                             .font(.headline)
-                        Spacer()
                         Text(craving.timestamp, style: .date)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
-                }
-                .onDelete { offsets in
-                    viewModel.deleteCravings(at: offsets)
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            Task {
+                                await viewModel.archiveCraving(craving)
+                            }
+                        } label: {
+                            Label("Archive", systemImage: "archive")
+                        }
+                    }
                 }
             }
             .navigationTitle("Cravings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    EditButton()
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        viewModel.loadCravings()
-                    }) {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                }
+            .refreshable {
+                await viewModel.refreshData()
+            }
+            .task {
+                await viewModel.loadInitialData()
             }
         }
         .onAppear {
-            viewModel.loadCravings()
+            viewModel.setModelContext(modelContext)
         }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-            .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }

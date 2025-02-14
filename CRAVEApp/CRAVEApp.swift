@@ -10,16 +10,15 @@ import SwiftData
 struct CRAVEApp: App {
     var body: some Scene {
         WindowGroup {
-            CRAVETabView() // ✅ Main entry point
-                .modelContainer(for: CravingModel.self) // ✅ Ensures SwiftData persistence
+            CRAVETabView()
+                .modelContainer(for: CravingModel.self)  // This is the key - simpler initialization
                 .onAppear {
-                    configureGlobalAppearance() // ✅ Apply UI tweaks globally
+                    configureGlobalAppearance()
                 }
         }
     }
-
-    // MARK: - Global UI Configuration
+    
     private func configureGlobalAppearance() {
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.systemBlue] // ✅ Custom navigation bar styling
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.systemBlue]
     }
 }
