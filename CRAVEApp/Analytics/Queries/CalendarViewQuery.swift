@@ -4,11 +4,10 @@
 //
 
 import Foundation
-import SwiftData
 
 struct CalendarViewQuery {
     func cravingsPerDay(using cravings: [CravingModel]) -> [Date: Int] {
-        let grouped = Dictionary(grouping: cravings) { $0.timestamp.onlyDate }
-        return grouped.mapValues { $0.count }
+        let groupedCravings = Dictionary(grouping: cravings) { $0.timestamp.onlyDate }
+        return groupedCravings.mapValues { $0.count }
     }
 }

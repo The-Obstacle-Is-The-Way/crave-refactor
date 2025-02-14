@@ -6,7 +6,7 @@
 import Foundation
 
 struct BasicAnalyticsResult {
-    let cravingsByFrequency: [Date: Int] // ✅ Added frequency tracking
+    let cravingsByFrequency: [Date: Int]
     let cravingsPerDay: [Date: Int]
     let cravingsByTimeSlot: [String: Int]
 }

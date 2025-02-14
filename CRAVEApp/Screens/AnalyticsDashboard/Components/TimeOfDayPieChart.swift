@@ -7,14 +7,7 @@ import SwiftUI
 import Charts
 
 struct TimeOfDayPieChart: View {
-    let data: [String: Int] // ✅ Data passed from AnalyticsViewModel
-
-    private let colors: [String: Color] = [
-        "Morning": .yellow,
-        "Afternoon": .orange,
-        "Evening": .purple,
-        "Night": .blue
-    ] // ✅ Distinct colors for clarity
+    let data: [String: Int]
 
     var body: some View {
         VStack {
@@ -24,29 +17,15 @@ struct TimeOfDayPieChart: View {
                     .foregroundColor(.gray)
                     .padding()
             } else {
-                Chart {
-                    ForEach(data.sorted(by: { $0.key < $1.key }), id: \.key) { time, count in
-                        SectorMark(
-                            angle: .value("Cravings", count),
-                            innerRadius: .ratio(0.5)
-                        )
-                        .foregroundStyle(colors[time, default: .gray]) // ✅ Uses defined colors
-                        .accessibilityLabel("\(time): \(count) cravings") // ✅ VoiceOver support
-                    }
+                Chart(data.sorted(by: { $0.key < $1.key }), id: \.key) { time, count in
+                    SectorMark(
+                        angle: .value("Cravings", count)
+                    )
+                    .foregroundStyle(by: .value("Time", time))
                 }
-                .chartLegend(position: .bottom) // ✅ Adds a clear legend
                 .frame(height: 300)
                 .padding()
             }
         }
-    }
-}
-
-// ✅ Preview with sample data
-struct TimeOfDayPieChart_Previews: PreviewProvider {
-    static var previews: some View {
-        TimeOfDayPieChart(data: ["Morning": 5, "Afternoon": 3, "Evening": 7, "Night": 2])
-            .previewLayout(.sizeThatFits)
-            .padding()
     }
 }

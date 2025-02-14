@@ -7,7 +7,7 @@ import SwiftUI
 import Charts
 
 struct CravingBarChart: View {
-    let data: [String: Int] // ✅ Data passed from AnalyticsViewModel
+    let data: [Date: Int]
 
     var body: some View {
         VStack {
@@ -18,34 +18,26 @@ struct CravingBarChart: View {
                     .padding()
             } else {
                 Chart {
-                    ForEach(sortedData(), id: \.key) { date, count in
+                    ForEach(data.sorted(by: { $0.key < $1.key }), id: \.key) { date, count in
                         BarMark(
                             x: .value("Date", date),
                             y: .value("Cravings", count)
                         )
-                        .foregroundStyle(Color.accentColor) // ✅ Uses adaptive color
                     }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading)
                 }
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 7)) { value in
+                        AxisGridLine()
+                        AxisTick()
+                        AxisValueLabel(format: .dateTime.month().day())
+                    }
+                }
                 .frame(height: 300)
                 .padding()
             }
         }
-    }
-
-    // MARK: - Sort Data by Date
-    private func sortedData() -> [(key: String, value: Int)] {
-        return data.sorted { $0.key < $1.key }
-    }
-}
-
-// ✅ Preview with sample data
-struct CravingBarChart_Previews: PreviewProvider {
-    static var previews: some View {
-        CravingBarChart(data: ["01/20": 5, "01/21": 3, "01/22": 7])
-            .previewLayout(.sizeThatFits)
-            .padding()
     }
 }

@@ -4,21 +4,27 @@
 //
 
 import SwiftUI
-import Foundation
+import SwiftData
 
 @MainActor
-class AnalyticsDashboardViewModel: ObservableObject {
+final class AnalyticsDashboardViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
-    
-    private let analyticsManager: AnalyticsManager
-    
-    init(analyticsManager: AnalyticsManager) {
-        self.analyticsManager = analyticsManager
+    private var analyticsManager: AnalyticsManager?
+
+    // Function to set the ModelContext
+    func setModelContext(_ modelContext: ModelContext) {
+        self.analyticsManager = AnalyticsManager(modelContext: modelContext)
     }
-    
+
+    // Load analytics data
     func loadAnalytics() {
+        guard let analyticsManager = analyticsManager else {
+            print("ModelContext is not set.")
+            return
+        }
         Task {
             self.basicStats = await analyticsManager.getBasicStats()
         }
     }
 }
+

@@ -3,54 +3,43 @@
 //  CRAVE
 //
 
+
 import SwiftUI
 import SwiftData
 
 struct AnalyticsView: View {
-    @StateObject private var viewModel: AnalyticsViewModel // ✅ Ensures reactivity
-
-    init(viewModel: AnalyticsViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel) // ✅ Proper initialization
-    }
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var viewModel = AnalyticsViewModel()
 
     var body: some View {
         NavigationView {
             VStack {
-                if viewModel.cravings.isEmpty {
-                    Text("No cravings logged yet.")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                        .padding()
+                if let stats = viewModel.basicStats {
+                    Text("Cravings by Day")
+                        .font(.title2)
+                        .bold()
+                        .padding(.top)
+
+                    // Bar Chart
+                    CravingBarChart(data: stats.cravingsByFrequency)
+
+                    Text("Time of Day")
+                        .font(.title2)
+                        .bold()
+                        .padding(.top)
+
+                    // Pie Chart
+                    TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
+
+                    Spacer()
                 } else {
-                    VStack {
-                        Text("Cravings Analytics")
-                            .font(.title2)
-                            .bold()
-                            .padding(.top)
-
-                        // Example: Bar chart of cravings per day
-                        CravingBarChart(data: viewModel.cravingsByDate)
-
-                        // Example: Pie chart for time-of-day cravings
-                        TimeOfDayPieChart(data: viewModel.cravingsByTimeOfDay)
-
-                        Spacer()
-                    }
-                    .padding()
+                    ProgressView("Loading Analytics...")
                 }
             }
             .navigationTitle("Analytics")
             .onAppear {
-                viewModel.loadAnalytics() // ✅ Load analytics only when view appears
+                viewModel.loadAnalytics(modelContext: modelContext)
             }
         }
-    }
-}
-
-// ✅ Preview with sample data
-struct AnalyticsView_Previews: PreviewProvider {
-    static var previews: some View {
-        AnalyticsView(viewModel: AnalyticsViewModel())
-            .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }

@@ -6,27 +6,36 @@
 import Foundation
 import SwiftData
 
+@MainActor
 class AnalyticsManager {
-    private let cravingManager: CravingManager
-    private let frequencyQuery = FrequencyQuery()
-    private let timeOfDayQuery = TimeOfDayQuery()
-    private let calendarQuery = CalendarViewQuery()
-    
-    init(cravingManager: CravingManager) {
-        self.cravingManager = cravingManager
+    private let modelContext: ModelContext
+
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
-    
+
     func getBasicStats() async -> BasicAnalyticsResult {
-        let allCravings = await cravingManager.fetchAllActiveCravings() // ✅ Updated method call
-        
-        let cravingsByDate = calendarQuery.cravingsPerDay(using: allCravings) // ✅ Fixed method call
-        let cravingsByTime = timeOfDayQuery.cravingsByTimeSlot(using: allCravings) // ✅ Fixed method call
-        let cravingsByFrequency = frequencyQuery.cravingsPerDay(using: allCravings) // ✅ Fixed method call
-        
-        return BasicAnalyticsResult(
-            cravingsByFrequency: cravingsByFrequency, // ✅ Restored missing argument
-            cravingsPerDay: cravingsByDate,
-            cravingsByTimeSlot: cravingsByTime
-        )
+        do {
+            let fetchDescriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
+            let allCravings = try modelContext.fetch(fetchDescriptor)
+            
+            let cravingsByFrequency = FrequencyQuery().cravingsPerDay(using: allCravings)
+            let cravingsPerDay = CalendarViewQuery().cravingsPerDay(using: allCravings)
+            let cravingsByTimeSlot = TimeOfDayQuery().cravingsByTimeSlot(using: allCravings)
+            
+            return BasicAnalyticsResult(
+                cravingsByFrequency: cravingsByFrequency,
+                cravingsPerDay: cravingsPerDay,
+                cravingsByTimeSlot: cravingsByTimeSlot
+            )
+        } catch {
+            print("Error fetching cravings: \(error)")
+            return BasicAnalyticsResult(
+                cravingsByFrequency: [:],
+                cravingsPerDay: [:],
+                cravingsByTimeSlot: [:]
+            )
+        }
     }
 }
+
