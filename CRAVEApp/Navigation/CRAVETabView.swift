@@ -7,28 +7,29 @@ import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @State private var selection = 1 // Default to Log Craving tab (assuming it's the second tab)
+    @Environment(\.modelContext) private var modelContext // ✅ Get ModelContext from Environment
+    @State private var selection = 1 // Default to Log Craving tab
 
     var body: some View {
-        TabView(selection: $selection) { // Bind selection state
+        TabView(selection: $selection) {
             CravingListView()
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
                 }
-                .tag(0) // Tag for Cravings tab
+                .tag(0)
 
             LogCravingView()
                 .tabItem {
                     Label("Log Craving", systemImage: "square.and.pencil")
                 }
-                .tag(1) // Tag for Log Craving tab
-                .badge(0) // Example of badge - remove if not needed
+                .tag(1)
 
-            DateListView(viewModel: DateListViewModel()) // Ensure ViewModel is passed
+            // ✅ Pass modelContext to DateListViewModel initializer
+            DateListView(viewModel: DateListViewModel(modelContext: modelContext))
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                 }
-                .tag(2) // Tag for Analytics tab
+                .tag(2)
         }
     }
 }
@@ -37,3 +38,5 @@ struct CRAVETabView: View {
     CRAVETabView()
         .modelContainer(for: CravingModel.self, inMemory: true)
 }
+
+

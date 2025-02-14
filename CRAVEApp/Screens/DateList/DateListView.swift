@@ -7,11 +7,8 @@ import SwiftUI
 import SwiftData
 
 struct DateListView: View {
-    @StateObject private var viewModel: DateListViewModel
-
-    init(viewModel: DateListViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel) // ✅ Ensures proper initialization
-    }
+    @Environment(\.modelContext) private var modelContext // ✅ Get ModelContext from Environment
+    @StateObject private var viewModel = DateListViewModel() // ✅ Initialize ViewModel with default init
 
     var body: some View {
         NavigationView {
@@ -39,7 +36,8 @@ struct DateListView: View {
             }
             .navigationTitle("Cravings by Date")
             .onAppear {
-                viewModel.loadCravings() // ✅ Fetch cravings when view appears
+                viewModel.setModelContext(modelContext!) // ✅ Set modelContext in onAppear (force unwrap is now safe here)
+                viewModel.loadCravings() // ✅ THEN load data
             }
         }
     }
@@ -48,7 +46,9 @@ struct DateListView: View {
 // ✅ Preview with sample data
 struct DateListView_Previews: PreviewProvider {
     static var previews: some View {
-        DateListView(viewModel: DateListViewModel())
+        DateListView()
             .modelContainer(for: CravingModel.self, inMemory: true)
     }
 }
+
+
