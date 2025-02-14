@@ -92,6 +92,8 @@ struct FeatureFlags: Codable {
     var isBackgroundProcessingEnabled: Bool = true
     var isCloudSyncEnabled: Bool = false
     var isDebugLoggingEnabled: Bool = false
+    var isAnalyticsEnabled: Bool = true // Added for Analytics
+    var isAutoProcessingEnabled: Bool = true // Added for Analytics
     
     static let development = FeatureFlags(
         isMLEnabled: true,
@@ -215,3 +217,4 @@ extension AnalyticsConfiguration {
         return config
     }
 }
+

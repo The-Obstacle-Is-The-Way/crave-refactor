@@ -9,7 +9,7 @@ import Combine
 final class AnalyticsAggregator {
     // MARK: - Properties
     private let modelContext: ModelContext
-    private let configuration: AggregatorConfiguration
+    private let configuration: AnalyticsAggregator.AggregatorConfiguration
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published Results
@@ -19,7 +19,7 @@ final class AnalyticsAggregator {
     
     // MARK: - Initialization
     init(modelContext: ModelContext,
-         configuration: AggregatorConfiguration = .default) {
+         configuration: AnalyticsAggregator.AggregatorConfiguration = .default) {
         self.modelContext = modelContext
         self.configuration = configuration
         setupAggregation()
@@ -54,7 +54,13 @@ final class AnalyticsAggregator {
     // MARK: - Private Aggregation Methods
     private func aggregateDaily(_ analytics: CravingAnalytics) async throws -> DailyAggregate {
         let date = analytics.timestamp.startOfDay
-        var aggregate = dailyAggregates[date] ?? DailyAggregate(date: date)
+        var aggregate: DailyAggregate
+        
+        if let exisitingAggregate = dailyAggregates[date]{
+            aggregate = exisitingAggregate
+        } else {
+            aggregate = DailyAggregate(date: date)
+        }
         
         // Update metrics
         aggregate.cravingCount += 1
@@ -67,24 +73,35 @@ final class AnalyticsAggregator {
     
     private func aggregateWeekly(_ analytics: CravingAnalytics) async throws -> WeeklyAggregate {
         let weekStart = analytics.timestamp.startOfWeek
-        var aggregate = weeklyAggregates[weekStart] ?? WeeklyAggregate(weekStart: weekStart)
+        var aggregate: WeeklyAggregate
+        if let existingAggregate = weeklyAggregates[weekStart]{
+            aggregate = existingAggregate
+        } else {
+            aggregate = WeeklyAggregate(weekStart: weekStart)
+        }
         
         // Update weekly metrics
         aggregate.updateDailyDistribution(for: analytics.timestamp)
-        aggregate.updatePatterns(with: analytics)
-        aggregate.calculateTrends()
+        //aggregate.updatePatterns(with: analytics) // Removed as CravingAnalytics does not conform to CravingAnalyticsProtocol
+        //aggregate.calculateTrends() // Removed, this needs specific implementation.  See notes.
         
         return aggregate
     }
     
     private func aggregateMonthly(_ analytics: CravingAnalytics) async throws -> MonthlyAggregate {
         let monthStart = analytics.timestamp.startOfMonth
-        var aggregate = monthlyAggregates[monthStart] ?? MonthlyAggregate(monthStart: monthStart)
+        var aggregate: MonthlyAggregate
+        
+        if let existingAggregate = monthlyAggregates[monthStart]{
+            aggregate = existingAggregate
+        } else {
+            aggregate = MonthlyAggregate(monthStart: monthStart)
+        }
         
         // Update monthly metrics
         aggregate.updateWeeklyDistribution(for: analytics.timestamp)
-        aggregate.updateLongTermPatterns(with: analytics)
-        aggregate.calculateMonthlyTrends()
+        //aggregate.updateLongTermPatterns(with: analytics) // Removed as CravingAnalytics does not conform to CravingAnalyticsProtocol
+        //aggregate.calculateMonthlyTrends() // Removed, needs specific implementation. See notes.
         
         return aggregate
     }
@@ -120,7 +137,12 @@ final class AnalyticsAggregator {
     
     private func getCustomRangeAggregate(from start: Date, to end: Date) async throws -> AggregateResult {
         // Implement custom range aggregation logic
-        return .custom(CustomRangeAggregate(start: start, end: end))
+        // This is a placeholder.  You'd need to iterate through the days
+        // between `start` and `end`, and accumulate data from the
+        // `dailyAggregates`.
+      
+        let newAggregate = CustomRangeAggregate(start: start, end: end)
+        return .custom(newAggregate)
     }
     
     // MARK: - Setup
@@ -142,10 +164,17 @@ final class AnalyticsAggregator {
     
     private func setupDataObservers() {
         // Implement SwiftData observation
+        // This is where you would observe changes to your CravingModel data
+        // and trigger aggregation updates.  SwiftData's change notifications
+        // are not directly compatible with Combine, so you would typically
+        // use a manual approach or a library that bridges the gap.  For this
+        // MVP, I'm leaving this as a placeholder.
     }
     
     private func performPeriodicAggregation() async throws {
         // Implement periodic aggregation logic
+        // This would likely involve fetching data for the period since the
+        // last aggregation and calling `aggregate`.
     }
 }
 
@@ -203,11 +232,11 @@ struct DailyAggregate: Codable {
     let date: Date
     var cravingCount: Int = 0
     var totalIntensity: Int = 0
-    var timeDistribution: [Hour: Int] = [:]
+    var timeDistribution: [Int: Int] = [:] // Hour: Count
     var triggerPatterns: [String: Int] = [:]
     
     mutating func updateTimeDistribution(for timestamp: Date) {
-        let hour = Hour(from: timestamp)
+        let hour = Calendar.current.component(.hour, from: timestamp)
         timeDistribution[hour, default: 0] += 1
     }
     
@@ -220,49 +249,59 @@ struct DailyAggregate: Codable {
 
 struct WeeklyAggregate: Codable {
     let weekStart: Date
-    var dailyDistribution: [Weekday: Int] = [:]
-    var patterns: [Pattern] = []
-    var trends: [Trend] = []
+    var dailyDistribution: [Int: Int] = [:]  // Weekday: Count.  Use Int for simplicity.
+    var patterns: [Pattern] = [] // Replace with your Pattern type
+    var trends: [Trend] = []   // Replace with your Trend type
     
     mutating func updateDailyDistribution(for timestamp: Date) {
-        let weekday = Weekday(from: timestamp)
+        let weekday = Calendar.current.component(.weekday, from: timestamp)
         dailyDistribution[weekday, default: 0] += 1
     }
     
-    mutating func updatePatterns(with analytics: CravingAnalytics) {
+   // mutating func updatePatterns(with analytics: CravingAnalytics) { // Removed protocol
         // Implement pattern recognition
-    }
+   // }
     
-    mutating func calculateTrends() {
+   // mutating func calculateTrends() {  //Removed
         // Implement trend calculation
-    }
+        // You'll need to define what constitutes a "trend".  For example,
+        // you might look for a statistically significant increase or decrease
+        // in craving count over the past few weeks.  This is highly
+        // domain-specific.
+   // }
 }
 
 struct MonthlyAggregate: Codable {
     let monthStart: Date
-    var weeklyDistribution: [WeekOfMonth: Int] = [:]
-    var longTermPatterns: [LongTermPattern] = []
-    var monthlyTrends: [MonthlyTrend] = []
+    var weeklyDistribution: [Int: Int] = [:] // Week of Month: Count
+    var longTermPatterns: [LongTermPattern] = []  // Replace with your LongTermPattern type
+    var monthlyTrends: [MonthlyTrend] = []  // Replace with your MonthlyTrend type
     
     mutating func updateWeeklyDistribution(for timestamp: Date) {
-        let week = WeekOfMonth(from: timestamp)
+        let week = Calendar.current.component(.weekOfMonth, from: timestamp)
         weeklyDistribution[week, default: 0] += 1
     }
     
-    mutating func updateLongTermPatterns(with analytics: CravingAnalytics) {
+   // mutating func updateLongTermPatterns(with analytics: CravingAnalytics) { //Removed protocol
         // Implement long-term pattern recognition
-    }
+   // }
     
-    mutating func calculateMonthlyTrends() {
+   // mutating func calculateMonthlyTrends() { //Removed
         // Implement monthly trend calculation
-    }
+        // Similar to `calculateTrends` in `WeeklyAggregate`, but over a longer
+        // time horizon.
+   // }
 }
 
 struct CustomRangeAggregate: Codable {
     let start: Date
     let end: Date
     // Add custom range specific properties
+    // You'll likely want to include many of the same properties as the
+    // other aggregate types (cravingCount, totalIntensity, etc.),
+    // but calculated specifically for this custom range.
 }
+
 
 // MARK: - Testing Support
 extension AnalyticsAggregator {
@@ -270,5 +309,152 @@ extension AnalyticsAggregator {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: CravingModel.self)
         return AnalyticsAggregator(modelContext: container.mainContext)
+    }
+}
+
+// MARK: - Date Extensions (Added for convenience)
+extension Date {
+    var startOfDay: Date {
+        Calendar.current.startOfDay(for: self)
+    }
+    
+    var startOfWeek: Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
+        return calendar.date(from: components)!
+    }
+    
+    var startOfMonth: Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: self)
+        return calendar.date(from: components)!
+    }
+}
+
+// MARK: - Mock Types
+// These are simplified placeholder types.  You'll need to define
+// your own based on your specific analysis requirements.
+struct Pattern: Codable {}
+struct Trend: Codable {}
+struct LongTermPattern: Codable {}
+struct MonthlyTrend: Codable {}
+enum WeekOfMonth: Int, Codable {
+    case first, second, third, fourth, fifth, sixth
+}
+enum Weekday: Int, Codable{
+    case sunday = 1
+    case monday = 2
+    case tuesday = 3
+    case wednesday = 4
+    case thursday = 5
+    case friday = 6
+    case saturday = 7
+}
+
+extension Weekday{
+    init(from timestamp: Date) {
+        let weekday = Calendar.current.component(.weekday, from: timestamp)
+        
+        switch weekday{
+        case 1:
+            self = .sunday
+        case 2:
+            self = .monday
+        case 3:
+            self = .tuesday
+        case 4:
+            self = .wednesday
+        case 5:
+            self = .thursday
+        case 6:
+            self = .friday
+        case 7:
+            self = .saturday
+        default:
+            self = .sunday
+        }
+    }
+}
+
+extension WeekOfMonth {
+    init(from timestamp: Date){
+        let week = Calendar.current.component(.weekOfMonth, from: timestamp)
+        
+        switch week {
+        case 1:
+            self = .first
+        case 2:
+            self = .second
+        case 3:
+            self = .third
+        case 4:
+            self = .fourth
+        case 5:
+            self = .fifth
+        default:
+            self = .sixth
+        }
+    }
+}
+
+enum Hour: Int, Codable{
+    case zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty, twentyOne, twentyTwo, twentyThree
+}
+extension Hour{
+    init(from timestamp: Date){
+        let hour = Calendar.current.component(.hour, from: timestamp)
+        
+        switch hour{
+        case 0:
+            self = .zero
+        case 1:
+            self = .one
+        case 2:
+            self = .two
+        case 3:
+            self = .three
+        case 4:
+            self = .four
+        case 5:
+            self = .five
+        case 6:
+            self = .six
+        case 7:
+            self = .seven
+        case 8:
+            self = .eight
+        case 9:
+            self = .nine
+        case 10:
+            self = .ten
+        case 11:
+            self = .eleven
+        case 12:
+            self = .twelve
+        case 13:
+            self = .thirteen
+        case 14:
+            self = .fourteen
+        case 15:
+            self = .fifteen
+        case 16:
+            self = .sixteen
+        case 17:
+            self = .seventeen
+        case 18:
+            self = .eighteen
+        case 19:
+            self = .nineteen
+        case 20:
+            self = .twenty
+        case 21:
+            self = .twentyOne
+        case 22:
+            self = .twentyTwo
+        case 23:
+            self = .twentyThree
+        default:
+            self = .zero
+        }
     }
 }
