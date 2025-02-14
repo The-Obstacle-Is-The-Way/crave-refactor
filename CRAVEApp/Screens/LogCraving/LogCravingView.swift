@@ -1,49 +1,43 @@
 // CRAVEApp/Screens/LogCraving/LogCravingView.swift
-
-
 import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) private var modelContext // Get the ModelContext
-    @StateObject private var cravingManager = CravingManager() // Use CravingManager
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var cravingManager = CravingManager() // Create the manager here
     @State private var cravingText: String = ""
-    @State private var showAlert = false  //for the alert
-    @State private var alertMessage = "" //for the alert
-
+    @State private var showAlert = false
+    @State private var alertMessage = ""
 
     var body: some View {
-        NavigationView {
-            VStack {
-                CraveTextEditor(text: $cravingText, placeholder: "Enter craving...") // Use the custom text editor
-                    .padding()
-
-                CraveButton(title: "Log Craving") {
-                    logCraving()
-                }
+        // NavigationView removed: Already inside a NavigationStack
+        VStack {
+            CraveTextEditor(text: $cravingText, placeholder: "Enter craving...")
                 .padding()
 
-                Spacer() // Push content to the top
+            CraveButton(title: "Log Craving") {
+                logCraving()
             }
-            .navigationTitle("Log Craving")
-            .alert(isPresented: $showAlert) {   //the alert
-                Alert(
-                    title: Text("Invalid Input"),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
+            .padding()
+
+            Spacer()
         }
-        .onAppear {  // Set the modelContext for CravingManager
-            cravingManager.modelContext = modelContext
+        .navigationTitle("Log Craving")
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Invalid Input"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+        .onAppear {
+            cravingManager.modelContext = modelContext // Inject the context
         }
     }
 
     private func logCraving() {
-        // 1. Trim whitespace
         let trimmedText = cravingText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // 2. Validate input
         if trimmedText.isEmpty {
             alertMessage = "Please enter a craving."
             showAlert = true
@@ -58,23 +52,11 @@ struct LogCravingView: View {
             return
         }
 
-        // 3. Create and insert the craving using CravingManager
         let newCraving = CravingModel(cravingText: trimmedText, timestamp: Date())
-        cravingManager.insert(newCraving) // Use CravingManager to insert!
+        cravingManager.insert(newCraving) // Use CravingManager
 
-        // 4. Reset the text field
-        cravingText = ""
-
-        // 5. (Optional) Show a success message/haptic - GOOD practice
-        CRAVEDesignSystem.Haptics.success()
+        cravingText = "" // Clear the text field
+        CRAVEDesignSystem.Haptics.success() // Success haptic
     }
 }
-
-#Preview {
-    LogCravingView()
-        .modelContainer(for: CravingModel.self)
-}
-
-
-
 

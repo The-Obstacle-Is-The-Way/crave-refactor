@@ -1,28 +1,28 @@
-//
-//  CravingListView.swift
-//  CRAVE
-//
-
+// CRAVEApp/Screens/CravingList/CravingListView.swift
 import SwiftUI
 import SwiftData
 
 struct CravingListView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var viewModel = CravingListViewModel() // ✅ Use StateObject to manage ViewModel
+    @StateObject private var viewModel: CravingListViewModel  // Declare, not initialize
+
+    init() {
+        _viewModel = StateObject(wrappedValue: CravingListViewModel()) // Initialize in init
+    }
 
     var body: some View {
-        NavigationView {
+        NavigationView { // Keep this NavigationView
             List {
-                ForEach(viewModel.cravings) { craving in // ✅ Iterate through viewModel's cravings
+                ForEach(viewModel.cravings) { craving in
                     VStack(alignment: .leading) {
                         Text(craving.cravingText)
                             .font(.headline)
                         Text(craving.timestamp, style: .date)
                             .foregroundColor(.secondary)
                     }
-                    .swipeActions { // ✅ Swipe action for archiving
+                    .swipeActions {
                         Button(role: .destructive) {
-                            Task { // ✅ Use Task for async operation
+                            Task {
                                 await viewModel.archiveCraving(craving)
                             }
                         } label: {
@@ -32,20 +32,16 @@ struct CravingListView: View {
                 }
             }
             .navigationTitle("Cravings")
-            .refreshable { // ✅ Pull-to-refresh
+            .refreshable {
                 await viewModel.refreshData()
             }
-            .task { // ✅ Load initial data onAppear-like behavior
-                await viewModel.loadInitialData()
-            }
+           // .task { // Removed .task
+            //    await viewModel.loadInitialData()
+           // }
         }
         .onAppear {
-            viewModel.setModelContext(modelContext) // ✅ Ensure ModelContext is set on appear
+            viewModel.setModelContext(modelContext) // Set context here
         }
     }
 }
 
-#Preview {
-    CravingListView()
-        .modelContainer(for: CravingModel.self, inMemory: true)
-}

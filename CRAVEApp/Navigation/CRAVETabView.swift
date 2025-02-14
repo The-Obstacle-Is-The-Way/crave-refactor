@@ -1,9 +1,9 @@
-//CRAVEApp/Navigation/CRAVETabView.swift
+// CRAVEApp/Navigation/CRAVETabView.swift
 import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) private var modelContext // ✅ Get ModelContext from Environment
+    @Environment(\.modelContext) private var modelContext
     @State private var selection = 1 // Default to Log Craving tab
 
     var body: some View {
@@ -20,19 +20,13 @@ struct CRAVETabView: View {
                 }
                 .tag(1)
 
-            // ✅ DateListView is NOW placed within .environment modifier
             DateListView()
-                .environment(\.modelContext, modelContext) // ⭐️⭐️⭐️ PROVIDE modelContext HERE! ⭐️⭐️⭐️
+                .environment(\.modelContext, modelContext)
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                 }
                 .tag(2)
         }
     }
-}
-
-#Preview {
-    CRAVETabView()
-        .modelContainer(for: CravingModel.self, inMemory: true)
 }
 

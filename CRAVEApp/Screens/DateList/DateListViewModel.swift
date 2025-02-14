@@ -7,9 +7,7 @@ final class DateListViewModel: ObservableObject {
     @Published var cravings: [CravingModel] = []
     private var modelContext: ModelContext?
 
-    init() { //  ViewModel DOES NOT require ModelContext on initialization
-        //self.modelContext = modelContext  REMOVE THIS
-        //loadCravings() REMOVE THIS.  Don't load here.
+    init() {
     }
 
     /// Groups cravings by the day they occurred.
@@ -22,12 +20,11 @@ final class DateListViewModel: ObservableObject {
         }
     }
 
-    /// Loads cravings from the persistent store asynchronously.
-    func loadCravings() {
-        guard modelContext != nil else {
-            print("ModelContext is nil. Cannot load cravings.")
-            return
-        }
+      func loadCravings() {
+        guard let context = modelContext else {
+              print("ModelContext is nil. Cannot load cravings.")
+              return
+          }
         Task {
             let fetchedCravings = await fetchCravings()
             await MainActor.run {
@@ -37,22 +34,24 @@ final class DateListViewModel: ObservableObject {
     }
 
     private func fetchCravings() async -> [CravingModel] {
-        guard let context = modelContext else {
+        guard let modelContext = self.modelContext else {  // Directly use self.modelContext
             print("ModelContext not available.")
             return []
         }
         do {
-            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
-            return try context.fetch(descriptor)
+            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)]) //sort desc
+            return try modelContext.fetch(descriptor) // Directly use self.modelContext
         } catch {
             print("Error fetching cravings: \(error)")
             return []
         }
     }
-
-    func setModelContext(_ context: ModelContext) { // Still keep setModelContext for other views
+    
+    func setModelContext(_ context: ModelContext) {
+        // Only set and load if context is not already set
+        guard self.modelContext == nil else { return }
         self.modelContext = context
-        loadCravings() //Load cravings when context is set.
+        loadCravings() // Load cravings when context is set
     }
 }
 

@@ -1,16 +1,10 @@
 // CRAVEApp/Screens/DateList/DateListView.swift
-
 import SwiftUI
 import SwiftData
 
 struct DateListView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var viewModel: DateListViewModel = DateListViewModel() // Initialize WITHOUT a context
-
-    // ✅ Custom initializer to pass modelContext -- REMOVE THIS ENTIRE INITIALIZER
-    //init() {
-    //    _viewModel = StateObject(wrappedValue: DateListViewModel(modelContext: ModelContext())) // ⭐️ Provide a DUMMY ModelContext here
-    //}
+    @StateObject private var viewModel = DateListViewModel() // Initialize here
 
     var body: some View {
         NavigationView {
@@ -38,16 +32,9 @@ struct DateListView: View {
             }
             .navigationTitle("Cravings by Date")
             .onAppear {
-                viewModel.setModelContext(modelContext) // ✅ NOW set the REAL modelContext in onAppear
-                viewModel.loadCravings() // ✅ THEN load data
+                viewModel.setModelContext(modelContext) // Set context here
             }
         }
     }
 }
-
-
-#Preview {
-    DateListView()
-}
-
 
