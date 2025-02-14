@@ -257,18 +257,6 @@ struct WeeklyAggregate: Codable {
         let weekday = Calendar.current.component(.weekday, from: timestamp)
         dailyDistribution[weekday, default: 0] += 1
     }
-    
-   // mutating func updatePatterns(with analytics: CravingAnalytics) { // Removed protocol
-        // Implement pattern recognition
-   // }
-    
-   // mutating func calculateTrends() {  //Removed
-        // Implement trend calculation
-        // You'll need to define what constitutes a "trend".  For example,
-        // you might look for a statistically significant increase or decrease
-        // in craving count over the past few weeks.  This is highly
-        // domain-specific.
-   // }
 }
 
 struct MonthlyAggregate: Codable {
@@ -281,27 +269,7 @@ struct MonthlyAggregate: Codable {
         let week = Calendar.current.component(.weekOfMonth, from: timestamp)
         weeklyDistribution[week, default: 0] += 1
     }
-    
-   // mutating func updateLongTermPatterns(with analytics: CravingAnalytics) { //Removed protocol
-        // Implement long-term pattern recognition
-   // }
-    
-   // mutating func calculateMonthlyTrends() { //Removed
-        // Implement monthly trend calculation
-        // Similar to `calculateTrends` in `WeeklyAggregate`, but over a longer
-        // time horizon.
-   // }
 }
-
-struct CustomRangeAggregate: Codable {
-    let start: Date
-    let end: Date
-    // Add custom range specific properties
-    // You'll likely want to include many of the same properties as the
-    // other aggregate types (cravingCount, totalIntensity, etc.),
-    // but calculated specifically for this custom range.
-}
-
 
 // MARK: - Testing Support
 extension AnalyticsAggregator {
@@ -458,3 +426,4 @@ extension Hour{
         }
     }
 }
+

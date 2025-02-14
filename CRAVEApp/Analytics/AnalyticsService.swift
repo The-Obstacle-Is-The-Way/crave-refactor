@@ -107,7 +107,7 @@ final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
     }
     
     func generateInsights() async throws -> [AnalyticsInsight] {
-        return try await manager.generateInsights()
+        return try await manager.generateInsights(from: storage.fetchAll()) //Pass in all the craving analytics for insight generation
     }
     
     func generatePredictions() async throws -> [AnalyticsPrediction] {

@@ -197,11 +197,11 @@ class InsightGenerator {
         self.configuration = configuration
     }
     
-    func generateInsights(from analytics: AnalyticsData) -> [AnalyticsInsight] {
+    func generateInsights(from analyticsData: [CravingAnalytics]) -> [AnalyticsInsight] { // Change the input
         var newInsights: [AnalyticsInsight] = []
         
         // Generate time pattern insights
-        if let timeInsight = generateTimePatternInsight(from: analytics) {
+        if let timeInsight = generateTimePatternInsight(from: analyticsData) { //Change the input
             newInsights.append(timeInsight)
         }
         
@@ -214,9 +214,44 @@ class InsightGenerator {
         return newInsights
     }
     
-    private func generateTimePatternInsight(from analytics: AnalyticsData) -> TimePatternInsight? {
-        // Implement time pattern detection logic
-        return nil
+    private func generateTimePatternInsight(from analyticsData: [CravingAnalytics]) -> TimePatternInsight? { //Change the input
+        // Implement time pattern detection logic using analyticsData
+        // 1. Group cravings by hour of the day.
+        let cravingsByHour = Dictionary(grouping: analyticsData, by: {
+            Calendar.current.component(.hour, from: $0.timestamp)
+        })
+        
+        // 2. Find the hours with the most cravings.  (This is a *very* basic
+        //    example.  You'd likely want to use a more sophisticated
+        //    statistical approach.)
+        let sortedByCount = cravingsByHour.sorted { $0.value.count > $1.value.count }
+        guard let (peakHour, cravings) = sortedByCount.first else {
+            return nil // No data
+        }
+        
+        let peakHours: [Int]
+        //Added this condition to include cravings that happened in the surrounding hour
+        if let secondPeak = sortedByCount.dropFirst().first, Double(secondPeak.value.count) / Double(cravings.count) > 0.60 {
+            peakHours = [peakHour, secondPeak.key].sorted()
+        } else{
+            peakHours = [peakHour]
+        }
+        
+        
+        // 3. Calculate the average intensity for those hours.
+        let totalIntensity = cravings.reduce(0) { $0 + $1.intensity }
+        let averageIntensity = Double(totalIntensity) / Double(cravings.count)
+        
+        // 4.  Create an insight if the count is above a threshold.  (This
+        //     threshold would ideally be determined through data analysis
+        //     and potentially user-specific.)
+        let confidence: Double = Double(cravings.count) / 15.0 //Made a basic confidence measure
+        guard cravings.count >= 3 else { // Example threshold
+            return nil
+        }
+        
+        // 5.  Create and return the insight.
+        return TimePatternInsight(peakHours: peakHours, averageIntensity: Double(averageIntensity), confidence: confidence)
     }
     
     private func filterInsights(_ insights: [AnalyticsInsight]) -> [AnalyticsInsight] {

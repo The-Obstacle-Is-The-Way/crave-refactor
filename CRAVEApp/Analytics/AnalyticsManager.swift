@@ -23,153 +23,145 @@ final class AnalyticsManager: ObservableObject {
     private let insightGenerator: InsightGenerator
     private let predictionEngine: PredictionEngine
     
-    // Rest of AnalyticsManager.swift implementation...
-    [Previous implementation continues...]
-}
-
-// File: CalendarViewQuery.swift
-// Purpose: Handles calendar-based analytics queries
-
-import Foundation
-
-struct CalendarViewQuery {
-    func cravingsPerDay(using cravings: [CravingModel]) -> [Date: Int] {
-        let calendar = Calendar.current
-        let groupedCravings = Dictionary(grouping: cravings) { craving in
-            calendar.startOfDay(for: craving.timestamp)
-        }
-        return groupedCravings.mapValues { $0.count }
+    init(modelContext: ModelContext, storage: AnalyticsStorage) {
+        self.modelContext = modelContext
+        self.analyticsStorage = storage
+        self.frequencyAnalyzer = FrequencyAnalyzer()
+        self.patternAnalyzer = PatternAnalyzer()
+        self.insightGenerator = InsightGenerator()
+        self.predictionEngine = PredictionEngine()
+        
+        setupObservers()
     }
     
-    func getWeeklyTrend(using cravings: [CravingModel]) -> [(week: Date, count: Int)] {
-        let calendar = Calendar.current
-        let groupedByWeek = Dictionary(grouping: cravings) { craving in
-            calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: craving.timestamp))!
-        }
-        return groupedByWeek.map { (week: $0.key, count: $0.value.count) }
-            .sorted { $0.week < $1.week }
-    }
-}
-
-// File: FrequencyQuery.swift
-// Purpose: Handles frequency-based analytics queries
-
-import Foundation
-
-struct FrequencyQuery {
-    func cravingsPerDay(using cravings: [CravingModel]) -> [Date: Int] {
-        let groupedCravings = Dictionary(grouping: cravings) { $0.timestamp.onlyDate }
-        return groupedCravings.mapValues { $0.count }
-    }
-}
-
-// File: TimeOfDayQuery.swift
-// Purpose: Handles time-based analytics queries
-
-import Foundation
-import SwiftData
-
-struct TimeOfDayQuery {
-    enum TimeSlot: String, CaseIterable {
-        case earlyMorning = "Early Morning" // 5-8
-        case morning = "Morning" // 8-11
-        case midday = "Midday" // 11-14
-        case afternoon = "Afternoon" // 14-17
-        case evening = "Evening" // 17-20
-        case night = "Night" // 20-23
-        case lateNight = "Late Night" // 23-5
+    // MARK: - Public Interface
+    func processNewCraving(_ craving: CravingModel) async throws {
+        processingState = .processing
         
-        static func from(hour: Int) -> TimeSlot {
-            switch hour {
-            case 5..<8: return .earlyMorning
-            case 8..<11: return .morning
-            case 11..<14: return .midday
-            case 14..<17: return .afternoon
-            case 17..<20: return .evening
-            case 20..<23: return .night
-            default: return .lateNight
-            }
+        do {
+            // 1. Persist the new craving
+            modelContext.insert(craving)
+            try modelContext.save()
+            
+            // 2. Update analytics
+            let analytics = try await createAnalytics(for: craving)
+            try await analyticsStorage.store(analytics)
+            
+            // 3. Trigger aggregation and analysis
+            try await analyzeData()
+            
+            processingState = .idle
+            lastUpdateTime = Date()
+        } catch {
+            processingState = .error
+            throw error
         }
     }
     
-    func cravingsByTimeSlot(using cravings: [CravingModel]) -> [String: Int] {
-        var slots = Dictionary(uniqueKeysWithValues: TimeSlot.allCases.map { ($0.rawValue, 0) })
+    
+    
+    // MARK: - Analytics Processing
+    private func createAnalytics(for craving: CravingModel) async throws -> CravingAnalytics {
+        // Extract data from CravingModel and create CravingAnalytics
+        let analytics = CravingAnalytics(
+            id: craving.id,
+            timestamp: craving.timestamp,
+            intensity: craving.intensity,
+            triggers: craving.triggers,
+            metadata: [:] // Add relevant metadata
+        )
         
-        for craving in cravings {
-            let hour = Calendar.current.component(.hour, from: craving.timestamp)
-            let slot = TimeSlot.from(hour: hour)
-            slots[slot.rawValue, default: 0] += 1
-        }
+        return analytics
+    }
+    
+    
+    
+    private func analyzeData() async throws {
+        // Fetch data
+        let timeRange = DateInterval(start: Date().addingTimeInterval(-30*24*60*60), end: Date())
+        let analyticsData = try await analyticsStorage.fetchRange(timeRange)
         
-        return slots
+        // Perform frequency analysis
+        // let frequencyResults = frequencyAnalyzer.analyze(analyticsData) // Not used
+        
+        // Perform pattern analysis
+        // let patternResults = patternAnalyzer.analyze(analyticsData)
+        
+        // Generate insights
+        let insights = insightGenerator.generateInsights(from: analyticsData)
+        // Generate predictions
+        let predictions = try predictionEngine.generatePrediction(from: analyticsData)
+        // Update current analytics snapshot
+        currentAnalytics = AnalyticsSnapshot(
+            timestamp: Date(),
+            insights: insights,
+            predictions: [predictions]
+        )
+    }
+    
+    
+    
+    // MARK: - Data Retrieval
+    func getBasicStats() async -> BasicAnalyticsResult? {
+        do {
+            let cravings = try modelContext.fetch(FetchDescriptor<CravingModel>())
+            
+            let frequencyQuery = FrequencyQuery()
+            let cravingsByFrequency = frequencyQuery.cravingsPerDay(using: cravings)
+            
+            let calendarViewQuery = CalendarViewQuery()
+            let cravingsPerDay = calendarViewQuery.cravingsPerDay(using: cravings)
+            
+            let timeOfDayQuery = TimeOfDayQuery()
+            let cravingsByTimeSlot = timeOfDayQuery.cravingsByTimeSlot(using: cravings)
+            
+            return BasicAnalyticsResult(
+                cravingsByFrequency: cravingsByFrequency,
+                cravingsPerDay: cravingsPerDay,
+                cravingsByTimeSlot: cravingsByTimeSlot
+            )
+        } catch {
+            print("Error fetching basic stats: \(error)")
+            return nil
+        }
+    }
+    
+    func generateInsights(from analytics: [CravingAnalytics]) async throws -> [AnalyticsInsight] {
+        return insightGenerator.generateInsights(from: analytics)
+        
+    }
+    
+    func generatePredictions() async throws -> [AnalyticsPrediction] {
+        // Fetch the last 30 days of data.
+        let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date.distantPast
+        let timeRange = DateInterval(start: thirtyDaysAgo, end: Date())
+        let analyticsData = try await analyticsStorage.fetchRange(timeRange)
+        let prediction = try predictionEngine.generatePrediction(from: analyticsData)
+        return [prediction]
+    }
+    
+    // MARK: - Setup
+    private func setupObservers() {
+        // Subscribe to relevant notifications, e.g., new craving entries
+        // This allows the manager to react to data changes
+    }
+    
+    
+    
+    
+    
+    // MARK: - Internal Types
+    enum ProcessingState {
+        case idle
+        case processing
+        case error
+    }
+    
+    struct AnalyticsSnapshot {
+        let timestamp: Date
+        let insights: [AnalyticsInsight]
+        let predictions: [AnalyticsPrediction]
+        // Add other snapshot data as needed
     }
 }
 
-// File: AnalyticsStorage.swift
-// Purpose: Manages persistent storage of analytics data with caching and optimization
-
-[Previous AnalyticsStorage.swift implementation...]
-
-// File: BasicAnalyticsResult.swift
-// Purpose: Defines the basic analytics result structure
-
-import Foundation
-
-struct BasicAnalyticsResult {
-    let cravingsByFrequency: [Date: Int]
-    let cravingsPerDay: [Date: Int]
-    let cravingsByTimeSlot: [String: Int]
-}
-
-// File: CRAVEDesignSystem.swift
-// Purpose: Centralized design system for CRAVE
-
-import UIKit
-import SwiftUI
-
-enum CRAVEDesignSystem {
-    enum Colors {
-        static let primary = Color.blue
-        static let secondary = Color.gray
-        static let success = Color.green
-        static let warning = Color.orange
-        static let danger = Color.red
-        static let background = Color(UIColor.systemBackground)
-        static let secondaryBackground = Color(UIColor.secondarySystemBackground)
-    }
-
-    enum Typography {
-        static let titleFont    = Font.system(size: 20, weight: .bold)
-        static let headingFont  = Font.system(size: 17, weight: .semibold)
-        static let bodyFont     = Font.system(size: 16, weight: .regular)
-        static let captionFont  = Font.system(size: 14, weight: .regular)
-    }
-
-    enum Layout {
-        static let standardPadding: CGFloat = 16
-        static let compactPadding: CGFloat  = 8
-        static let buttonHeight: CGFloat    = 50
-        static let textFieldHeight: CGFloat = 40
-        static let cornerRadius: CGFloat    = 8
-    }
-
-    enum Animation {
-        static let standardDuration = 0.3
-        static let quickDuration    = 0.2
-    }
-
-    enum Haptics {
-        static func success() {
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-        }
-        static func warning() {
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.warning)
-        }
-        static func error() {
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.error)
-        }
-    }
-}
