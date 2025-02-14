@@ -10,11 +10,11 @@ struct CRAVETabView: View {
     @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
 
     var body: some View {
-        let cravingManager = CravingManager(modelContext: modelContext) // ✅ Fixed initialization
+        let cravingManager = CravingManager() // ✅ Fixed initialization
 
         TabView {
             // Craving List
-            CravingListView(viewModel: CravingListViewModel(cravingManager: cravingManager))
+            CravingListView(viewModel: CravingListViewModel()) // ✅ No arguments needed
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
                         .accessibilityIdentifier("CravingsTab")

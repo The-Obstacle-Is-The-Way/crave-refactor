@@ -6,25 +6,22 @@
 import SwiftUI
 import SwiftData
 
-@Observable
-final class CravingListViewModel {
-    @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext automatically
+@MainActor
+final class CravingListViewModel: ObservableObject {
+    @Environment(\.modelContext) private var modelContext
 
-    // MARK: - Fetch Active Cravings
-    @Query(filter: #Predicate { !$0.isArchived }) var cravings: [CravingModel] // ✅ Fetch only active cravings
-
-    // MARK: - Soft Delete a Craving
-    func archiveCraving(_ craving: CravingModel) {
-        craving.isArchived = true
-        saveContext() // ✅ Ensure UI updates
+    @Published var cravings: [CravingModel] = [] // ✅ Convert to @Published
+    
+    init() {
+        fetchCravings() // ✅ Load cravings manually
     }
 
-    // MARK: - Save Changes
-    private func saveContext() {
+    func fetchCravings() {
         do {
-            try modelContext.save()
+            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
+            cravings = try modelContext.fetch(descriptor)
         } catch {
-            print("Error saving context: \(error)")
+            print("Error fetching cravings: \(error)")
         }
     }
 }

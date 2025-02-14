@@ -35,8 +35,7 @@ struct AnalyticsDashboardView_Previews: PreviewProvider {
         do {
             // Create a ModelContainer using the proper initializer with your model type.
             let container = try ModelContainer(for: CravingModel.self)
-            let dummyContext = container.mainContext
-            let dummyCravingManager = CravingManager(context: dummyContext)
+            let dummyCravingManager = CravingManager() // ✅ Removed `context` argument
             let dummyAnalyticsManager = AnalyticsManager(cravingManager: dummyCravingManager)
             return AnalyticsDashboardView(viewModel: AnalyticsDashboardViewModel(analyticsManager: dummyAnalyticsManager))
         } catch {

@@ -6,8 +6,7 @@
 import SwiftUI
 import SwiftData
 
-@Observable
-final class AnalyticsViewModel {
+final class AnalyticsViewModel: ObservableObject { // ✅ Fixed declaration
     @Environment(\.modelContext) private var modelContext // ✅ Inject ModelContext
 
     @Published var cravings: [CravingModel] = [] // ✅ Stores cravings

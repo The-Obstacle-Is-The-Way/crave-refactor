@@ -3,7 +3,6 @@
 //  CRAVE
 //
 
-
 import Foundation
 import SwiftData
 
@@ -18,10 +17,16 @@ class AnalyticsManager {
     }
     
     func getBasicStats() async -> BasicAnalyticsResult {
-        let allCravings = await cravingManager.fetchAllCravings()
-        let freqDict = frequencyQuery.cravingsPerDay(using: allCravings)
-        let dayParts = timeOfDayQuery.cravingsByTimeSlot(using: allCravings)
+        let allCravings = await cravingManager.fetchAllActiveCravings() // ✅ Updated method call
         
-        return BasicAnalyticsResult(cravingsPerDay: freqDict, cravingsByTimeSlot: dayParts)
+        let cravingsByDate = calendarQuery.cravingsPerDay(using: allCravings) // ✅ Fixed method call
+        let cravingsByTime = timeOfDayQuery.cravingsByTimeSlot(using: allCravings) // ✅ Fixed method call
+        let cravingsByFrequency = frequencyQuery.cravingsPerDay(using: allCravings) // ✅ Fixed method call
+        
+        return BasicAnalyticsResult(
+            cravingsByFrequency: cravingsByFrequency, // ✅ Restored missing argument
+            cravingsPerDay: cravingsByDate,
+            cravingsByTimeSlot: cravingsByTime
+        )
     }
 }

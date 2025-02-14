@@ -2,7 +2,6 @@
 //  AnalyticsManagerTests.swift
 //  CRAVE
 //
-//
 
 import XCTest
 import SwiftData
