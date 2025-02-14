@@ -7,50 +7,73 @@ import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-
+    @Environment(\.modelContext) private var modelContext // Get the ModelContext
+    @StateObject private var cravingManager = CravingManager() // Use CravingManager
     @State private var cravingText: String = ""
+    @State private var showAlert = false  //for the alert
+    @State private var alertMessage = "" //for the alert
+
 
     var body: some View {
         NavigationView {
             VStack {
-                CraveTextEditor(text: $cravingText, placeholder: "Enter craving...") // ✅ Using custom text editor
+                CraveTextEditor(text: $cravingText, placeholder: "Enter craving...") // Use the custom text editor
+                    .padding()
 
-                CraveButton(title: "Log Craving") { // ✅ Using custom button
-                    if !cravingText.isEmpty {
-                        saveCraving()
-                    }
+                CraveButton(title: "Log Craving") {
+                    logCraving()
                 }
-                .disabled(cravingText.isEmpty) // Disable button for empty input
                 .padding()
 
-                Spacer()
+                Spacer() // Push content to the top
             }
             .navigationTitle("Log Craving")
-            .padding()
+            .alert(isPresented: $showAlert) {   //the alert
+                Alert(
+                    title: Text("Invalid Input"),
+                    message: Text(alertMessage),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+        }
+        .onAppear {  // Set the modelContext for CravingManager
+            cravingManager.modelContext = modelContext
         }
     }
 
-    // MARK: - Save Craving
-    private func saveCraving() {
-        let newCraving = CravingModel(cravingText: cravingText, timestamp: Date())
-        modelContext.insert(newCraving)
-        do {
-            try modelContext.save()
-            dismiss()
-        } catch {
-            print("Error saving craving: \(error)")
+    private func logCraving() {
+        // 1. Trim whitespace
+        let trimmedText = cravingText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 2. Validate input
+        if trimmedText.isEmpty {
+            alertMessage = "Please enter a craving."
+            showAlert = true
+            CRAVEDesignSystem.Haptics.error()
+            return
         }
+
+        if trimmedText.count < 3 {
+            alertMessage = "Craving must be at least 3 characters."
+            showAlert = true
+            CRAVEDesignSystem.Haptics.error()
+            return
+        }
+
+        // 3. Create and insert the craving using CravingManager
+        let newCraving = CravingModel(cravingText: trimmedText, timestamp: Date())
+        cravingManager.insert(newCraving) // Use CravingManager to insert!
+
+        // 4. Reset the text field
+        cravingText = ""
+
+        // 5. (Optional) Show a success message/haptic - GOOD practice
+        CRAVEDesignSystem.Haptics.success()
     }
 }
 
-// ✅ Preview with sample data
-struct LogCravingView_Previews: PreviewProvider {
-    static var previews: some View {
-        LogCravingView()
-            .modelContainer(for: CravingModel.self, inMemory: true)
-    }
+#Preview {
+    LogCravingView()
+        .modelContainer(for: CravingModel.self)
 }
-
 

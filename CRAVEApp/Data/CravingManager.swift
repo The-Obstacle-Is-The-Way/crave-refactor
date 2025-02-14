@@ -3,42 +3,48 @@
 //  CRAVE
 //
 
+import Foundation
 import SwiftData
-import SwiftUI
 
 @MainActor
-class CravingManager: ObservableObject {
-    @Environment(\.modelContext) private var modelContext // ✅ Injected automatically
+final class CravingManager: ObservableObject {
+    //@Published var cravings: [CravingModel] = [] // No longer needed here
+    var modelContext: ModelContext? // ✅ Make modelContext non-private (public)
 
-    // MARK: - Insert New Craving
+    /// Inserts a new craving into the data store.
+    /// - Parameter craving: The craving to be inserted.
     func insert(_ craving: CravingModel) {
-        modelContext.insert(craving)
-        saveContext() // ✅ Ensure data is persisted
+        modelContext?.insert(craving)
+        save() // Call save here.
     }
 
-    // MARK: - Soft Delete Craving
+    /// Archives a specific craving, marking it as no longer active. (soft delete)
     func archiveCraving(_ craving: CravingModel) {
         craving.isArchived = true
-        saveContext() // ✅ Soft deletion
+        save()
     }
 
-    // MARK: - Fetch All Active Cravings
+    /// Retrieves all cravings that are not archived.
     func fetchAllActiveCravings() async -> [CravingModel] {
         do {
-            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived })
-            return try modelContext.fetch(descriptor) // ✅ Fetch only non-archived cravings
+            let descriptor = FetchDescriptor<CravingModel>(
+                predicate: #Predicate { !$0.isArchived },
+                sortBy: [SortDescriptor(\.timestamp)]
+            )
+            return try modelContext?.fetch(descriptor) ?? [] // Handle optional context
         } catch {
-            print("Error fetching cravings: \(error)")
+            print("Fetch failed: \(error)")
             return []
         }
     }
 
-    // MARK: - Save Context
-    private func saveContext() {
+    /// Saves changes to the persistent store.
+    private func save() {
         do {
-            try modelContext.save()
+            try modelContext?.save()
         } catch {
             print("Error saving context: \(error)")
         }
     }
 }
+
