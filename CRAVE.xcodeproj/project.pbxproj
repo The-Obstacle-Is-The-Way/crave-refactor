@@ -57,7 +57,6 @@
 				Analytics/Models/AnalyticsEvent.swift = (ios, );
 				Analytics/Models/AnalyticsInsight.swift = (ios, );
 				Analytics/Models/AnalyticsMetadata.swift = (ios, );
-				Analytics/Models/AnalyticsModel.swift = (ios, );
 				Analytics/Models/AnalyticsPattern.swift = (ios, );
 				Analytics/Models/AnalyticsPrediction.swift = (ios, );
 				Analytics/Models/BasicAnalyticsResult.swift = (ios, );
