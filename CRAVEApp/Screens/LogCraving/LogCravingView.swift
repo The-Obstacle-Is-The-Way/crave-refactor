@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) private var modelContext // Correct usage
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
     @State private var alertMessage = ""
