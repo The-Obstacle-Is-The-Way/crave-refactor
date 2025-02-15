@@ -4,112 +4,82 @@
 //
 
 import Foundation
-import Combine // Import Combine if needed for publishers
+import Combine
 
 @MainActor
-class AnalyticsReporter: ObservableObject { // Marked as ObservableObject and @MainActor if used in UI
+final class AnalyticsReporter: ObservableObject {
+    @Published private(set) var reportGenerationState: ReportGenerationState = .idle
+    @Published private(set) var lastReport: Report?
 
-    @Published private(set) var reportGenerationState: ReportGenerationState = .idle // Assuming ReportGenerationState enum exists
-    @Published private(set) var lastReport: Report? // Assuming Report type exists
-
-    private var analyticsStorage: AnalyticsStorage // ✅ No longer ambiguous with proper import
-    private var cancellables = Set<AnyCancellable>() // For Combine publishers, if used
+    private let analyticsStorage: AnalyticsStorage
+    private var cancellables = Set<AnyCancellable>()
 
     init(analyticsStorage: AnalyticsStorage) {
         self.analyticsStorage = analyticsStorage
-        setupObservers()
     }
 
-    private func setupObservers() {
-        // Observer setup if needed, e.g., for report generation status updates
-    }
+    func generateReport(for type: ReportType, format: ReportFormat) async throws -> Report {
+        reportGenerationState = .generating
 
-    func generateReport(for type: ReportType, format: ReportFormat) async throws -> Report { // Assuming ReportType, ReportFormat, Report are defined
-        reportGenerationState = .generating // Assuming .generating is a case in ReportGenerationState
-
-        // Placeholder report data - replace with actual data retrieval and report generation logic
-        let reportData = generateMockReportData(for: type) // Placeholder function for mock data
-        let reportMetadata = ReportMetadata(reportType: type, format: format, creationDate: Date()) // Placeholder metadata
+        let reportData = ReportData(
+            title: "Analytics Report",
+            content: "Generated report for \(type.rawValue)"
+        )
 
         let report = Report(
-            metadata: reportMetadata,
+            metadata: ReportMetadata(
+                reportType: type,
+                format: format,
+                creationDate: Date()
+            ),
             data: reportData,
             format: format,
             generationDate: Date(),
-            state: .completed // Assuming .completed is a case in ReportGenerationState
+            state: .completed
         )
 
         lastReport = report
-        reportGenerationState = .completed // Assuming .completed is a case in ReportGenerationState
+        reportGenerationState = .completed
         return report
     }
 
-    private func generateMockReportData(for type: ReportType) -> ReportData { // Placeholder for mock data generation
-        // Replace with actual data fetching and formatting logic based on ReportType
-        return ReportData(title: "Mock Report", content: "This is mock report data for \(type.rawValue) report.")
+    func handleReport(_ report: Report) async {
+        // Store report data
+        print("Handling report: \(report.metadata.reportType)")
     }
 
-    func exportReport(report: Report, format: ReportFormat) async throws -> URL { // Assuming Report, ReportFormat are defined
-        // Placeholder export logic
-        print("Exporting report of type \(report.metadata.reportType.rawValue) in format \(format.rawValue)")
-        return URL(fileURLWithPath: "path/to/exported/report") // Return a dummy URL for now
+    func handleInsights(_ insights: [any AnalyticsInsight]) async {
+        // Process insights
+        print("Processing \(insights.count) insights")
     }
 
-    func getReportMetadata(for type: ReportType) async throws -> ReportMetadata { // Assuming ReportType, ReportMetadata are defined
-        // Placeholder metadata retrieval logic
-        return ReportMetadata(reportType: type, format: .pdf, creationDate: Date())
-    }
-
-    func getReportData(for type: ReportType) async throws -> ReportData { // Assuming ReportType, ReportData are defined
-        // Placeholder data retrieval logic
-        return ReportData(title: "Sample Data", content: "Sample report data for \(type.rawValue) report.")
-    }
-
-    func getLatestReport(for type: ReportType) async throws -> Report? { // Assuming ReportType, Report are defined
-        // Placeholder: return last generated report or fetch from storage
-        return lastReport // For now, return the last generated report in memory
-    }
-
-    func getAllReportsMetadata(for type: ReportType) async throws -> [ReportMetadata] { // Assuming ReportType, ReportMetadata are defined
-        // Placeholder: return array of metadata, e.g., from storage query
-        return [ReportMetadata(reportType: type, format: .pdf, creationDate: Date())]
+    func handlePredictions(_ predictions: [any AnalyticsPrediction]) async {
+        // Process predictions
+        print("Processing \(predictions.count) predictions")
     }
 }
 
-// MARK: - Supporting Types - Define these enums/structs as per your AnalyticsModel if not already defined
-enum ReportType: String, CaseIterable, Codable { // Example ReportType enum
-    case summary = "Summary"
-    case detailed = "Detailed"
-    case trend = "Trend"
-}
-
-enum ReportFormat: String, CaseIterable, Codable { // Example ReportFormat enum
-    case pdf = "PDF"
-    case csv = "CSV"
-    case json = "JSON"
-}
-
-enum ReportGenerationState: String, Codable { // Example ReportGenerationState enum
+// MARK: - Supporting Types
+enum ReportGenerationState: String, Codable {
     case idle
     case generating
     case completed
     case error
 }
 
-struct ReportMetadata: Codable { // Example ReportMetadata struct
-    let reportType: ReportType
-    let format: ReportFormat
-    let creationDate: Date
-    // ... other metadata properties ...
+enum ReportType: String, CaseIterable, Codable {
+    case summary = "Summary"
+    case detailed = "Detailed"
+    case trend = "Trend"
 }
 
-struct ReportData: Codable { // Example ReportData struct
-    let title: String
-    let content: String
-    // ... report content properties ...
+enum ReportFormat: String, CaseIterable, Codable {
+    case pdf = "PDF"
+    case csv = "CSV"
+    case json = "JSON"
 }
 
-struct Report: Codable { // Example Report struct
+struct Report: Codable {
     let metadata: ReportMetadata
     let data: ReportData
     let format: ReportFormat
@@ -117,25 +87,13 @@ struct Report: Codable { // Example Report struct
     let state: ReportGenerationState
 }
 
-// MARK: - ReportError (Define if you have custom report error handling)
-enum ReportError: Error, LocalizedError { // Example ReportError enum
-    case generationFailed(Error)
-    case exportFailed(Error)
-    case dataNotFound
-    case invalidConfiguration
-
-    var errorDescription: String? {
-        switch self {
-        case .generationFailed(let error):
-            return "Report generation failed: \(error.localizedDescription)"
-        case .exportFailed(let error):
-            return "Report export failed: \(error.localizedDescription)"
-        case .dataNotFound:
-            return "No data found to generate report."
-        case .invalidConfiguration:
-            return "Invalid report configuration."
-        }
-    }
+struct ReportMetadata: Codable {
+    let reportType: ReportType
+    let format: ReportFormat
+    let creationDate: Date
 }
 
-
+struct ReportData: Codable {
+    let title: String
+    let content: String
+}

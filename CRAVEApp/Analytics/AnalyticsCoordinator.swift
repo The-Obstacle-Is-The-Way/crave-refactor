@@ -11,47 +11,18 @@ import Combine
 import SwiftUI
 import SwiftData
 
-// MARK: - Supporting Types
-enum AnalyticsDetectionState: Equatable {
-    case idle
-    case detecting
-    case completed
-    case error(String)
-    
-    static func == (lhs: AnalyticsDetectionState, rhs: AnalyticsDetectionState) -> Bool {
-        switch (lhs, rhs) {
-        case (.idle, .idle),
-             (.detecting, .detecting),
-             (.completed, .completed):
-            return true
-        case (.error(let lhsError), .error(let rhsError)):
-            return lhsError == rhsError
-        default:
-            return false
-        }
-    }
-}
-
-struct AnalyticsPattern: Identifiable {
-    let id: UUID
-    let type: String
-    let confidence: Double
-    let description: String
-}
-
 @MainActor
 final class AnalyticsCoordinator: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var isAnalyticsEnabled: Bool = false
     @Published private(set) var lastEvent: (any AnalyticsEvent)?
-    @Published private(set) var detectionState: AnalyticsDetectionState = .idle
+    @Published private(set) var detectionState: DetectionState = .idle
     @Published private(set) var detectedPatterns: [AnalyticsPattern] = []
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
     private let storage: AnalyticsStorage
     private let aggregator: AnalyticsAggregator
-    private let processor: AnalyticsProcessor
     private let reporter: AnalyticsReporter
     private let eventTrackingService: EventTrackingService
     private let patternDetectionService: PatternDetectionService
@@ -60,12 +31,10 @@ final class AnalyticsCoordinator: ObservableObject {
     // MARK: - Internal State
     private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - Initialization
     init(modelContext: ModelContext) {
         self.configuration = .shared
         self.storage = AnalyticsStorage(modelContext: modelContext)
         self.aggregator = AnalyticsAggregator(storage: storage)
-        self.processor = AnalyticsProcessor(configuration: .shared, storage: storage)
         self.reporter = AnalyticsReporter(analyticsStorage: storage)
         self.eventTrackingService = EventTrackingService(storage: storage, configuration: configuration)
         self.patternDetectionService = PatternDetectionService(storage: storage, configuration: configuration)
@@ -73,10 +42,8 @@ final class AnalyticsCoordinator: ObservableObject {
 
         setupBindings()
         setupObservers()
-        loadInitialState()
     }
 
-    // MARK: - Setup Methods
     private func setupBindings() {
         configuration.$featureFlags
             .map { $0.isAnalyticsEnabled }
@@ -86,8 +53,7 @@ final class AnalyticsCoordinator: ObservableObject {
     private func setupObservers() {
         eventTrackingService.eventPublisher
             .sink { completion in
-                switch completion {
-                case .finished:
+                if case .finished = completion {
                     print("Event Publisher finished")
                 }
             } receiveValue: { [weak self] event in
@@ -97,54 +63,23 @@ final class AnalyticsCoordinator: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-
-        patternDetectionService.$detectionState
-            .map { state -> AnalyticsDetectionState in
-                switch state {
-                case .idle: return .idle
-                case .detecting: return .detecting
-                case .completed: return .completed
-                case .error(let error): return .error(error.localizedDescription)
-                }
-            }
-            .assign(to: &$detectionState)
-
-        patternDetectionService.$detectedPatterns
-            .map { patterns in
-                patterns.map { pattern in
-                    AnalyticsPattern(
-                        id: UUID(),
-                        type: pattern.type,
-                        confidence: pattern.confidence,
-                        description: pattern.description
-                    )
-                }
-            }
-            .assign(to: &$detectedPatterns)
-    }
-
-    private func loadInitialState() {
-        isAnalyticsEnabled = configuration.featureFlags.isAnalyticsEnabled
-    }
-
-    // MARK: - Event Processing
-    func trackEvent(_ event: CravingModel) async throws {
-        try await analyticsService.trackEvent(event)
     }
 
     private func handleEvent(_ event: AnalyticsEvent) async {
         await aggregator.aggregateEvent(event)
-        await processor.processEvent(event)
     }
 
-    // MARK: - Pattern Detection
+    func trackEvent(_ event: CravingModel) async throws {
+        try await analyticsService.trackEvent(event)
+    }
+
     func detectPatterns() async {
         do {
             let patterns = try await patternDetectionService.detectPatterns()
             self.detectedPatterns = patterns.map { pattern in
                 AnalyticsPattern(
                     id: UUID(),
-                    type: pattern.type,
+                    type: pattern.type.rawValue,
                     confidence: pattern.confidence,
                     description: pattern.description
                 )
@@ -152,26 +87,35 @@ final class AnalyticsCoordinator: ObservableObject {
             self.detectionState = .completed
         } catch {
             print("Pattern detection failed: \(error)")
-            self.detectionState = .error(error.localizedDescription)
+            self.detectionState = .error(error)
         }
     }
+}
 
-    // MARK: - Reporting
-    func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report {
-        let report = try await analyticsService.generateReport(type: type, timeRange: timeRange)
-        await reporter.handleReport(report)
-        return report
-    }
+// MARK: - Supporting Types
+struct AnalyticsPattern: Identifiable {
+    let id: UUID
+    let type: String
+    let confidence: Double
+    let description: String
+}
 
-    func fetchInsights() async throws -> [AnalyticsInsight] {
-        let insights = try await analyticsService.fetchInsights()
-        await reporter.handleInsights(insights)
-        return insights
-    }
-
-    func fetchPredictions() async throws -> [AnalyticsPrediction] {
-        let predictions = try await analyticsService.fetchPredictions()
-        await reporter.handlePredictions(predictions)
-        return predictions
+enum DetectionState: Equatable {
+    case idle
+    case detecting
+    case completed
+    case error(Error)
+    
+    static func == (lhs: DetectionState, rhs: DetectionState) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle),
+             (.detecting, .detecting),
+             (.completed, .completed):
+            return true
+        case (.error(let lhsError), .error(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        default:
+            return false
+        }
     }
 }

@@ -10,7 +10,7 @@ struct BasicAnalyticsResult {
     let cravingsPerDay: [Date: Int]
     let cravingsByTimeSlot: [String: Int]
     
-    // Computed properties for additional insights
+    // Computed properties
     var totalCravings: Int {
         cravingsPerDay.values.reduce(0, +)
     }
@@ -32,7 +32,6 @@ struct BasicAnalyticsResult {
         return earliest...latest
     }
     
-    // Initializer with default empty values
     init(
         cravingsByFrequency: [Date: Int] = [:],
         cravingsPerDay: [Date: Int] = [:],
@@ -43,12 +42,11 @@ struct BasicAnalyticsResult {
         self.cravingsByTimeSlot = cravingsByTimeSlot
     }
     
-    // Helper method to get cravings for a specific date range
+    // Helper methods
     func getCravings(in dateRange: DateInterval) -> [Date: Int] {
         cravingsPerDay.filter { dateRange.contains($0.key) }
     }
     
-    // Helper method to get the distribution percentage for time slots
     func timeSlotDistribution() -> [String: Double] {
         guard totalCravings > 0 else { return [:] }
         return cravingsByTimeSlot.mapValues { Double($0) / Double(totalCravings) }
@@ -96,4 +94,3 @@ extension BasicAnalyticsResult {
         return data
     }
 }
-

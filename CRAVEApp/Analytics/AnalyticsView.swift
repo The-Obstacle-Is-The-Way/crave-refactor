@@ -5,78 +5,76 @@
 
 import SwiftUI
 import SwiftData
+import Charts
 
 struct AnalyticsView: View {
-    @Environment(\.modelContext) var modelContext
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = AnalyticsViewModel()
-
+    
     var body: some View {
         NavigationView {
-            VStack {
+            ScrollView {
                 if let stats = viewModel.basicStats {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            // Cravings by Day Section
-                            VStack(alignment: .leading) {
-                                Text("Cravings by Day")
-                                    .font(.title2)
-                                    .bold()
-                                    .padding(.horizontal)
-                                
-                                CravingBarChart(data: stats.cravingsPerDay)
-                                    .frame(height: 300)
-                                    .padding(.horizontal)
-                            }
+                    VStack(spacing: 20) {
+                        // Overview Card
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Overview")
+                                .font(.title2)
+                                .bold()
                             
-                            // Time of Day Section
-                            VStack(alignment: .leading) {
-                                Text("Time of Day Distribution")
-                                    .font(.title2)
-                                    .bold()
-                                    .padding(.horizontal)
+                            HStack(spacing: 20) {
+                                StatCard(
+                                    title: "Total",
+                                    value: "\(stats.totalCravings)",
+                                    subtitle: "Cravings"
+                                )
                                 
-                                TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
-                                    .frame(height: 300)
-                                    .padding(.horizontal)
-                            }
-                            
-                            // Calendar View Section
-                            VStack(alignment: .leading) {
-                                Text("Activity Calendar")
-                                    .font(.title2)
-                                    .bold()
-                                    .padding(.horizontal)
-                                
-                                CalendarHeatmapView(data: stats.cravingsByFrequency)
-                                    .padding(.horizontal)
-                            }
-                            
-                            // Additional Insights Section
-                            if let mostActive = stats.mostActiveTimeSlot {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Key Insights")
-                                        .font(.title2)
-                                        .bold()
-                                        .padding(.horizontal)
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Most Active Time: \(mostActive.slot)")
-                                        Text("Total Cravings: \(stats.totalCravings)")
-                                        if stats.averageCravingsPerDay > 0 {
-                                            Text("Daily Average: \(String(format: "%.1f", stats.averageCravingsPerDay))")
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
+                                StatCard(
+                                    title: "Daily Avg",
+                                    value: String(format: "%.1f", stats.averageCravingsPerDay),
+                                    subtitle: "Cravings"
+                                )
                             }
                         }
-                        .padding(.vertical)
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                        
+                        // Cravings by Day Section
+                        ChartSection(
+                            title: "Daily Trends",
+                            chart: CravingBarChart(data: stats.cravingsPerDay)
+                        )
+                        
+                        // Time of Day Distribution
+                        ChartSection(
+                            title: "Time of Day Patterns",
+                            chart: TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
+                        )
+                        
+                        // Activity Calendar
+                        if !stats.cravingsByFrequency.isEmpty {
+                            ChartSection(
+                                title: "Activity Calendar",
+                                chart: CalendarHeatmapView(data: stats.cravingsByFrequency)
+                            )
+                        }
+                        
+                        // Insights Section
+                        if let mostActive = stats.mostActiveTimeSlot {
+                            InsightsCard(stats: stats, mostActive: mostActive)
+                        }
                     }
+                    .padding(.vertical)
                 } else {
-                    ProgressView("Loading Analytics...")
+                    LoadingView()
                 }
             }
             .navigationTitle("Analytics")
+            .refreshable {
+                await viewModel.loadAnalytics(modelContext: modelContext)
+            }
             .onAppear {
                 Task {
                     await viewModel.loadAnalytics(modelContext: modelContext)
@@ -86,27 +84,130 @@ struct AnalyticsView: View {
     }
 }
 
-#Preview {
-    MainActor.run {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(
-            for: CravingModel.self,
-            configurations: config
-        )
-        
-        // Add some sample data
-        let context = container.mainContext
-        for _ in 0..<10 {
-            let craving = CravingModel(
-                cravingText: "Sample Craving",
-                intensity: Int.random(in: 1...10)
-            )
-            context.insert(craving)
+// MARK: - Supporting Views
+private struct StatCard: View {
+    let title: String
+    let value: String
+    let subtitle: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Text(value)
+                .font(.title2)
+                .bold()
+            
+            Text(subtitle)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
-        try! context.save()
-        
-        return AnalyticsView()
-            .modelContainer(container)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(8)
     }
 }
 
+private struct ChartSection<Chart: View>: View {
+    let title: String
+    let chart: Chart
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.title2)
+                .bold()
+                .padding(.horizontal)
+            
+            chart
+        }
+        .padding(.vertical, 8)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+}
+
+private struct InsightsCard: View {
+    let stats: BasicAnalyticsResult
+    let mostActive: (slot: String, count: Int)
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Key Insights")
+                .font(.title2)
+                .bold()
+            
+            VStack(alignment: .leading, spacing: 8) {
+                InsightRow(
+                    icon: "clock",
+                    title: "Peak Time",
+                    value: "\(mostActive.slot) (\(mostActive.count) cravings)"
+                )
+                
+                InsightRow(
+                    icon: "calendar",
+                    title: "Total Tracked",
+                    value: "\(stats.totalCravings) cravings"
+                )
+                
+                if stats.averageCravingsPerDay > 0 {
+                    InsightRow(
+                        icon: "chart.bar",
+                        title: "Daily Average",
+                        value: String(format: "%.1f cravings", stats.averageCravingsPerDay)
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+}
+
+private struct InsightRow: View {
+    let icon: String
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(.blue)
+                .frame(width: 24)
+            
+            Text(title)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Text(value)
+                .bold()
+        }
+    }
+}
+
+private struct LoadingView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .scaleEffect(1.5)
+            
+            Text("Loading Analytics...")
+                .font(.headline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+}
+
+#Preview {
+    AnalyticsView()
+        .modelContainer(for: CravingModel.self, inMemory: true)
+}
