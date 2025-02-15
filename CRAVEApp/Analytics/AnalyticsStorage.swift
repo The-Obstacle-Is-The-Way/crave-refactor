@@ -11,6 +11,8 @@ import Combine
 final class AnalyticsStorage {
 
     private let modelContext: ModelContext
+    var eventPublisher = PassthroughSubject<any AnalyticsEvent, Error>() // Added for event handling
+
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -20,10 +22,25 @@ final class AnalyticsStorage {
         modelContext.insert(craving)
         try modelContext.save() // Save after inserting
     }
-    
+
     func store(_ metadata: AnalyticsMetadata) async throws {
         modelContext.insert(metadata)
         try modelContext.save() // Save after inserting
+    }
+    
+    func store(_ event: AnalyticsEvent) async throws { // Added to store events
+        // Placeholder - Assuming all events are stored as CravingModels for now
+        // This will need more sophisticated logic later.
+        if let cravingEvent = event as? CravingEvent {
+             let cravingModel = CravingModel(cravingText: "Craving Event: \(cravingEvent.cravingId)", timestamp: cravingEvent.timestamp) // Placeholder text
+             try await store(cravingModel)
+        }
+    }
+
+    func storeBatch(_ events: [AnalyticsEvent]) async throws { // Added to store events
+        for event in events {
+            try await store(event) // Reuse the single event store method
+        }
     }
 
     func fetchRange(_ dateRange: DateInterval) async throws -> [CravingModel] {
@@ -63,7 +80,8 @@ extension AnalyticsStorage {
     }
 }
 
-//Placeholder for TrackedEvent
+//Placeholder for TrackedEvent, moved to AnalyticsEvent
+/*
 struct TrackedEvent: Identifiable, Codable {
     let id: UUID
     let type: EventType
@@ -87,15 +105,17 @@ struct TrackedEvent: Identifiable, Codable {
     }
 }
 
+
 enum EventPriority: String, Codable {
     case normal
     case critical
 }
+ */
+/* Moved to AnalyticsEvent
 enum EventType: String, Codable {
     case user
     case system
     case craving
     case interaction
 }
-
-
+*/

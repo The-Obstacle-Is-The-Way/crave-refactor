@@ -1,5 +1,8 @@
+//
+//
 // File: AnalyticsFormatter.swift
 // Purpose: Handles all formatting and data transformation for analytics data presentation
+//
 
 import Foundation
 import SwiftUI
@@ -96,15 +99,16 @@ final class AnalyticsFormatter {
         }
     }
     
-    func formatPattern(_ pattern: DetectedPattern) -> FormattedPattern {
-        return FormattedPattern(
-            title: formatPatternTitle(pattern),
-            description: formatPatternDescription(pattern),
-            frequency: formatPatternFrequency(pattern),
-            strength: formatPatternStrength(pattern.strength)
-        )
-    }
-    
+    func formatPattern(_ pattern: DetectedPattern) -> FormattedPattern { // Changed to use the simplified DetectedPattern
+           return FormattedPattern(
+               title: formatPatternTitle(pattern),
+               description: formatPatternDescription(pattern),
+               frequency: formatPatternFrequency(pattern),
+               strength: formatPatternStrength(pattern.strength)
+           )
+       }
+
+    /* // Removed as no longer needed
     func formatInsight(_ insight: AnalyticsInsight) -> FormattedInsight {
         return FormattedInsight(
             title: insight.title,
@@ -113,7 +117,8 @@ final class AnalyticsFormatter {
             recommendations: insight.recommendations.map(formatRecommendation)
         )
     }
-    
+    */
+
     // MARK: - Chart Data Formatting
     func formatChartData(_ data: [ChartDataPoint]) -> [FormattedChartPoint] {
         return data.map { point in
@@ -160,30 +165,29 @@ final class AnalyticsFormatter {
         timeIntervalFormatter.allowedUnits = [.hour, .minute]
     }
     
-    private func formatPatternTitle(_ pattern: DetectedPattern) -> String {
-        switch pattern.type {
-        case .time:
-            return "Time-based Pattern"
-        case .behavior:
-            return "Behavioral Pattern"
-        case .context:
-            return "Contextual Pattern"
+    private func formatPatternTitle(_ pattern: DetectedPattern) -> String { // Changed to use simplified DetectedPattern
+            switch pattern.type {
+            case .time:
+                return "Time-based Pattern"
+            case .behavior:
+                return "Behavioral Pattern"
+            case .context:
+                return "Contextual Pattern"
+            }
         }
-    }
-    
-    private func formatPatternDescription(_ pattern: DetectedPattern) -> String {
-        // Implement pattern-specific description formatting
-        return pattern.description
-    }
-    
-    private func formatPatternFrequency(_ pattern: DetectedPattern) -> String {
-        return formatFrequency(
-            Int(pattern.frequency),
-            timeFrame: .weekly
-        )
-    }
-    
-    private func formatPatternStrength(_ strength: Double) -> String {
+
+        private func formatPatternDescription(_ pattern: DetectedPattern) -> String { // Changed to use simplified DetectedPattern
+            return pattern.description
+        }
+
+    private func formatPatternFrequency(_ pattern: DetectedPattern) -> String { // Changed to use simplified DetectedPattern
+           return formatFrequency(
+               Int(pattern.frequency),
+               timeFrame: .weekly
+           )
+       }
+
+    private func formatPatternStrength(_ strength: Double) -> String { // Kept as is, takes a Double
         return formatPercentage(strength)
     }
     
@@ -211,4 +215,84 @@ final class AnalyticsFormatter {
         // Implement color scaling based on value
         return .blue
     }
+}
+
+// MARK: - Supporting Types (Define these as per your needs)
+enum DateFormatStyle {
+    case short, medium, long, full
+
+    var dateFormatterStyle: DateFormatter.Style {
+        switch self {
+        case .short: return .short
+        case .medium: return .medium
+        case .long: return .long
+        case .full: return .full
+        }
+    }
+}
+
+enum TimeFormatStyle {
+    case short, medium, long, full
+    var timeFormatterStyle: DateFormatter.Style {
+        switch self {
+        case .short: return .short
+        case .medium: return .medium
+        case .long: return .long
+        case .full: return .full
+        }
+    }
+}
+
+enum NumberFormatStyle {
+    case decimal, currency, percent
+
+    var numberFormatterStyle: NumberFormatter.Style {
+        switch self {
+            case .decimal: return .decimal
+            case .currency: return .currency
+            case .percent: return .percent
+        }
+    }
+}
+
+enum TimeFrame {
+    case daily, weekly, monthly
+}
+
+struct FormattedPattern { // Added for simplified DetectedPattern
+    let title: String
+    let description: String
+    let frequency: String
+    let strength: String
+}
+
+/* Removed
+struct FormattedInsight {
+    let title: String
+    let description: String
+    let confidence: String
+    let recommendations: [String]
+}
+ */
+
+struct ChartDataPoint { // Placeholder, adjust as needed
+    let labelType: ChartLabelType
+    let date: Date
+    let value: Double
+}
+
+enum ChartLabelType { // Placeholder, adjust as needed
+    case date
+    case time
+    case value
+}
+
+enum ChartAxis {
+    case x, y
+}
+
+struct FormattedChartPoint { // Placeholder, adjust as needed
+    let label: String
+    let value: String
+    let color: Color
 }

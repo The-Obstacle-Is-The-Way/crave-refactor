@@ -116,5 +116,3 @@ extension InteractionData {
         }
     }
 }
-
-

@@ -53,5 +53,3 @@ final class CravingManager: ObservableObject { // Use @MainActor for UI updates
         }
     }
 }
-
-

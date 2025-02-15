@@ -28,13 +28,10 @@ final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
-    private let manager: AnalyticsManager // We'll address this later
-    //private let processor: AnalyticsProcessor // Removed, as we are starting simple
-    //private let reporter: AnalyticsReporter // Removed, as we are starting simple
+    private let manager: AnalyticsManager
     private let storage: AnalyticsStorage
 
     // MARK: - Internal Components
-    //private let queue: AsyncQueue<AnalyticsEvent> // Removed, using simple array
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
@@ -45,22 +42,21 @@ final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
         self.configuration = configuration
         self.storage = AnalyticsStorage(modelContext: modelContext)
         self.manager = AnalyticsManager(modelContext: modelContext) // Pass the context
-        //self.processor = AnalyticsProcessor(configuration: configuration, storage: storage)
-        //self.reporter = AnalyticsReporter(configuration: configuration, storage: storage)
-        //self.queue = AsyncQueue() // Removed.
 
         setupService() // Keep setup for potential future use.
     }
 
     // MARK: - Public API (Simplified)
     func trackEvent(_ event: CravingModel) async throws { // Simplified to take CravingModel
-        // No feature flags for now. Add back if needed, but keep it simple.
+
         do {
             let metadata = AnalyticsMetadata(cravingId: event.id)
             event.analyticsMetadata = metadata //connect metadata
-            try modelContext.insert(metadata)
-            try modelContext.insert(event) // Insert the event (CravingModel).
+            
+            modelContext.insert(metadata)
+            modelContext.insert(event) // Insert the event (CravingModel).
             try modelContext.save() // Explicit save.
+            //Removed queue for now
 
         } catch {
             // TODO: Improve error handling. Don't just print.
@@ -76,18 +72,19 @@ final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
         isProcessing = true
         currentState = .processing
 
-        // do {
-             //try await storage.fetch()
+         do {
+             //try await storage.fetch() // Removed
              // TODO: Add actual processing logic.
+             try await manager.getBasicStats() // Added call to manager
 
              currentState = .completed // Simplified state
              lastProcessingTime = Date()
 
 
-        // } catch {
-        //     currentState = .error(error)
-        //     throw AnalyticsServiceError.processingFailed(error)
-        // }
+         } catch {
+             currentState = .error(error)
+             throw AnalyticsServiceError.processingFailed(error)
+         }
 
         isProcessing = false
     }
@@ -113,6 +110,26 @@ final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
     private func setupService() {
         //setupConfigurationObservers() //Removed
         //setupAutoProcessing() // Removed
+    }
+    
+    func processEvent(event: AnalyticsEvent) async throws {
+        
+    }
+    
+    func analyzeData(patterns: [any AnalyticsPattern]) async {
+        
+    }
+    
+    func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report {
+        return Report(metadata: ReportMetadata(reportType: .trend, format: .csv, creationDate: .now), data: ReportData(title: "title", content: "content"), format: .csv, generationDate: .now, state: .completed)
+    }
+    
+    func fetchInsights() async throws -> [any AnalyticsInsight] {
+        return []
+    }
+    
+    func fetchPredictions() async throws -> [any AnalyticsPrediction] {
+        return []
     }
 }
 
@@ -171,4 +188,3 @@ extension AnalyticsService {
         )
     }
 }
-

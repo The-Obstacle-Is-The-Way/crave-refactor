@@ -44,13 +44,3 @@ final class DateListViewModel: ObservableObject {
         }
     }
 }
-
-// Extension for date formatting (Keep this for now)
-extension Date {
-    /// Returns a formatted date string (e.g., "Jan 1, 2023").
-    func formattedDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: self)
-    }
-}

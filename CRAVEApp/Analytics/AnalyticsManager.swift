@@ -72,11 +72,3 @@ class AnalyticsManager: ObservableObject { // Added ObservableObject
         }
     }
 }
-
-//Added for use in AnalyticsDashboardViewModel
-struct BasicAnalyticsResult {
-    let cravingsByFrequency: [Date: Int]
-    let cravingsPerDay: [Date: Int]
-    let cravingsByTimeSlot: [String: Int]
-}
-

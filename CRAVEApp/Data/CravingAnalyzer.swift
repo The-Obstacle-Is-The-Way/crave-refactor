@@ -58,4 +58,3 @@ actor CravingAnalyzer {
         }
     }
 }
-

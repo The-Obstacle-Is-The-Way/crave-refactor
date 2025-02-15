@@ -12,10 +12,11 @@ import Foundation
 protocol AnalyticsEvent: Codable { // Explicitly conform to Codable
     var eventType: AnalyticsEventType { get }
     var timestamp: Date { get }
+    var priority: EventPriority { get } // Add priority
 }
 
 // Make AnalyticsEventType Codable
-enum AnalyticsEventType: String, Codable {
+enum AnalyticsEventType: String, Codable, CaseIterable {
     case cravingCreated = "cravingCreated"
     case systemEvent = "systemEvent"
     case userEvent = "userEvent"
@@ -23,41 +24,49 @@ enum AnalyticsEventType: String, Codable {
     case unknown = "unknown" // Add a default case for decoding safety
 }
 
+enum EventPriority: String, Codable, CaseIterable { // Added for AnalyticsProcessor
+    case normal
+    case critical
+}
 
 // Base class for analytics events - conforming to Codable
 class BaseAnalyticsEvent: AnalyticsEvent { // Correct conformance and class definition
     let eventType: AnalyticsEventType
     let timestamp: Date
-
+    var priority: EventPriority = .normal  // Provide a default
+    
     init(eventType: AnalyticsEventType, timestamp: Date = Date()) {
         self.eventType = eventType
         self.timestamp = timestamp
     }
-
+    
     // Explicitly implement Codable conformance (though synthesized conformance should work for these simple properties)
     enum CodingKeys: String, CodingKey {
         case eventType
         case timestamp
+        case priority
     }
-
+    
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         eventType = try container.decode(AnalyticsEventType.self, forKey: .eventType)
         timestamp = try container.decode(Date.self, forKey: .timestamp)
-        super.init() // Call to super.init needed if inheriting from NSObject directly, but not needed here as NSObject is not inherited directly
+        priority = try container.decodeIfPresent(EventPriority.self, forKey: .priority) ?? .normal // Provide a default value
     }
-
+    
+    
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(eventType, forKey: .eventType)
         try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(priority, forKey: .priority)
     }
 }
 
 // Example concrete event types - extend BaseAnalyticsEvent
 final class UserEvent: BaseAnalyticsEvent {
     let userId: String
-
+    
     init(userId: String, timestamp: Date = Date()) {
         self.userId = userId
         super.init(eventType: .userEvent, timestamp: timestamp)
@@ -68,10 +77,10 @@ final class UserEvent: BaseAnalyticsEvent {
     }
     
     required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self).superDecoder()
+        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self)
         let keyedContainer = try decoder.container(keyedBy: CodingKeys.self)
         self.userId = try keyedContainer.decode(String.self, forKey: .userId)
-        try super.init(from: decoder)
+        try super.init(from: container.superDecoder())
     }
     
     override func encode(to encoder: Encoder) throws {
@@ -83,7 +92,7 @@ final class UserEvent: BaseAnalyticsEvent {
 
 final class SystemEvent: BaseAnalyticsEvent {
     let systemInfo: String
-
+    
     init(systemInfo: String, timestamp: Date = Date()) {
         self.systemInfo = systemInfo
         super.init(eventType: .systemEvent, timestamp: timestamp)
@@ -94,10 +103,10 @@ final class SystemEvent: BaseAnalyticsEvent {
     }
     
     required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self).superDecoder()
+        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self)
         let keyedContainer = try decoder.container(keyedBy: CodingKeys.self)
         self.systemInfo = try keyedContainer.decode(String.self, forKey: .systemInfo)
-        try super.init(from: decoder)
+        try super.init(from: container.superDecoder())
     }
     
     override func encode(to encoder: Encoder) throws {
@@ -109,7 +118,7 @@ final class SystemEvent: BaseAnalyticsEvent {
 
 final class CravingEvent: BaseAnalyticsEvent {
     let cravingId: UUID
-
+    
     init(cravingId: UUID, timestamp: Date = Date()) {
         self.cravingId = cravingId
         super.init(eventType: .cravingCreated, timestamp: timestamp)
@@ -120,10 +129,10 @@ final class CravingEvent: BaseAnalyticsEvent {
     }
     
     required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self).superDecoder()
+        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self)
         let keyedContainer = try decoder.container(keyedBy: CodingKeys.self)
         self.cravingId = try keyedContainer.decode(UUID.self, forKey: .cravingId)
-        try super.init(from: decoder)
+        try super.init(from: container.superDecoder())
     }
     
     override func encode(to encoder: Encoder) throws {
@@ -135,7 +144,7 @@ final class CravingEvent: BaseAnalyticsEvent {
 
 final class InteractionEvent: BaseAnalyticsEvent {
     let interactionId: UUID
-
+    
     init(interactionId: UUID, timestamp: Date = Date()) {
         self.interactionId = interactionId
         super.init(eventType: .interactionEvent, timestamp: timestamp)
@@ -146,10 +155,10 @@ final class InteractionEvent: BaseAnalyticsEvent {
     }
     
     required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self).superDecoder()
+        let container = try decoder.container(keyedBy: BaseAnalyticsEvent.CodingKeys.self)
         let keyedContainer = try decoder.container(keyedBy: CodingKeys.self)
         self.interactionId = try keyedContainer.decode(UUID.self, forKey: .interactionId)
-        try super.init(from: decoder)
+        try super.init(from: container.superDecoder())
     }
     
     override func encode(to encoder: Encoder) throws {
@@ -158,3 +167,4 @@ final class InteractionEvent: BaseAnalyticsEvent {
         try container.encode(interactionId, forKey: .interactionId)
     }
 }
+

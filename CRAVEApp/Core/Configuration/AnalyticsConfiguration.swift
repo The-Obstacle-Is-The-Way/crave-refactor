@@ -1,5 +1,8 @@
+//
+//
 // File: AnalyticsConfiguration.swift
 // Purpose: Centralized configuration management for analytics system
+//
 
 import Foundation
 import SwiftData
@@ -178,7 +181,7 @@ struct MLConfiguration {
 }
 
 // MARK: - Supporting Types
-enum Environment: String {
+enum Environment: String, Codable {
     case development
     case staging
     case production
@@ -217,5 +220,3 @@ extension AnalyticsConfiguration {
         return config
     }
 }
-
-

@@ -1,6 +1,7 @@
 //
 //
-// CRAVEApp/Data/Entities/AnalyticsMetadata.swift
+//  CRAVEApp/Data/Entities/AnalyticsMetadata.swift
+//  Purpose:
 //
 //
 
@@ -130,110 +131,5 @@ extension AnalyticsMetadata {
     
     enum ProcessingState: String, Codable, CaseIterable { //added case iterable
         case pending, processing, completed, failed
-    }
-}
-// MARK: - Value Transformers - Move to CRAVEApp.swift for registration
-// These are now *global* and will be registered in CRAVEApp.swift
-
-final class UserActionsTransformer: ValueTransformer, NSSecureCoding {
-    static var supportsSecureCoding = true
-    
-    override class func transformedValueClass() -> AnyClass {
-        return NSData.self  // Corrected
-    }
-
-    override class func allowsReverseTransformation() -> Bool {
-        return true
-    }
-
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let actions = value as? [AnalyticsMetadata.UserAction] else { return nil }
-        return try? JSONEncoder().encode(actions) as NSData
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? Data else { return nil } // Corrected type
-        return try? JSONDecoder().decode([AnalyticsMetadata.UserAction].self, from: data)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init()
-    }
-    override func encode(with coder: NSCoder) {
-        
-    }
-}
-
-final class PatternIdentifiersTransformer: ValueTransformer, NSSecureCoding {
-    static var supportsSecureCoding = true
-    override class func transformedValueClass() -> AnyClass {
-        return NSData.self // Corrected
-    }
-    override class func allowsReverseTransformation() -> Bool { // Corrected
-        return true
-    }
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let patterns = value as? [String] else { return nil }
-        return try? JSONEncoder().encode(patterns) as NSData
-    }
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? Data else { return nil }  // Corrected type
-        return try? JSONDecoder().decode([String].self, from: data)
-    }
-    required init?(coder: NSCoder) { // Added required initializer
-        super.init()
-    }
-    override func encode(with coder: NSCoder) {}
-}
-
-final class CorrelationFactorsTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
-    static var supportsSecureCoding = true
-    override class func transformedValueClass() -> AnyClass {
-        return NSData.self // Corrected
-    }
-
-     override class func allowsReverseTransformation() -> Bool { // Corrected
-        return true
-    }
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let factors = value as? [AnalyticsMetadata.CorrelationFactor] else { return nil }
-        return try? JSONEncoder().encode(factors) as NSData
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? Data else { return nil } // Corrected type
-        return try? JSONDecoder().decode([AnalyticsMetadata.CorrelationFactor].self, from: data)
-    }
-    required init?(coder: NSCoder) { // Added required initializer
-        super.init()
-    }
-
-    override func encode(with coder: NSCoder) { // Added encode method
-    }
-}
-
-final class StreakDataTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
-    static var supportsSecureCoding = true
-    override class func transformedValueClass() -> AnyClass {
-        return NSData.self // Corrected
-    }
-
-    override class func allowsReverseTransformation() -> Bool { // Corrected
-        return true
-    }
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let streakData = value as? AnalyticsMetadata.StreakData else { return nil }
-        return try? JSONEncoder().encode(streakData) as NSData
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? Data else { return nil } // Corrected type
-        return try? JSONDecoder().decode(AnalyticsMetadata.StreakData.self, from: data)
-    }
-    required init?(coder: NSCoder) { // Added required initializer
-        super.init()
-    }
-
-    override func encode(with coder: NSCoder) { // Added encode method
     }
 }

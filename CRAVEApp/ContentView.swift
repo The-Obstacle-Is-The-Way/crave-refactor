@@ -1,4 +1,6 @@
+//
 //ContentView.swift
+//
 
 import SwiftUI
 import SwiftData
@@ -23,7 +25,7 @@ struct ContentView: View {
                                 await viewModel.archiveCraving(craving)
                             }
                         } label: {
-                            Label("Archive", systemImage: "archive")
+                            Label("Archive", systemImage: "archivebox")
                         }
                     }
                 }

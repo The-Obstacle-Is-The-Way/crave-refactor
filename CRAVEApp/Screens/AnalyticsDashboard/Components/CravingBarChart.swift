@@ -1,6 +1,6 @@
 //
 //  🍒
-//  CRAVEApp/Screens/AnalyticsDashboard/Components/CravingBarChart
+//  CRAVEApp/Screens/AnalyticsDashboard/Components/CravingBarChart.swift
 //  Purpose:
 //
 //
@@ -45,3 +45,4 @@ struct CravingBarChart: View {
         }
     }
 }
+

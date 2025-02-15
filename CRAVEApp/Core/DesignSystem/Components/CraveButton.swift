@@ -20,10 +20,10 @@ struct CraveButton: View {
         }) {
             Text(title)
                 .frame(maxWidth: .infinity)
-                .frame(height: CRAVEDesignSystem.Layout.buttonHeight)
+                .frame(height: 50)
                 .foregroundColor(.white)
-                .background(CRAVEDesignSystem.Colors.primary)
-                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
+                .background(Color.blue)
+                .cornerRadius(8)
         }
         // Provide a stable accessibility identifier for UI tests
         // If the button's title is "Submit", we'll use "SubmitButton" specifically

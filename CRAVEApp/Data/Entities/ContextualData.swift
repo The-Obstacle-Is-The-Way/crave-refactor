@@ -90,6 +90,17 @@ extension ContextualData {
         var isHoliday: Bool
         var season: Season
         
+        enum TimeOfDay: String, Codable { // Added
+            case morning
+            case afternoon
+            case evening
+            case night
+        }
+        
+        enum DayOfWeek: String, Codable { // Added
+            case sunday, monday, tuesday, wednesday, thursday, friday, saturday
+        }
+        
         enum Season: String, Codable {
             case spring
             case summer
@@ -235,7 +246,8 @@ extension ContextualData {
     }
 }
 
-// MARK: - Context Analysis
+// MARK: - Context Analysis (Moved to AnalyticsManager)
+/*
 extension ContextualData {
     func analyzeContext() -> ContextualAnalysis {
         return ContextualAnalysis(
@@ -272,8 +284,10 @@ extension ContextualData {
         return .medium
     }
 }
+ */
 
-// MARK: - Analysis Types
+// MARK: - Analysis Types (Moved to AnalyticsManager)
+/*
 enum TriggerStrength: String, Codable {
     case low
     case medium
@@ -301,6 +315,7 @@ struct ContextualAnalysis: Codable {
         return triggers.reduce(0.0) { $0 + $1.value } / Double(triggers.count)
     }
 }
+ */
 
 // MARK: - Testing Support
 extension ContextualData {

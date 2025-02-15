@@ -35,4 +35,3 @@ struct TimeOfDayPieChart: View {
         }
     }
 }
-
