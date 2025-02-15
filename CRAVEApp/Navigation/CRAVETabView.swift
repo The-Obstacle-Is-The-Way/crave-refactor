@@ -8,8 +8,8 @@ import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) var modelContext: ModelContext // Removed private
-    @State private var selection: Int = 0
+    @Environment(\.modelContext) var modelContext: ModelContext // Correct
+    @State private var selection: Int = 0  // Correct
 
     var body: some View {
         TabView(selection: $selection) {
@@ -36,6 +36,8 @@ struct CRAVETabView: View {
                     Label("Analytics", systemImage: "chart.bar.fill")
                 }
                 .tag(3)
-        } //LINE 42 IS HERE, at the closing brace
+        }
     }
 }
+
+
