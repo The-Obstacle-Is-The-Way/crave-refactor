@@ -16,6 +16,12 @@ CRAVE
 ├── README.md
 ├── CRAVEAPP
 │   ├── Analytics
+│   │   ├── Services
+│   │   │   ├── AnalyticsAggregator.swift
+│   │   │   ├── AnalyticsProcessor.swift
+│   │   │   ├── AnalyticsReporter.swift
+│   │   │   ├── AnalyticsStorage.swift
+│   │   │   └── PatternDetectionService.swift
 │   │   └── AnalyticsConfiguration.swift
 │   ├── Coordination
 │   │   └── AnalyticsCoordinator.swift
@@ -40,30 +46,26 @@ CRAVE
 │   ├── Preview Content
 │   ├── Queries
 │   │   ├── CalendarViewQuery.swift
+│   │   ├── FrequencyQuery.swift
 │   │   ├── PatternQuery.swift
-│   │   └── TimeDayQuery.swift
+│   │   └── TimeOfDayQuery.swift
 │   ├── Screens
-│   │   ├── AnalyticsDashboardView.swift
-│   │   ├── AnalyticsDashboardViewModel.swift
-│   │   ├── AnalyticsView.swift
+│   │   ├── AnalyticsDashboard
+│   │   │   ├── AnalyticsDashboardView.swift
+│   │   │   └── AnalyticsDashboardViewModel.swift
 │   │   ├── CravingList
 │   │   │   ├── CravingListView.swift
 │   │   │   └── CravingListViewModel.swift
 │   │   └── LogCraving
 │   │       ├── LogCravingView.swift
 │   │       └── LogCravingViewModel.swift
-│   ├── Services
-│   │   ├── AnalyticsManager.swift
-│   │   ├── AnalyticsReporter.swift
-│   │   ├── AnalyticsService.swift
-│   │   ├── AnalyticsTypes.swift
-│   │   └── EventTrackingService.swift
 │   └── UI
 │       ├── Components
 │       │   ├── AnalyticsFormatter.swift
-│       │   ├── AnalyticsGraphView.swift
-│       │   ├── AnalyticsInsightView.swift
-│       │   └── AnalyticsTransformers.swift
+│       │   ├── CalendarHeatmapView.swift
+│       │   ├── CravingBarChart.swift
+│       │   ├── PatternVisualizationView.swift
+│       │   └── TimeOfDayPieChart.swift
 │       ├── AnalyticsView.swift
 │       ├── AnalyticsViewModel.swift
 │       └── CRAVEDesignSystem.swift
@@ -79,6 +81,7 @@ CRAVE
     │   └── InteractionDataTests.swift
     └── CRAVEUITests
         └── AnalyticsUITests.swift
+
 
 ```
 ---

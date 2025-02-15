@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftData
 
 struct AnalyticsDashboardView: View { // Corrected struct name
-    @Environment(\.modelContext) private var modelContext // Correct usage
+    @Environment(\.modelContext) var modelContext: ModelContext // NO private keyword
     @StateObject private var viewModel = AnalyticsDashboardViewModel()
 
     var body: some View {
