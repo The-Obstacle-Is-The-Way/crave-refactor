@@ -1,7 +1,7 @@
 //
 //  🍒
 //  CRAVEApp/Screens/AnalyticsDashboard/Components/CravingBarChart.swift
-//  Purpose:
+//  Purpose: Displays a bar chart of craving frequency per day.
 //
 //
 
@@ -20,10 +20,10 @@ struct CravingBarChart: View {
                     .padding()
             } else {
                 Chart {
-                    ForEach(data.sorted(by: { $0.key < $1.key }), id: \.key) { date, count in
+                    ForEach(data.keys.sorted(), id: \.self) { date in
                         BarMark(
                             x: .value("Date", date, unit: .day), // Use .day for daily data
-                            y: .value("Cravings", count)
+                            y: .value("Cravings", data[date]!)
                         )
                         .foregroundStyle(Color.blue) // Use a specific color
                     }
@@ -45,4 +45,3 @@ struct CravingBarChart: View {
         }
     }
 }
-

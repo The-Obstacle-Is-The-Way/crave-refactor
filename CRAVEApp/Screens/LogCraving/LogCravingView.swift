@@ -8,25 +8,24 @@ import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) private var modelContext // Get context from environment
-    @StateObject private var viewModel = LogCravingViewModel() // Create ViewModel
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
     @State private var alertMessage = ""
 
     var body: some View {
-        NavigationView { // Wrap in NavigationView
+        NavigationView {
             VStack {
                 CraveTextEditor(text: $viewModel.cravingText, placeholder: "Enter craving...")
                     .padding()
 
                 CraveButton(title: "Log Craving") {
-                    viewModel.addCraving(modelContext: modelContext) { success in // Pass modelContext
+                    viewModel.addCraving(modelContext: modelContext) { success in
                         if success {
-                            //CRAVEDesignSystem.Haptics.success() // Removed haptics, as it is not defined
+                            // Success
                         } else {
                             alertMessage = "Please enter a valid craving (at least 3 characters)."
                             showAlert = true
-                            //CRAVEDesignSystem.Haptics.error() // Removed haptics
                         }
                     }
                 }
@@ -34,7 +33,7 @@ struct LogCravingView: View {
 
                 Spacer()
             }
-            .navigationTitle("Log Craving") // Keep navigationTitle
+            .navigationTitle("Log Craving")
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Invalid Input"),

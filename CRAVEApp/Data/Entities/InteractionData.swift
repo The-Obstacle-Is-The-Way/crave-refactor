@@ -1,4 +1,5 @@
 //
+//  🍒
 //  CRAVEApp/Data/Entities/InteractionData.swift
 //  CRAVE
 //
@@ -58,10 +59,8 @@ final class InteractionData {
         self.validationErrors = []
         self.isValidated = false
     }
-}
 
-// MARK: - Supporting Types
-extension InteractionData {
+    // MARK: - Supporting Types
     enum InteractionType: String, Codable {
         case view
         case create

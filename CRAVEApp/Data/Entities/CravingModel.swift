@@ -1,6 +1,6 @@
 //
 //
-//
+//  🍒
 //  CRAVEApp/Data/Entities/CravingModel.swift
 //  Purpose:
 //
@@ -18,11 +18,10 @@ final class CravingModel: Identifiable {
 
     var intensity: Int
     var category: CravingCategory? // Made optional
-    var triggers: [String] // Changed to [String]
+    var triggers: [String]
 
-    // Metadata (Optional, consider if really needed)
-    var location: LocationData?  // Keep this optional
-    var contextualFactors: [ContextualFactor] //keep
+    var location: LocationData?
+    var contextualFactors: [ContextualFactor]
 
     var createdAt: Date
     var modifiedAt: Date
@@ -32,10 +31,10 @@ final class CravingModel: Identifiable {
     var analyticsMetadata: AnalyticsMetadata?
 
     init(cravingText: String,
-         intensity: Int = 0, //Default value
+         intensity: Int = 0,
          category: CravingCategory? = .undefined, // Made optional
          triggers: [String] = [],
-         location: LocationData? = nil) { //location is now optional
+         location: LocationData? = nil) {
         self.id = UUID()
         self.cravingText = cravingText
         self.timestamp = Date()
@@ -68,14 +67,13 @@ enum CravingCategory: String, Codable, CaseIterable {
     case undefined
 }
 
-// Consider moving LocationData and ContextualFactor to separate files if they grow.
-struct LocationData: Codable { // Added struct for location
+struct LocationData: Codable {
     let latitude: Double
     let longitude: Double
     let locationName: String? // Optional
 }
 
-struct ContextualFactor: Codable { //Added struct for contextual factors
+struct ContextualFactor: Codable {
     let factor: String
     let impact: Impact
 

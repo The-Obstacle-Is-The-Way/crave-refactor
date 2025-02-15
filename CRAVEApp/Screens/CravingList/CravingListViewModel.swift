@@ -1,4 +1,5 @@
 //
+//
 //  🍒
 //  CRAVEApp/Screens/CravingList/CravingListViewModel.swift
 //
@@ -49,5 +50,17 @@ final class CravingListViewModel: ObservableObject {
             print("Error deleting craving: \(error)")
             // TODO: Handle the error
         }
+    }
+    
+    func setModelContext(_ context: ModelContext) {
+        //No longer needed
+    }
+    
+    func refreshData() async {
+        //No longer needed
+    }
+    
+    func loadInitialData() async{
+        //No longer needed
     }
 }

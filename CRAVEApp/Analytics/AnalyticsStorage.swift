@@ -22,26 +22,28 @@ final class AnalyticsStorage {
         modelContext.insert(craving)
         try modelContext.save() // Save after inserting
     }
-
+    
     func store(_ metadata: AnalyticsMetadata) async throws {
         modelContext.insert(metadata)
         try modelContext.save() // Save after inserting
     }
     
-    func store(_ event: AnalyticsEvent) async throws { // Added to store events
-        // Placeholder - Assuming all events are stored as CravingModels for now
-        // This will need more sophisticated logic later.
-        if let cravingEvent = event as? CravingEvent {
-             let cravingModel = CravingModel(cravingText: "Craving Event: \(cravingEvent.cravingId)", timestamp: cravingEvent.timestamp) // Placeholder text
-             try await store(cravingModel)
+    func store(_ event: any AnalyticsEvent) async throws { // Added to store events
+        if let cravingEvent = event as? CravingEvent{
+            let cravingModel = CravingModel(cravingText: "")
+            cravingModel.timestamp = cravingEvent.timestamp
+            cravingModel.id = cravingEvent.cravingId
+            
+            try await store(cravingModel)
         }
     }
 
-    func storeBatch(_ events: [AnalyticsEvent]) async throws { // Added to store events
+    func storeBatch(_ events: [any AnalyticsEvent]) async throws { // Added to store events
         for event in events {
-            try await store(event) // Reuse the single event store method
+               try await store(event) // Reuse the single event store method
         }
     }
+
 
     func fetchRange(_ dateRange: DateInterval) async throws -> [CravingModel] {
         let startDate = dateRange.start
@@ -79,43 +81,3 @@ extension AnalyticsStorage {
         return AnalyticsStorage(modelContext: container.mainContext)
     }
 }
-
-//Placeholder for TrackedEvent, moved to AnalyticsEvent
-/*
-struct TrackedEvent: Identifiable, Codable {
-    let id: UUID
-    let type: EventType
-    //let payload: Any // We'll use a concrete type later
-    //let metadata: EventMetadata // We'll use a concrete type later
-    let priority: EventPriority
-    let timestamp: Date
-
-    init(
-        type: EventType,
-        //payload: Any,
-        //metadata: EventMetadata,
-        priority: EventPriority = .normal
-    ) {
-        self.id = UUID()
-        self.type = type
-        //self.payload = payload
-        //self.metadata = metadata
-        self.priority = priority
-        self.timestamp = Date()
-    }
-}
-
-
-enum EventPriority: String, Codable {
-    case normal
-    case critical
-}
- */
-/* Moved to AnalyticsEvent
-enum EventType: String, Codable {
-    case user
-    case system
-    case craving
-    case interaction
-}
-*/

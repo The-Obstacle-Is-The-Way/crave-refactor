@@ -1,5 +1,5 @@
 //
-//
+//  🍒
 // CRAVEApp/Data/Entities/ContextualData.swift
 //
 //
@@ -48,10 +48,9 @@ final class ContextualData {
         self.triggerPatterns = []
         self.copingStrategies = []
     }
-}
 
 // MARK: - Supporting Types
-extension ContextualData {
+
     struct LocationContext: Codable {
         var coordinate: CLLocationCoordinate2D
         var placeName: String?
@@ -90,14 +89,11 @@ extension ContextualData {
         var isHoliday: Bool
         var season: Season
         
-        enum TimeOfDay: String, Codable { // Added
-            case morning
-            case afternoon
-            case evening
-            case night
+        enum TimeOfDay: String, Codable, CaseIterable {
+            case morning, afternoon, evening, night
         }
-        
-        enum DayOfWeek: String, Codable { // Added
+
+        enum DayOfWeek: String, Codable, CaseIterable {
             case sunday, monday, tuesday, wednesday, thursday, friday, saturday
         }
         
@@ -243,85 +239,5 @@ extension ContextualData {
         var effectiveness: Int // 1-10
         var usage_count: Int
         var success_rate: Double // 0.0-1.0
-    }
-}
-
-// MARK: - Context Analysis (Moved to AnalyticsManager)
-/*
-extension ContextualData {
-    func analyzeContext() -> ContextualAnalysis {
-        return ContextualAnalysis(
-            locationTrigger: analyzeLocationTrigger(),
-            timeTrigger: analyzeTimeTrigger(),
-            environmentalTrigger: analyzeEnvironmentalTrigger(),
-            socialTrigger: analyzeSocialTrigger(),
-            emotionalTrigger: analyzeEmotionalTrigger()
-        )
-    }
-    
-    private func analyzeLocationTrigger() -> TriggerStrength {
-        // Implement location analysis
-        return .medium
-    }
-    
-    private func analyzeTimeTrigger() -> TriggerStrength {
-        // Implement time analysis
-        return .medium
-    }
-    
-    private func analyzeEnvironmentalTrigger() -> TriggerStrength {
-        // Implement environmental analysis
-        return .medium
-    }
-    
-    private func analyzeSocialTrigger() -> TriggerStrength {
-        // Implement social analysis
-        return .medium
-    }
-    
-    private func analyzeEmotionalTrigger() -> TriggerStrength {
-        // Implement emotional analysis
-        return .medium
-    }
-}
- */
-
-// MARK: - Analysis Types (Moved to AnalyticsManager)
-/*
-enum TriggerStrength: String, Codable {
-    case low
-    case medium
-    case high
-    
-    var value: Double {
-        switch self {
-        case .low: return 0.3
-        case .medium: return 0.6
-        case .high: return 0.9
-        }
-    }
-}
-
-struct ContextualAnalysis: Codable {
-    let locationTrigger: TriggerStrength
-    let timeTrigger: TriggerStrength
-    let environmentalTrigger: TriggerStrength
-    let socialTrigger: TriggerStrength
-    let emotionalTrigger: TriggerStrength
-    
-    var overallRisk: Double {
-        let triggers = [locationTrigger, timeTrigger, environmentalTrigger,
-                       socialTrigger, emotionalTrigger]
-        return triggers.reduce(0.0) { $0 + $1.value } / Double(triggers.count)
-    }
-}
- */
-
-// MARK: - Testing Support
-extension ContextualData {
-    static func mock(cravingId: UUID = UUID()) -> ContextualData {
-        let contextData = ContextualData(cravingId: cravingId)
-        // Add mock data here
-        return contextData
     }
 }

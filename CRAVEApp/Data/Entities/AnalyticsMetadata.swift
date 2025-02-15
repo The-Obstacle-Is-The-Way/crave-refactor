@@ -1,5 +1,6 @@
 //
 //
+//  🍒
 //  CRAVEApp/Data/Entities/AnalyticsMetadata.swift
 //  Purpose:
 //
@@ -65,10 +66,8 @@ final class AnalyticsMetadata {
         self.lastProcessed = Date()
         self.processingAttempts = 0
     }
-}
 
 // MARK: - Supporting Types (Consolidated within the file)
-extension AnalyticsMetadata {
 
     enum TimeOfDay: String, Codable, CaseIterable {
         case morning, afternoon, evening, night

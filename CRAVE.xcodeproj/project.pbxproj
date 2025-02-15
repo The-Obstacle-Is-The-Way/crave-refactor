@@ -88,6 +88,7 @@
 				Core/Utilities/AnalyticsValidator.swift = (ios, );
 				Data/CravingAnalyzer.swift = (ios, );
 				Data/CravingManager.swift = (ios, );
+				Data/Entities/AnalyticsMetadata.swift = (ios, );
 				Navigation/CRAVETabView.swift = (ios, );
 				Screens/AnalyticsDashboard/AnalyticsDashboardView.swift = (ios, );
 				Screens/AnalyticsDashboard/AnalyticsDashboardViewModel.swift = (ios, );
