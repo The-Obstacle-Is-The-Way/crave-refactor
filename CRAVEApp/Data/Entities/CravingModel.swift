@@ -6,6 +6,7 @@
 //
 //
 
+
 import Foundation
 import SwiftData
 
@@ -31,13 +32,14 @@ final class CravingModel: Identifiable {
     var analyticsMetadata: AnalyticsMetadata?
 
     init(cravingText: String,
+         timestamp: Date = Date(),
          intensity: Int = 0,
          category: CravingCategory? = .undefined, // Made optional
          triggers: [String] = [],
          location: LocationData? = nil) {
         self.id = UUID()
         self.cravingText = cravingText
-        self.timestamp = Date()
+        self.timestamp = timestamp
         self.isArchived = false
         self.intensity = intensity
         self.category = category
@@ -77,7 +79,7 @@ struct ContextualFactor: Codable { // MARKED: Codable
     let factor: String
     let impact: Impact
 
-    enum Impact: String, Codable { // MARKED: Codable, String Raw Value
+    enum Impact: String, Codable { // MARKED: Codable, String RawValue
         case positive
         case negative
         case neutral
