@@ -1,8 +1,8 @@
 //
 //
 //  🍒
-//  CRAVEApp/Screens/AnalyticsDashboard/Components/TimeOfDayPieChart.swift
-//  Purpose:
+//  CRAVEApp/Analytics/UI/Components/TimeOfDayPieChart.swift
+//  Purpose: A pie chart showing the distribution of data across different times of day.
 //
 //
 
@@ -11,9 +11,9 @@ import Charts
 
 struct TimeOfDayPieChart: View {
     let data: [String: Int]
-    
+
     private let colors: [Color] = [.blue, .green, .orange, .purple]
-    
+
     var body: some View {
         VStack {
             if data.isEmpty {
@@ -40,7 +40,7 @@ struct TimeOfDayPieChart: View {
                 .chartLegend(position: .bottom)
                 .frame(height: 300)
                 .padding()
-                
+
                 // Legend
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 8) {
                     ForEach(Array(data.keys.sorted().enumerated()), id: \.element) { index, key in

@@ -1,10 +1,10 @@
 //
+//
 //  🍒
-//  CRAVEApp/Screens/AnalyticsDashboard/Components/CalendarHeatmapView.swift
-//  Purpose:
+//  CRAVEApp/Analytics/UI/Components/CalendarHeatmapView.swift
+//  Purpose: A calendar heatmap view for displaying data over time.
 //
 //
-
 
 import SwiftUI
 
@@ -12,7 +12,7 @@ struct CalendarHeatmapView: View {
     let data: [Date: Int]
     private let calendar = Calendar.current
     private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if data.isEmpty {
@@ -40,7 +40,7 @@ struct CalendarHeatmapView: View {
                             .help("\(formatDate(date)): \(count) cravings")
                     }
                 }
-                
+
                 // Legend
                 HStack(spacing: 12) {
                     ForEach(0...3, id: \.self) { level in
@@ -58,7 +58,7 @@ struct CalendarHeatmapView: View {
             }
         }
     }
-    
+
     private func colorForCount(_ count: Int) -> Color {
         switch count {
         case 0: return .gray.opacity(0.2)
@@ -68,7 +68,7 @@ struct CalendarHeatmapView: View {
         default: return .blue
         }
     }
-    
+
     private func legendLabel(for level: Int) -> String {
         switch level {
         case 0: return "None"
@@ -78,7 +78,7 @@ struct CalendarHeatmapView: View {
         default: return "Very High"
         }
     }
-    
+
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

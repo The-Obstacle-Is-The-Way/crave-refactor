@@ -1,8 +1,11 @@
 //
-// 🍒
-// AnalyticsInsightView.swift
+//
+//  🍒
+//  Analytics/UI/Components/AnalyticsInsightView.swift
+//  Purpose: A view that displays analytics insights
 //
 //
+
 
 import SwiftUI
 import Charts
@@ -21,7 +24,7 @@ struct AnalyticsInsightView: View {
                 Text("Daily Activity")
                     .font(.headline)
                     .padding(.horizontal)
-                
+
                 CalendarHeatmapView(data: calendarData)
                     .padding(.horizontal)
             }
@@ -30,7 +33,7 @@ struct AnalyticsInsightView: View {
                 Text("Time of Day Patterns")
                     .font(.headline)
                     .padding(.horizontal)
-                
+
                 TimeOfDayPieChart(data: timeOfDayData)
                     .padding(.horizontal)
             }

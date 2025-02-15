@@ -1,23 +1,22 @@
 //
 //  🍒
-//  CRAVEApp/Screens/AnalyticsDashboard/Components/CravingBarChart.swift
+//  CRAVEApp/Analytics/UI/Components/CravingBarChart.swift
 //  Purpose: Displays a bar chart of craving frequency per day.
 //
 //
-
 
 import SwiftUI
 import Charts
 
 struct CravingBarChart: View {
     let data: [Date: Int]
-    
+
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
         return formatter
     }
-    
+
     var body: some View {
         VStack {
             if data.isEmpty {

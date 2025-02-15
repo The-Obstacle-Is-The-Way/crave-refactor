@@ -1,8 +1,8 @@
 //
 //
 //  🍒
-//  CRAVEApp/Screens/AnalyticsDashboard/Components/PatternVisualizationView.swift
-//  Purpose:
+//  CRAVEApp/Analytics/UI/Components/PatternVisualizationView.swift
+//  Purpose: A view that visualizes patterns in the user's data.
 //
 //
 
