@@ -75,7 +75,6 @@
 				Analytics/UI/ViewModels/AnalyticsViewModel.swift = (ios, );
 				Analytics/Utilities/AnalyticsError.swift = (ios, );
 				Analytics/Utilities/AnalyticsFormatter.swift = (ios, );
-				Analytics/Utilities/AnalyticsValidator.swift = (ios, );
 				CRAVEApp.swift = (ios, );
 				ContentView.swift = (ios, );
 				Core/Configuration/AnalyticsConstants.swift = (ios, );
