@@ -4,22 +4,10 @@
 //  CRAVEApp/Analytics/AnalyticsAggregator.swift
 //  Purpose: 
 //
-
+//
 
 import Foundation
 import SwiftData
-
-// ADDED: Ensure AnalyticsEventType is defined and accessible.
-// If AnalyticsEventType.swift exists, ensure it's correctly imported.
-// If not, define it directly here (for now, to isolate the issue).
-enum AnalyticsEventType: String, Codable, CaseIterable {
-    case cravingLogged
-    case interaction
-    case system
-    case user
-    // Add other event types as needed, ensuring they have String raw values
-}
-
 
 @MainActor
 final class AnalyticsAggregator {
@@ -29,76 +17,84 @@ final class AnalyticsAggregator {
         self.storage = storage
     }
 
-    func aggregateEvent(_ event: AnalyticsEvent) async { // Explicitly use AnalyticsEvent protocol
+    func aggregateEvent(_ event: AnalyticsEvent) async {
         switch event.eventType {
-        case .cravingLogged: // ERROR RESOLVED: Using .cravingLogged (now that enum is defined/accessible)
+        case .cravingLogged:
             await aggregateCravingEvent(event)
-        case .interaction:  // ERROR RESOLVED: Using .interaction
-            await aggregateInteractionEvent(event as! InteractionEvent) // Force cast - review type safety if issues arise
-        case .system:       // ERROR RESOLVED: Using .system
-            await aggregateSystemEvent(event as! SystemEvent) // Force cast - review type safety if issues arise
-        case .user:         // ERROR RESOLVED: Using .user
-            await aggregateUserEvent(event as! UserEvent) // Force cast - review type safety if issues arise
+        case .interaction:
+            await aggregateInteractionEvent(event as! InteractionEvent)
+        case .system:
+            await aggregateSystemEvent(event as! SystemEvent)
+        case .user:
+            await aggregateUserEvent(event as! UserEvent)
         }
-        // Persist aggregated data (example - adjust based on what you need to store)
+
         if let cravingEvent = event as? CravingEvent {
             await updateCravingAnalytics(cravingEvent)
         }
     }
 
-    private func aggregateCravingEvent(_ event: AnalyticsEvent) async { // Explicitly use AnalyticsEvent protocol
+    private func aggregateCravingEvent(_ event: AnalyticsEvent) async {
         guard let cravingEvent = event as? CravingEvent else {
             print("Incorrect event type passed to aggregateCravingEvent")
             return
         }
-        // Aggregate craving-specific data (example)
         print("Aggregating craving event: \(cravingEvent.eventType)")
-        // TODO: Implement actual aggregation logic for craving events
     }
 
     private func aggregateInteractionEvent(_ event: InteractionEvent) async {
-        // Aggregate interaction event data
         print("Aggregating interaction event: \(event.eventType)")
-        // TODO: Implement actual aggregation logic for interaction events
     }
 
     private func aggregateSystemEvent(_ event: SystemEvent) async {
-        // Aggregate system event data
         print("Aggregating system event: \(event.eventType)")
-        // TODO: Implement actual aggregation logic for system events
     }
 
     private func aggregateUserEvent(_ event: UserEvent) async {
-        // Aggregate user event data
         print("Aggregating user event: \(event.eventType)")
-        // TODO: Implement actual aggregation logic for user events
     }
 
     private func updateCravingAnalytics(_ cravingEvent: CravingEvent) async {
-        // Example: Update AnalyticsMetadata for a CravingModel
-        guard let cravingId = cravingEvent.cravingId else { return }
+        // Only proceed if we have a valid cravingId
+        guard let cravingId = cravingEvent.cravingId else {
+            print("No craving ID available for analytics update")
+            return
+        }
 
         do {
-            // ERROR RESOLVED (Potentially): Changed to optional binding to handle potential nil UUID.
-            guard let metadata = try await storage.fetchMetadata(forCravingId: cravingId) else {
-                print("No metadata found for craving ID: \(cravingId)")
-                return // Or handle the case where metadata is not found
-            }
+            // Fetch existing metadata or create new if none exists
+            let metadata = try await storage.fetchMetadata(forCravingId: cravingId) ?? createNewMetadata(for: cravingId)
 
-            // Update existing metadata (example - increment interaction count)
+            // Update metadata
             metadata.interactionCount += 1
             metadata.lastProcessed = Date()
-            try await storage.saveContext() // Assuming you have a saveContext in storage
+            
+            // Add user action
+            let action = AnalyticsMetadata.UserAction(
+                timestamp: Date(),
+                actionType: "craving_logged",
+                metadata: ["text": cravingEvent.cravingText]
+            )
+            metadata.userActions.append(action)
+
+            // Save changes
+            try await storage.saveContext()
 
         } catch {
             print("Error updating AnalyticsMetadata: \(error)")
-            // Handle metadata update error
         }
     }
 
-    // Add more specific aggregation functions as needed for different aspects of analytics
+    private func createNewMetadata(for cravingId: UUID) -> AnalyticsMetadata {
+        let metadata = AnalyticsMetadata(cravingId: cravingId)
+        storage.modelContext.insert(metadata)
+        return metadata
+    }
 }
 
-
-
-
+// MARK: - Testing Support
+extension AnalyticsAggregator {
+    static func preview(storage: AnalyticsStorage) -> AnalyticsAggregator {
+        AnalyticsAggregator(storage: storage)
+    }
+}

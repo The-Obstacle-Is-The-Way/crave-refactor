@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
-import SwiftData // ADDED: Import SwiftData - Resolves "Cannot find type 'ModelContext' in scope"
+import SwiftData
 
 @MainActor
 final class AnalyticsCoordinator: ObservableObject {
@@ -17,31 +17,31 @@ final class AnalyticsCoordinator: ObservableObject {
     @Published private(set) var isAnalyticsEnabled: Bool = false
     @Published private(set) var lastEvent: (any AnalyticsEvent)?
     @Published private(set) var detectionState: DetectionState = .idle
-    @Published private(set) var detectedPatterns: [DetectedPattern] = [] // Concrete type here
+    @Published private(set) var detectedPatterns: [DetectedPattern] = []
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
     private let storage: AnalyticsStorage
-    private let aggregator: AnalyticsAggregator // Corrected initialization below
-    private let processor: AnalyticsProcessor // Corrected initialization below
-    private let reporter: AnalyticsReporter  // Corrected initialization below
-    private let eventTrackingService: EventTrackingService // Corrected type, Corrected initialization below
-    private let patternDetectionService: PatternDetectionService // Corrected type, Corrected initialization below
-    private let analyticsService: AnalyticsService // Corrected type, Corrected initialization below
+    private let aggregator: AnalyticsAggregator
+    private let processor: AnalyticsProcessor
+    private let reporter: AnalyticsReporter
+    private let eventTrackingService: EventTrackingService
+    private let patternDetectionService: PatternDetectionService
+    private let analyticsService: AnalyticsService
 
     // MARK: - Internal State
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
-    init(modelContext: ModelContext) { // ERROR RESOLVED: Added modelContext parameter
-        self.configuration = .shared // Use shared instance
+    init(modelContext: ModelContext) {
+        self.configuration = .shared
         self.storage = AnalyticsStorage(modelContext: modelContext)
-        self.aggregator = AnalyticsAggregator(storage: storage) // CORRECTED: Pass storage
-        self.processor = AnalyticsProcessor(storage: storage, aggregator: aggregator) // CORRECTED: Pass storage, aggregator
-        self.reporter = AnalyticsReporter(aggregator: aggregator, processor: processor) // CORRECTED: Pass aggregator, processor
-        self.eventTrackingService = EventTrackingService(storage: storage, configuration: configuration) // CORRECTED: Pass storage, configuration -  Initialize EventTrackingService CORRECTLY
-        self.patternDetectionService = PatternDetectionService(storage: storage, configuration: configuration) // CORRECTED: Pass storage, configuration - Initialize PatternDetectionService CORRECTLY
-        self.analyticsService = AnalyticsService(configuration: configuration, modelContext: modelContext) // CORRECTED: Pass configuration, modelContext - Initialize AnalyticsService CORRECTLY
+        self.aggregator = AnalyticsAggregator(storage: storage)
+        self.processor = AnalyticsProcessor(configuration: .shared, storage: storage)
+        self.reporter = AnalyticsReporter(analyticsStorage: storage)
+        self.eventTrackingService = EventTrackingService(storage: storage, configuration: configuration)
+        self.patternDetectionService = PatternDetectionService(storage: storage, configuration: configuration)
+        self.analyticsService = AnalyticsService(configuration: configuration, modelContext: modelContext)
 
         setupBindings()
         setupObservers()
@@ -56,16 +56,18 @@ final class AnalyticsCoordinator: ObservableObject {
     }
 
     private func setupObservers() {
-        eventTrackingService.eventPublisher // Access eventPublisher from EventTrackingService instance
-            .sink(receiveCompletion: { (completion: Subscribers.Completion<Never>) in // Explicit type annotation for completion
+        eventTrackingService.eventPublisher
+            .sink { completion in
                 switch completion {
                 case .finished:
                     print("Event Publisher finished")
                 }
-            }, receiveValue: { (event: AnalyticsEvent) in // Explicit type annotation for event
-                self.lastEvent = event
-                Task { await self.processEvent(event: event) }
-            })
+            } receiveValue: { [weak self] event in
+                self?.lastEvent = event
+                Task { [weak self] in
+                    await self?.handleEvent(event)
+                }
+            }
             .store(in: &cancellables)
 
         patternDetectionService.$detectionState
@@ -75,17 +77,16 @@ final class AnalyticsCoordinator: ObservableObject {
             .assign(to: &$detectedPatterns)
     }
 
-
     private func loadInitialState() {
         isAnalyticsEnabled = configuration.featureFlags.isAnalyticsEnabled
     }
 
     // MARK: - Event Processing
-    func trackEvent(_ event: CravingModel) async throws { // Track CravingModel directly
-         try await analyticsService.trackEvent(event) // Use AnalyticsService to track
+    func trackEvent(_ event: CravingModel) async throws {
+        try await analyticsService.trackEvent(event)
     }
 
-    private func processEvent(event: AnalyticsEvent) async { // ERROR RESOLVED: 'processEvent' is now accessible (was likely a typo in previous error message - it *is* internal/private, which is fine here)
+    private func handleEvent(_ event: AnalyticsEvent) async {
         await aggregator.aggregateEvent(event)
         await processor.processEvent(event)
     }
@@ -93,7 +94,7 @@ final class AnalyticsCoordinator: ObservableObject {
     // MARK: - Pattern Detection
     func detectPatterns() async {
         do {
-            detectedPatterns = try await patternDetectionService.detectPatterns() // Assign directly, concrete type
+            detectedPatterns = try await patternDetectionService.detectPatterns()
         } catch {
             print("Pattern detection failed: \(error)")
             detectionState = .error(error)
@@ -101,40 +102,38 @@ final class AnalyticsCoordinator: ObservableObject {
     }
 
     // MARK: - Reporting
-    func generateReport(type: ReportType, timeRange: DateInterval) async {
-        do {
-            // ERROR RESOLVED: Value of type 'AnalyticsReporter' has member 'deliverReport' (assuming method exists in AnalyticsReporter)
-            let report = try await analyticsService.generateReport(type: type, timeRange: timeRange) // Added try and handle error
-            await reporter.deliverReport(report: report) // CORRECTED: Pass report with parameter name 'report:' (if your deliverReport expects a named parameter)
-        } catch {
-            print("Report generation failed: \(error)")
-            // Handle report generation error
-        }
+    func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report {
+        let report = try await analyticsService.generateReport(type: type, timeRange: timeRange)
+        await reporter.processReport(report)
+        return report
     }
 
-    // MARK: - Insights and Predictions
-    func fetchInsights() async {
-        do {
-            // ERROR RESOLVED: Value of type 'AnalyticsReporter' has member 'deliverInsights' (assuming method exists)
-            let insights = try await analyticsService.fetchInsights() // Added try
-            await reporter.deliverInsights(insights: insights as! [PatternInsight]) // CORRECTED: Pass insights with parameter name 'insights:' (if needed), Force cast to [PatternInsight] - review type safety
-        } catch {
-            print("Fetching insights failed: \(error)")
-            // Handle insights error
-        }
+    func fetchInsights() async throws -> [PatternInsight] {
+        let insights = try await analyticsService.fetchInsights()
+        await reporter.processInsights(insights)
+        return insights
     }
 
-    func fetchPredictions() async {
-        do {
-            // ERROR RESOLVED: Value of type 'AnalyticsReporter' has member 'deliverPredictions' (assuming method exists)
-            // ERROR RESOLVED: Use of protocol 'AnalyticsPrediction' as a type must be written 'any AnalyticsPrediction' - CORRECTED to 'any AnalyticsPrediction'
-            let predictions = try await analyticsService.fetchPredictions() // Added try
-            await reporter.deliverPredictions(predictions: predictions as! [any AnalyticsPrediction]) // CORRECTED: Pass predictions with parameter name 'predictions:', Force cast - review type safety, using 'any AnalyticsPrediction'
-        } catch {
-            print("Fetching predictions failed: \(error)")
-            // Handle predictions error
-        }
+    func fetchPredictions() async throws -> [any AnalyticsPrediction] {
+        let predictions = try await analyticsService.fetchPredictions()
+        await reporter.processPredictions(predictions)
+        return predictions
     }
+}
+
+// MARK: - Supporting Types
+enum DetectionState {
+    case idle
+    case detecting
+    case completed
+    case error(Error)
+}
+
+struct DetectedPattern: Identifiable {
+    let id: UUID
+    let type: String
+    let confidence: Double
+    let description: String
 }
 
 // MARK: - Preview and Testing Support

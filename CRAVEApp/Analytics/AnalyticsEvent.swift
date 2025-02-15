@@ -9,30 +9,27 @@
 import Foundation
 
 // Define the base protocol for all analytics events
-protocol AnalyticsEvent: Codable { // Explicitly conform to Codable
+protocol AnalyticsEvent: Codable {
     var eventType: AnalyticsEventType { get }
     var timestamp: Date { get }
-    var priority: EventPriority { get } // Add priority
+    var priority: EventPriority { get }
 }
 
-// Make AnalyticsEventType Codable
+// Single source of truth for AnalyticsEventType
 enum AnalyticsEventType: String, Codable, CaseIterable {
-    case cravingCreated = "cravingCreated"
+    case cravingLogged = "cravingLogged"
     case systemEvent = "systemEvent"
     case userEvent = "userEvent"
     case interactionEvent = "interactionEvent"
-    case unknown = "unknown" // Add a default case for decoding safety
+    case unknown = "unknown"
 }
 
-// Ensure EventPriority is Codable
-enum EventPriority: String, Codable, CaseIterable { // Corrected: Added CaseIterable
+enum EventPriority: String, Codable, CaseIterable {
     case normal
     case critical
 }
 
-
-// Base class for analytics events - conforming to Codable
-class BaseAnalyticsEvent: AnalyticsEvent { // Correct conformance and class definition
+class BaseAnalyticsEvent: AnalyticsEvent {
     let eventType: AnalyticsEventType
     let timestamp: Date
     var priority: EventPriority = .normal
@@ -42,7 +39,6 @@ class BaseAnalyticsEvent: AnalyticsEvent { // Correct conformance and class defi
         self.timestamp = timestamp
     }
 
-    // Explicitly implement Codable conformance (though synthesized conformance should work for these simple properties)
     enum CodingKeys: String, CodingKey {
         case eventType
         case timestamp
@@ -64,7 +60,6 @@ class BaseAnalyticsEvent: AnalyticsEvent { // Correct conformance and class defi
     }
 }
 
-// Example concrete event types - extend BaseAnalyticsEvent
 final class UserEvent: BaseAnalyticsEvent {
     let userId: String
 
@@ -73,7 +68,7 @@ final class UserEvent: BaseAnalyticsEvent {
         super.init(eventType: .userEvent, timestamp: timestamp)
     }
     
-    enum CodingKeys: String, CodingKey { // No CaseIterable
+    enum CodingKeys: String, CodingKey {
         case userId
     }
     
@@ -98,7 +93,7 @@ final class SystemEvent: BaseAnalyticsEvent {
         super.init(eventType: .systemEvent, timestamp: timestamp)
     }
     
-    enum CodingKeys: String, CodingKey { // No CaseIterable
+    enum CodingKeys: String, CodingKey {
         case systemInfo
     }
     
@@ -116,20 +111,24 @@ final class SystemEvent: BaseAnalyticsEvent {
 }
 
 final class CravingEvent: BaseAnalyticsEvent {
-    let cravingId: UUID
-
-    init(cravingId: UUID, timestamp: Date = Date()) {
+    let cravingId: UUID?
+    let cravingText: String
+    
+    init(cravingId: UUID?, cravingText: String, timestamp: Date = Date()) {
         self.cravingId = cravingId
-        super.init(eventType: .cravingCreated, timestamp: timestamp)
+        self.cravingText = cravingText
+        super.init(eventType: .cravingLogged, timestamp: timestamp)
     }
     
-    enum CodingKeys: String, CodingKey { // No CaseIterable
+    enum CodingKeys: String, CodingKey {
         case cravingId
+        case cravingText
     }
     
     required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        cravingId = try values.decode(UUID.self, forKey: .cravingId)
+        cravingId = try values.decode(UUID?.self, forKey: .cravingId)
+        cravingText = try values.decode(String.self, forKey: .cravingText)
         try super.init(from: values.superDecoder())
     }
     
@@ -137,6 +136,7 @@ final class CravingEvent: BaseAnalyticsEvent {
         try super.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(cravingId, forKey: .cravingId)
+        try container.encode(cravingText, forKey: .cravingText)
     }
 }
 
@@ -148,7 +148,7 @@ final class InteractionEvent: BaseAnalyticsEvent {
         super.init(eventType: .interactionEvent, timestamp: timestamp)
     }
     
-    enum CodingKeys: String, CodingKey { // No CaseIterable
+    enum CodingKeys: String, CodingKey {
         case interactionId
     }
     
@@ -165,30 +165,22 @@ final class InteractionEvent: BaseAnalyticsEvent {
     }
 }
 
-// MARK: - Tracked Event
-struct TrackedEvent: Identifiable, Codable {  //Removed this in favor of specific event types
+struct TrackedEvent: Identifiable, Codable {
     let id: UUID
     let type: EventType
-    //let payload: Any // We'll use a concrete type later
-    //let metadata: EventMetadata // We'll use a concrete type later
     let priority: EventPriority
     let timestamp: Date
 
     init(
         type: EventType,
-        //payload: Any,
-        //metadata: EventMetadata,
         priority: EventPriority = .normal
     ) {
         self.id = UUID()
         self.type = type
-        //self.payload = payload
-        //self.metadata = metadata
         self.priority = priority
         self.timestamp = Date()
     }
 }
-
 
 enum EventType: String, Codable, CaseIterable {
     case user
