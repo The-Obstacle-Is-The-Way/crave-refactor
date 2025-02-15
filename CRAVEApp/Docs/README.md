@@ -40,7 +40,7 @@ CRAVEApp/
 │   │   └── Dictionary+Analytics.swift // If you have dictionary-specific extensions.
 │   └── Services/
 │   │   └── EventTrackingService.swift  // Stays in Core, as it's fundamental.
-│   └── AnalyticsTypes.swift  // NEW FILE 
+│   └── AnalyticsTypes.swift  
 
 ├── Data/
 │   ├── Entities/
@@ -51,7 +51,6 @@ CRAVEApp/
 │   ├── Configuration/
 │   │   └── AnalyticsConfiguration.swift  // Configuration specific to analytics.
 │   ├── Services/  <-- Core analytics services.
-│   │   ├── AnalyticsService.swift      // Main service, public API.
 │   │   ├── AnalyticsAggregator.swift
 │   │   ├── AnalyticsProcessor.swift
 │   │   ├── AnalyticsStorage.swift
@@ -60,10 +59,10 @@ CRAVEApp/
 │   │   ├── AnalyticsMetadata.swift
 │   │   ├── InteractionData.swift
 │   │   ├── ContextualData.swift
-│   │   ├── AnalyticsEvent.swift      // Moved here - it's an analytics data model.
-│   │   ├── AnalyticsPattern.swift    // Moved here
-│   │   ├── AnalyticsInsight.swift    // Moved here
-│   │   ├── AnalyticsPrediction.swift // Moved here
+│   │   ├── AnalyticsEvent.swift      
+│   │   ├── AnalyticsPattern.swift   
+│   │   ├── AnalyticsInsight.swift    
+│   │   ├── AnalyticsPrediction.swift 
 │   │   └── BasicAnalyticsResult.swift
 │   ├── Coordination/
 │   │   └── AnalyticsCoordinator.swift  // Orchestrates the analytics flow.
@@ -77,11 +76,11 @@ CRAVEApp/
 │   │   └── Shared/
 │   │       ├── AnalyticsView.swift        // A general analytics view.
 │   │       └── AnalyticsViewModel.swift   // ViewModel for the general view.
-│   └── Utilities/  <-- Analytics-specific helpers.
+│   └── Utilities/  
 │       ├── AnalyticsFormatter.swift
 │       ├── AnalyticsValidator.swift
 │       └── AnalyticsError.swift
-│       └── AnalyticsTransformers.swift  <-- NEW: Value Transformers.
+│       └── AnalyticsTransformers.swift  
 │
 ├── Screens/  <-- Your app's main screens/features.
 │   ├── LogCraving/
@@ -104,7 +103,7 @@ CRAVEApp/
 │   └── Preview Assets.xcassets/
 │
 └── Tests/
-    ├── CRAVETests/  <-- Your unit tests.
+    ├── CRAVETests/ 
     │   ├── AnalyticsAggregatorTests.swift
     │   ├── AnalyticsConfigurationTests.swift
     │   ├── AnalyticsCoordinatorTests.swift
@@ -121,10 +120,8 @@ CRAVEApp/
     │   ├── CravingAnalyticsIntegrationTests.swift
     │   ├── CravingManagerTests.swift
     │   └── InteractionDataTests.swift
-    └── CRAVEUITests/  <-- Your UI tests.
+    └── CRAVEUITests/ 
         └── CRAVEUITests.swift
-
-
 
 ```
 ---
