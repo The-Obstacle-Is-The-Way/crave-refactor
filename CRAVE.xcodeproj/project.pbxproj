@@ -57,7 +57,6 @@
 				Tests/CRAVEUITests/CRAVEUITests.swift,
 			);
 			platformFiltersByRelativePath = {
-				Analytics/AnalyticsReporter.swift = (ios, );
 				Analytics/Configuration/AnalyticsConfiguration.swift = (ios, );
 				Analytics/Coordination/AnalyticsCoordinator.swift = (ios, );
 				Analytics/Core/AnalyticsError.swift = (ios, );
