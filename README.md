@@ -8,25 +8,25 @@
 
 ```bash
 
+
 CRAVEApp/
 ├── Docs/
-│   ├── Images/ 
+│   ├── Images/
 │   │   ├── architecture-diagram.png
-│   │   ├── crave-logging-flow.png
-│   │   └── crave-navigation-states.png
+│   │   ├── crave-ui-preview.png
+│   │   └── README-assets.png
 │   ├── AnalyticsArchitecture.md
 │   ├── AnalyticsImplementationGuide.md
 │   └── AnalyticsAPIReference.md
 │
 ├── CRAVE.entitlements
 ├── Info.plist
-├── CRAVEApp.swift
+├── CRAVEApp.swift                     # Make sure to add ValueTransformer.registerTransformers() here!
 ├── ContentView.swift
 ├── Assets.xcassets/
 │
 ├── Core/
 │   ├── Configuration/
-│   │   ├── AnalyticsConfiguration.swift
 │   │   └── AnalyticsConstants.swift
 │   ├── DesignSystem/
 │   │   ├── CRAVEDesignSystem.swift
@@ -34,71 +34,72 @@ CRAVEApp/
 │   │       ├── CraveButton.swift
 │   │       └── CraveTextEditor.swift
 │   ├── Extensions/
-│   │   ├── Date+Formatting.swift
+│   │   ├── Date+Formatting.swift      # Consolidated all Date extensions here
 │   │   ├── View+Extensions.swift
-│   │   ├── Date+Analytics.swift
+│   │   ├── Date+Analytics.swift       # Consolidated all Date extensions here
 │   │   ├── Array+Analytics.swift
 │   │   └── Dictionary+Analytics.swift
-│   ├── Services/
-│   │   ├── AnalyticsService.swift
-│   │   ├── EventTrackingService.swift
-│   │   └── PatternDetectionService.swift
-│   └── Utilities/
-│       ├── AnalyticsFormatter.swift
-│       ├── AnalyticsValidator.swift
-│       └── AnalyticsError.swift
+│   └── Services/
+│       └── EventTrackingService.swift
 │
 ├── Data/
-│   ├── Entities/
-│   │   ├── CravingModel.swift
-│   │   ├── AnalyticsMetadata.swift
-│   │   ├── InteractionData.swift
-│   │   └── ContextualData.swift
-│   └── CravingManager.swift
+│   └── Entities/
+│       └── CravingModel.swift
 │
 ├── Analytics/
-│   ├── AnalyticsAggregator.swift
-│   ├── AnalyticsConfiguration.swift
-│   ├── AnalyticsCoordinator.swift
-│   ├── AnalyticsEvent.swift
-│   ├── AnalyticsInsight.swift
-│   ├── AnalyticsManager.swift
-│   ├── AnalyticsModel.swift
-│   ├── AnalyticsPattern.swift
-│   ├── AnalyticsPrediction.swift
-│   ├── AnalyticsProcessor.swift
-│   ├── AnalyticsStorage.swift
-│   ├── AnalyticsView.swift
-│   ├── AnalyticsViewModel.swift
-│   ├── BasicAnalyticsResult.swift
-│   └── Queries/
-│       ├── CalendarViewQuery.swift
-│       ├── FrequencyQuery.swift
-│       ├── PatternQuery.swift
-│       └── TimeOfDayQuery.swift
+│   ├── Core/
+│   │   ├── AnalyticsEvent.swift
+│   │   ├── AnalyticsPattern.swift
+│   │   ├── AnalyticsInsight.swift
+│   │   ├── AnalyticsPrediction.swift
+│   │   ├── AnalyticsFormatter.swift
+│   │   ├── AnalyticsValidator.swift
+│   │   └── AnalyticsError.swift
+│   ├── Services/
+│   │   ├── AnalyticsManager.swift
+│   │   ├── AnalyticsAggregator.swift
+│   │   ├── AnalyticsProcessor.swift   # NEW
+│   │   ├── AnalyticsReporter.swift    # NEW
+│   │   ├── AnalyticsStorage.swift
+│   │   └── PatternDetectionService.swift
+│   ├── Data/
+│   │   ├── Models/
+│   │   │   ├── BasicAnalyticsResult.swift
+│   │   │   ├── AnalyticsMetadata.swift
+│   │   │   ├── InteractionData.swift
+│   │   │   └── ContextualData.swift
+│   │   └── Queries/                   # This folder is now empty and can be deleted
+│   ├── Configuration/
+│   │   └── AnalyticsConfiguration.swift
+│   ├── Coordination/
+│   │   └── AnalyticsCoordinator.swift
+│   └── UI/
+│       ├── Components/                 # Moved chart components here
+│       │   ├── CravingBarChart.swift
+│       │   ├── TimeOfDayPieChart.swift
+│       │   ├── CalendarHeatmapView.swift
+│       │   ├── AnalyticsInsightView.swift
+│       │   └── PatternVisualizationView.swift
+│       └── Shared/
+│           ├── AnalyticsView.swift     # NEW
+│           └── AnalyticsViewModel.swift # NEW
 │
 ├── Screens/
 │   ├── LogCraving/
 │   │   ├── LogCravingView.swift
 │   │   ├── LogCravingViewModel.swift
-│   │   └── LogCravingAnalytics.swift
+│   │   └── LogCravingAnalytics.swift  # This file seems unnecessary; consider removing
 │   ├── DateList/
 │   │   ├── DateListView.swift
 │   │   ├── DateListViewModel.swift
-│   │   └── DateListAnalytics.swift
+│   │   └── DateListAnalytics.swift    # This file seems unnecessary; consider removing
 │   ├── CravingList/
 │   │   ├── CravingListView.swift
 │   │   ├── CravingListViewModel.swift
-│   │   └── CravingListAnalytics.swift
+│   │   └── CravingListAnalytics.swift # This file seems unnecessary; consider removing
 │   └── AnalyticsDashboard/
 │       ├── AnalyticsDashboardView.swift
-│       ├── AnalyticsDashboardViewModel.swift
-│       └── Components/
-│           ├── CravingBarChart.swift
-│           ├── TimeOfDayPieChart.swift
-│           ├── CalendarHeatmapView.swift
-│           ├── AnalyticsInsightView.swift
-│           └── PatternVisualizationView.swift
+│       └── AnalyticsDashboardViewModel.swift
 │
 ├── Navigation/
 │   └── CRAVETabView.swift
@@ -106,26 +107,29 @@ CRAVEApp/
 ├── Preview Content/
 │   └── Preview Assets.xcassets/
 │
-└── Tests/
-    ├── CRAVETests/
-    │   ├── AnalyticsAggregatorTests.swift
-    │   ├── AnalyticsConfigurationTests.swift
-    │   ├── AnalyticsCoordinatorTests.swift
-    │   ├── AnalyticsEventTests.swift
-    │   ├── AnalyticsInsightTests.swift
-    │   ├── AnalyticsManagerTests.swift
-    │   ├── AnalyticsModelTests.swift
-    │   ├── AnalyticsPatternTests.swift
-    │   ├── AnalyticsPredictionTests.swift
-    │   ├── AnalyticsProcessorTests.swift
-    │   ├── AnalyticsStorageTests.swift
-    │   ├── BasicAnalyticsResultTests.swift
-    │   ├── CraveModelTests.swift
-    │   ├── CravingAnalyticsIntegrationTests.swift
-    │   ├── CravingManagerTests.swift
-    │   └── InteractionDataTests.swift
-    └── CRAVEUITests/
-        └── CRAVEUITests.swift
+├── Tests/
+│   ├── CRAVETests/
+│   │   ├── AnalyticsAggregatorTests.swift
+│   │   ├── AnalyticsConfigurationTests.swift
+│   │   ├── AnalyticsCoordinatorTests.swift
+│   │   ├── AnalyticsEventTests.swift
+│   │   ├── AnalyticsInsightTests.swift
+│   │   ├── AnalyticsManagerTests.swift
+│   │   ├── AnalyticsModelTests.swift
+│   │   ├── AnalyticsPatternTests.swift
+│   │   ├── AnalyticsPredictionTests.swift
+│   │   ├── AnalyticsProcessorTests.swift
+│   │   ├── AnalyticsStorageTests.swift
+│   │   ├── BasicAnalyticsResultTests.swift
+│   │   ├── CraveModelTests.swift
+│   │   ├── CravingAnalyticsIntegrationTests.swift
+│   │   ├── CravingManagerTests.swift
+│   │   └── InteractionDataTests.swift
+│   └── CRAVEUITests/
+│       └── CRAVEUITests.swift
+│
+└── AnalyticsTransformers.swift        # New File
+
 
 
 ```
