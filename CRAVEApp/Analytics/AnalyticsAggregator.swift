@@ -24,18 +24,20 @@ class AnalyticsAggregator: ObservableObject {
         self.analyticsStorage = analyticsStorage
         setupObservers()
     }
-
+    
     private func setupObservers() {
         analyticsStorage.eventPublisher
-            .sink(completion: { completion in // ✅ Explicit type annotation
+            .sink(receiveCompletion: { [weak self] completion in  // Add [weak self]
+                guard let self = self else { return } // Safely unwrap self
                 switch completion {
                 case .failure(let error):
                     print("Error receiving analytics event: \(error)")
                 case .finished:
                     print("Analytics event stream finished")
                 }
-            }, receiveValue: { [weak self] event in // ✅ Explicit type annotation
-                self?.processAnalyticsEvent(event: event)
+            }, receiveValue: { [weak self] event in // And here
+                guard let self = self else { return } // Safely unwrap
+                self.processAnalyticsEvent(event: event)
             })
             .store(in: &cancellables)
     }

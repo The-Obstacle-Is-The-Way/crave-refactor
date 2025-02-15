@@ -38,32 +38,35 @@ class AnalyticsCoordinator: ObservableObject {
 
     private let modelContext: ModelContext // Storing model context
 
-
     private func setupObservers() {
         eventTrackingService.eventPublisher
-            .sink(completion: { completion in
+            .sink { [weak self] completion in // Add [weak self]
+                guard let self = self else { return }
                 switch completion {
                 case .failure(let error):
                     print("Error receiving event: \(error)")
                 case .finished:
                     print("Event stream finished")
                 }
-            }, receiveValue: { [weak self] (event: TrackedEvent) in // ✅ Explicit type annotation
-                self?.handleEvent(event: event)
-            })
+            } receiveValue: { [weak self] event in // And here
+                guard let self = self else { return }
+                self.handleEvent(event: event)
+            }
             .store(in: &cancellables)
 
         patternDetectionService.patternsPublisher
-            .sink(completion: { completion in
+            .sink { [weak self] completion in // And here
+                guard let self = self else { return }
                 switch completion {
                 case .failure(let error):
                     print("Error receiving patterns: \(error)")
                 case .finished:
                     print("Pattern stream finished")
                 }
-            }, receiveValue: { [weak self] (patterns: [DetectedPattern]) in // ✅ Explicit type annotation
-                self?.handleDetectedPatterns(patterns: patterns)
-            })
+            } receiveValue: { [weak self] patterns in // And here
+                guard let self = self else { return }
+                self.handleDetectedPatterns(patterns: patterns)
+            }
             .store(in: &cancellables)
     }
 

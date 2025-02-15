@@ -3,7 +3,6 @@
 //
 //
 
-
 import SwiftUI
 import SwiftData
 
@@ -53,4 +52,3 @@ struct CRAVEApp: App {
         .modelContainer(container)
     }
 }
-

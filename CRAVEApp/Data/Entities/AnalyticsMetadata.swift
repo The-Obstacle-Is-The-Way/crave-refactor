@@ -26,9 +26,14 @@ final class AnalyticsMetadata {
     var interactionCount: Int
 
     // MARK: - Complex Data (Stored as simple types or JSON)
+    @Attribute(.transformable(by: UserActionsTransformer.self))
     var userActions: [UserAction]
+    @Attribute(.transformable(by: PatternIdentifiersTransformer.self))
     var patternIdentifiers: [String]
+    @Attribute(.transformable(by: CorrelationFactorsTransformer.self))
     var correlationFactors: [CorrelationFactor]
+    @Attribute(.transformable(by: StreakDataTransformer.self))
+    var streakData: StreakData
 
     // MARK: - Processing Status
     var processingState: String // Store as String, use enum for calculations
@@ -54,6 +59,7 @@ final class AnalyticsMetadata {
         self.userActions = []
         self.patternIdentifiers = []
         self.correlationFactors = []
+        self.streakData = StreakData()
         self.processingState = ProcessingState.pending.rawValue // Use rawValue
         self.lastProcessed = Date()
         self.processingAttempts = 0
@@ -126,11 +132,12 @@ extension AnalyticsMetadata {
         case pending, processing, completed, failed
     }
 }
-
 // MARK: - Value Transformers - Move to CRAVEApp.swift for registration
 // These are now *global* and will be registered in CRAVEApp.swift
 
-final class UserActionsTransformer: ValueTransformer {
+final class UserActionsTransformer: ValueTransformer, NSSecureCoding {
+    static var supportsSecureCoding = true
+    
     override class func transformedValueClass() -> AnyClass {
         return NSData.self  // Corrected
     }
@@ -148,9 +155,17 @@ final class UserActionsTransformer: ValueTransformer {
         guard let data = value as? Data else { return nil } // Corrected type
         return try? JSONDecoder().decode([AnalyticsMetadata.UserAction].self, from: data)
     }
+    
+    required init?(coder: NSCoder) {
+        super.init()
+    }
+    override func encode(with coder: NSCoder) {
+        
+    }
 }
 
-final class PatternIdentifiersTransformer: ValueTransformer {
+final class PatternIdentifiersTransformer: ValueTransformer, NSSecureCoding {
+    static var supportsSecureCoding = true
     override class func transformedValueClass() -> AnyClass {
         return NSData.self // Corrected
     }
@@ -165,9 +180,14 @@ final class PatternIdentifiersTransformer: ValueTransformer {
         guard let data = value as? Data else { return nil }  // Corrected type
         return try? JSONDecoder().decode([String].self, from: data)
     }
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
+    override func encode(with coder: NSCoder) {}
 }
 
-final class CorrelationFactorsTransformer: ValueTransformer {
+final class CorrelationFactorsTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
+    static var supportsSecureCoding = true
     override class func transformedValueClass() -> AnyClass {
         return NSData.self // Corrected
     }
@@ -184,9 +204,16 @@ final class CorrelationFactorsTransformer: ValueTransformer {
         guard let data = value as? Data else { return nil } // Corrected type
         return try? JSONDecoder().decode([AnalyticsMetadata.CorrelationFactor].self, from: data)
     }
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
+
+    override func encode(with coder: NSCoder) { // Added encode method
+    }
 }
 
-final class StreakDataTransformer: ValueTransformer {
+final class StreakDataTransformer: ValueTransformer, NSSecureCoding { // Added NSSecureCoding
+    static var supportsSecureCoding = true
     override class func transformedValueClass() -> AnyClass {
         return NSData.self // Corrected
     }
@@ -203,6 +230,10 @@ final class StreakDataTransformer: ValueTransformer {
         guard let data = value as? Data else { return nil } // Corrected type
         return try? JSONDecoder().decode(AnalyticsMetadata.StreakData.self, from: data)
     }
+    required init?(coder: NSCoder) { // Added required initializer
+        super.init()
+    }
+
+    override func encode(with coder: NSCoder) { // Added encode method
+    }
 }
-
-
