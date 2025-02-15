@@ -1,12 +1,13 @@
 //
-//
-// File: AnalyticsConfiguration.swift
-// Purpose: Centralized configuration management for analytics system
+//  🍒
+//  AnalyticsConfiguration.swift
+//  Purpose: Centralized configuration management for analytics system
 //
 //
 
+
 import Foundation
-import SwiftData
+import Combine
 
 @MainActor
 final class AnalyticsConfiguration: ObservableObject {
@@ -15,25 +16,17 @@ final class AnalyticsConfiguration: ObservableObject {
 
     // MARK: - Published Settings
     @Published private(set) var currentEnvironment: Environment = .development
-    @Published private(set) var featureFlags: FeatureFlags
-    @Published private(set) var processingRules: ProcessingRules
-    @Published private(set) var storagePolicy: StoragePolicy
-    @Published private(set) var privacySettings: PrivacySettings
+    @Published private(set) var featureFlags: FeatureFlags = .development // Initialize with default
+    @Published private(set) var processingRules: ProcessingRules = ProcessingRules() // Initialize
+    @Published private(set) var storagePolicy: StoragePolicy = StoragePolicy() // Initialize
+    @Published private(set) var privacySettings: PrivacySettings = PrivacySettings() // Initialize
 
     // MARK: - Performance Settings
-    let performanceConfig: PerformanceConfiguration
-    let networkConfig: NetworkConfiguration
-    let mlConfig: MLConfiguration
+    let performanceConfig: PerformanceConfiguration = PerformanceConfiguration() // Initialize
+    let networkConfig: NetworkConfiguration = NetworkConfiguration() // Initialize
+    let mlConfig: MLConfiguration = MLConfiguration() // Initialize
 
-    private init() {
-        self.featureFlags = .development
-        self.processingRules = ProcessingRules()
-        self.storagePolicy = StoragePolicy()
-        self.privacySettings = PrivacySettings()
-        self.performanceConfig = PerformanceConfiguration()
-        self.networkConfig = NetworkConfiguration()
-        self.mlConfig = MLConfiguration()
-    }
+    private init() {} // Private initializer for singleton
 
     func updateEnvironment(_ environment: Environment) {
         currentEnvironment = environment
@@ -94,8 +87,8 @@ struct ProcessingRules: Codable {
 }
 
 struct StoragePolicy: Codable {
-    var retentionPeriod: TimeInterval = 30 * 24 * 3600
-    var maxStorageSize: Int64 = 100 * 1024 * 1024
+    var retentionPeriod: TimeInterval = 30 * 24 * 3600 // 30 days
+    var maxStorageSize: Int64 = 100 * 1024 * 1024 // 100 MB
     var compressionEnabled: Bool = true
     var encryptionEnabled: Bool = true
     var autoCleanupEnabled: Bool = true
@@ -111,24 +104,24 @@ struct PrivacySettings: Codable {
     func validate() -> Bool { return true }
 }
 
-struct PerformanceConfiguration {
+struct PerformanceConfiguration: Codable { // Made Codable
     let maxConcurrentOperations: Int = 4
-    let maxMemoryUsage: Int64 = 50 * 1024 * 1024
+    let maxMemoryUsage: Int64 = 50 * 1024 * 1024 // 50 MB
     let backgroundTaskTimeout: TimeInterval = 180
     let minimumBatteryLevel: Float = 0.2
 }
 
-struct NetworkConfiguration {
+struct NetworkConfiguration: Codable { // Made Codable
     let maxRetries: Int = 3
     let timeout: TimeInterval = 30
     let batchSize: Int = 50
-    let compressionThreshold: Int = 1024 * 10
+    let compressionThreshold: Int = 1024 * 10 // 10 KB
 }
 
-struct MLConfiguration {
-    let modelUpdateInterval: TimeInterval = 24 * 3600
+struct MLConfiguration: Codable { // Made Codable
+    let modelUpdateInterval: TimeInterval = 24 * 3600 // 24 hours
     let minimumConfidence: Double = 0.7
-    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600
+    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600 // 7 days
     let trainingDataLimit: Int = 1000
 }
 
