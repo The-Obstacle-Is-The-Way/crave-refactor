@@ -1,15 +1,16 @@
 //
 //  🍒
 //  CRAVEApp/Navigation/CRAVETabView.swift
-//  Purpose:
+//  Purpose: Main entry point for the app.
 //
 
 import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) private var modelContext
-    @State private var selection: Int = 0  // Explicitly typed as Int
+    @Environment(\.modelContext) private var modelContext // Correct usage
+
+    @State private var selection: Int = 0
 
     var body: some View {
         TabView(selection: $selection) {
@@ -39,4 +40,3 @@ struct CRAVETabView: View {
         }
     }
 }
-

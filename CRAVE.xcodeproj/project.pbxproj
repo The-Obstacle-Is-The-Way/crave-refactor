@@ -70,8 +70,8 @@
 				Analytics/UI/Components/CravingBarChart.swift = (ios, );
 				Analytics/UI/Components/PatternVisualizationView.swift = (ios, );
 				Analytics/UI/Components/TimeOfDayPieChart.swift = (ios, );
-				Analytics/UI/View/AnalyticsView.swift = (ios, );
-				Analytics/UI/ViewModels/AnalyticsViewModel.swift = (ios, );
+				Analytics/UI/Shared/AnalyticsView.swift = (ios, );
+				Analytics/UI/Shared/AnalyticsViewModel.swift = (ios, );
 				Analytics/Utilities/AnalyticsError.swift = (ios, );
 				Analytics/Utilities/AnalyticsFormatter.swift = (ios, );
 				CRAVEApp.swift = (ios, );

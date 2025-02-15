@@ -1,14 +1,16 @@
 //
-//  🍒
-//  CRAVEApp/Screens/AnalyticsDashboard/AnalyticsDashboardView.swift
+//
+// CRAVEApp/Analytics/UI/Shared/AnalyticsView.swift`**
 //
 //
+//
+
 
 import SwiftUI
 import SwiftData
 
-struct AnalyticsDashboardView: View { // Corrected struct name
-    @Environment(\.modelContext) private var modelContext // Correct usage
+struct AnalyticsDashboardView: View {
+    @Environment(\.modelContext) private var modelContext // Corrected Environment declaration
     @StateObject private var viewModel = AnalyticsDashboardViewModel()
 
     var body: some View {
@@ -61,20 +63,21 @@ struct AnalyticsDashboardView: View { // Corrected struct name
         }
         .navigationTitle("Analytics")
         .onAppear {
-            viewModel.loadAnalytics(modelContext: modelContext) // Corrected: Pass modelContext
+            viewModel.loadAnalytics(modelContext: modelContext)
         }
     }
 }
 
 #Preview {
-    MainActor.assumeIsolated { // Corrected: Use assumeIsolated
+    MainActor.assumeIsolated { // Corrected MainActor usage
         do {
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
             let container = try ModelContainer(for: CravingModel.self, configurations: config)
             return AnalyticsDashboardView()
                 .modelContainer(container)
         } catch {
-            fatalError("Failed to create model container: \(error)") // Improved error handling
+            fatalError("Failed to create model container: \(error)")
         }
     }
 }
+

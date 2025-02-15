@@ -1,14 +1,14 @@
 //
 //  🍒
 //  CRAVEApp/Screens/LogCraving/LogCravingView.swift
-//
+//  Purpose: A view for logging a craving.
 //
 
 import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var modelContext // Correct usage
     @StateObject private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
     @State private var alertMessage = ""
@@ -20,7 +20,7 @@ struct LogCravingView: View {
                     .padding()
 
                 CraveButton(title: "Log Craving") {
-                    viewModel.addCraving(modelContext: modelContext) { success in
+                    viewModel.addCraving(modelContext: modelContext) { success in // Corrected: Pass modelContext
                         if success {
                             // Success
                         } else {
