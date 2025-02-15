@@ -15,12 +15,11 @@ protocol AnalyticsEvent: Codable {
     var priority: EventPriority { get }
 }
 
-// Single source of truth for AnalyticsEventType
 enum AnalyticsEventType: String, Codable, CaseIterable {
     case cravingLogged = "cravingLogged"
-    case systemEvent = "systemEvent"
-    case userEvent = "userEvent"
-    case interactionEvent = "interactionEvent"
+    case interaction = "interaction"
+    case system = "system"
+    case user = "user"
     case unknown = "unknown"
 }
 
@@ -65,7 +64,7 @@ final class UserEvent: BaseAnalyticsEvent {
 
     init(userId: String, timestamp: Date = Date()) {
         self.userId = userId
-        super.init(eventType: .userEvent, timestamp: timestamp)
+        super.init(eventType: .user, timestamp: timestamp)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -90,7 +89,7 @@ final class SystemEvent: BaseAnalyticsEvent {
 
     init(systemInfo: String, timestamp: Date = Date()) {
         self.systemInfo = systemInfo
-        super.init(eventType: .systemEvent, timestamp: timestamp)
+        super.init(eventType: .system, timestamp: timestamp)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -142,19 +141,27 @@ final class CravingEvent: BaseAnalyticsEvent {
 
 final class InteractionEvent: BaseAnalyticsEvent {
     let interactionId: UUID
+    let cravingId: UUID
+    let interactionType: String
 
-    init(interactionId: UUID, timestamp: Date = Date()) {
+    init(interactionId: UUID, cravingId: UUID, interactionType: String, timestamp: Date = Date()) {
         self.interactionId = interactionId
-        super.init(eventType: .interactionEvent, timestamp: timestamp)
+        self.cravingId = cravingId
+        self.interactionType = interactionType
+        super.init(eventType: .interaction, timestamp: timestamp)
     }
     
     enum CodingKeys: String, CodingKey {
         case interactionId
+        case cravingId
+        case interactionType
     }
     
     required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         interactionId = try values.decode(UUID.self, forKey: .interactionId)
+        cravingId = try values.decode(UUID.self, forKey: .cravingId)
+        interactionType = try values.decode(String.self, forKey: .interactionType)
         try super.init(from: values.superDecoder())
     }
     
@@ -162,6 +169,8 @@ final class InteractionEvent: BaseAnalyticsEvent {
         try super.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(interactionId, forKey: .interactionId)
+        try container.encode(cravingId, forKey: .cravingId)
+        try container.encode(interactionType, forKey: .interactionType)
     }
 }
 

@@ -11,13 +11,41 @@ import Combine
 import SwiftUI
 import SwiftData
 
+// MARK: - Supporting Types
+enum AnalyticsDetectionState: Equatable {
+    case idle
+    case detecting
+    case completed
+    case error(String)
+    
+    static func == (lhs: AnalyticsDetectionState, rhs: AnalyticsDetectionState) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle),
+             (.detecting, .detecting),
+             (.completed, .completed):
+            return true
+        case (.error(let lhsError), .error(let rhsError)):
+            return lhsError == rhsError
+        default:
+            return false
+        }
+    }
+}
+
+struct AnalyticsPattern: Identifiable {
+    let id: UUID
+    let type: String
+    let confidence: Double
+    let description: String
+}
+
 @MainActor
 final class AnalyticsCoordinator: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var isAnalyticsEnabled: Bool = false
     @Published private(set) var lastEvent: (any AnalyticsEvent)?
-    @Published private(set) var detectionState: DetectionState = .idle
-    @Published private(set) var detectedPatterns: [DetectedPattern] = []
+    @Published private(set) var detectionState: AnalyticsDetectionState = .idle
+    @Published private(set) var detectedPatterns: [AnalyticsPattern] = []
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
@@ -71,9 +99,27 @@ final class AnalyticsCoordinator: ObservableObject {
             .store(in: &cancellables)
 
         patternDetectionService.$detectionState
+            .map { state -> AnalyticsDetectionState in
+                switch state {
+                case .idle: return .idle
+                case .detecting: return .detecting
+                case .completed: return .completed
+                case .error(let error): return .error(error.localizedDescription)
+                }
+            }
             .assign(to: &$detectionState)
 
         patternDetectionService.$detectedPatterns
+            .map { patterns in
+                patterns.map { pattern in
+                    AnalyticsPattern(
+                        id: UUID(),
+                        type: pattern.type,
+                        confidence: pattern.confidence,
+                        description: pattern.description
+                    )
+                }
+            }
             .assign(to: &$detectedPatterns)
     }
 
@@ -94,52 +140,38 @@ final class AnalyticsCoordinator: ObservableObject {
     // MARK: - Pattern Detection
     func detectPatterns() async {
         do {
-            detectedPatterns = try await patternDetectionService.detectPatterns()
+            let patterns = try await patternDetectionService.detectPatterns()
+            self.detectedPatterns = patterns.map { pattern in
+                AnalyticsPattern(
+                    id: UUID(),
+                    type: pattern.type,
+                    confidence: pattern.confidence,
+                    description: pattern.description
+                )
+            }
+            self.detectionState = .completed
         } catch {
             print("Pattern detection failed: \(error)")
-            detectionState = .error(error)
+            self.detectionState = .error(error.localizedDescription)
         }
     }
 
     // MARK: - Reporting
     func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report {
         let report = try await analyticsService.generateReport(type: type, timeRange: timeRange)
-        await reporter.processReport(report)
+        await reporter.handleReport(report)
         return report
     }
 
-    func fetchInsights() async throws -> [PatternInsight] {
+    func fetchInsights() async throws -> [AnalyticsInsight] {
         let insights = try await analyticsService.fetchInsights()
-        await reporter.processInsights(insights)
+        await reporter.handleInsights(insights)
         return insights
     }
 
-    func fetchPredictions() async throws -> [any AnalyticsPrediction] {
+    func fetchPredictions() async throws -> [AnalyticsPrediction] {
         let predictions = try await analyticsService.fetchPredictions()
-        await reporter.processPredictions(predictions)
+        await reporter.handlePredictions(predictions)
         return predictions
     }
 }
-
-// MARK: - Supporting Types
-enum DetectionState {
-    case idle
-    case detecting
-    case completed
-    case error(Error)
-}
-
-struct DetectedPattern: Identifiable {
-    let id: UUID
-    let type: String
-    let confidence: Double
-    let description: String
-}
-
-// MARK: - Preview and Testing Support
-extension AnalyticsCoordinator {
-    static func preview(modelContext: ModelContext) -> AnalyticsCoordinator {
-        AnalyticsCoordinator(modelContext: modelContext)
-    }
-}
-

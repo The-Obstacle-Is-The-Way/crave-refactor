@@ -22,11 +22,19 @@ final class AnalyticsAggregator {
         case .cravingLogged:
             await aggregateCravingEvent(event)
         case .interaction:
-            await aggregateInteractionEvent(event as! InteractionEvent)
+            if let interactionEvent = event as? InteractionEvent {
+                await aggregateInteractionEvent(interactionEvent)
+            }
         case .system:
-            await aggregateSystemEvent(event as! SystemEvent)
+            if let systemEvent = event as? SystemEvent {
+                await aggregateSystemEvent(systemEvent)
+            }
         case .user:
-            await aggregateUserEvent(event as! UserEvent)
+            if let userEvent = event as? UserEvent {
+                await aggregateUserEvent(userEvent)
+            }
+        case .unknown:
+            print("Unknown event type received")
         }
 
         if let cravingEvent = event as? CravingEvent {
@@ -92,9 +100,24 @@ final class AnalyticsAggregator {
     }
 }
 
+// MARK: - Analytics Event Processing Extensions
+extension AnalyticsAggregator {
+    func processEventBatch(_ events: [AnalyticsEvent]) async {
+        for event in events {
+            await aggregateEvent(event)
+        }
+    }
+    
+    func processHistoricalData(_ startDate: Date, _ endDate: Date) async {
+        // Implementation for processing historical data
+        print("Processing historical data from \(startDate) to \(endDate)")
+    }
+}
+
 // MARK: - Testing Support
 extension AnalyticsAggregator {
     static func preview(storage: AnalyticsStorage) -> AnalyticsAggregator {
         AnalyticsAggregator(storage: storage)
     }
 }
+
