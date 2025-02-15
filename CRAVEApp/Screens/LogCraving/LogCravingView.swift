@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) private var modelContext: ModelContext // Correct usage
+    @Environment(\.modelContext) var modelContext: ModelContext // Removed private
     @StateObject private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
     @State private var alertMessage = ""
@@ -20,7 +20,7 @@ struct LogCravingView: View {
                     .padding()
 
                 CraveButton(title: "Log Craving") {
-                    viewModel.addCraving(modelContext: modelContext) { success in // Corrected: Pass modelContext
+                    viewModel.addCraving(modelContext: modelContext) { success in
                         if success {
                             // Success
                         } else {
