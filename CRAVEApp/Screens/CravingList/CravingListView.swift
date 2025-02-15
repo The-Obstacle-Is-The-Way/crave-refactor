@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftData
 
 struct CravingListView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) var modelContext // Removed private
     @StateObject private var viewModel = CravingListViewModel()
 
     var body: some View {
@@ -29,7 +29,7 @@ struct CravingListView: View {
                         } label: {
                             Label("Archive", systemImage: "archivebox")
                         }
-                        
+
                         Button(role: .destructive) {
                             Task {
                                 await viewModel.deleteCraving(craving, modelContext: modelContext)
