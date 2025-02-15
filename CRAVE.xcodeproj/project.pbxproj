@@ -58,8 +58,6 @@
 			);
 			platformFiltersByRelativePath = {
 				Analytics/AnalyticsReporter.swift = (ios, );
-				Analytics/AnalyticsView.swift = (ios, );
-				Analytics/AnalyticsViewModel.swift = (ios, );
 				Analytics/Configuration/AnalyticsConfiguration.swift = (ios, );
 				Analytics/Coordination/AnalyticsCoordinator.swift = (ios, );
 				Analytics/Core/AnalyticsError.swift = (ios, );
@@ -82,6 +80,8 @@
 				Analytics/UI/Components/CravingBarChart.swift = (ios, );
 				Analytics/UI/Components/PatternVisualizationView.swift = (ios, );
 				Analytics/UI/Components/TimeOfDayPieChart.swift = (ios, );
+				Analytics/UI/View/AnalyticsView.swift = (ios, );
+				Analytics/UI/ViewModels/AnalyticsViewModel.swift = (ios, );
 				CRAVEApp.swift = (ios, );
 				ContentView.swift = (ios, );
 				Core/Configuration/AnalyticsConstants.swift = (ios, );
