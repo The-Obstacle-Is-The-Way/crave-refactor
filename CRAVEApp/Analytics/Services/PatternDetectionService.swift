@@ -1,7 +1,7 @@
 //
 //
 //  🍒
-//  CRAVEApp/Core/Services/PatternDetectionService.swift
+//  CRAVEApp/Analytics/Services/PatternDetectionService.swift
 //  Purpose: Service for detecting and analyzing patternsin user behavior and cravings
 //
 //

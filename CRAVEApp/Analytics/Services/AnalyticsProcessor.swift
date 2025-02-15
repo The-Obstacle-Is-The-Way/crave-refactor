@@ -1,6 +1,6 @@
 //
 //  🍒
-//  CRAVEApp/AnalyticsProcessor.swift
+//  CRAVEApp/Analytics/Services/AnalyticsProcessor.swift
 //  Purpose:
 //
 //
@@ -31,9 +31,9 @@ final class AnalyticsProcessor {
 
     private func processQueueIfNeeded() async {
         guard !isProcessing && !processingQueue.isEmpty else { return }
-        
+
         isProcessing = true
-        
+
         do {
             let batchSize = configuration.processingRules.batchSize
             while !processingQueue.isEmpty {
@@ -43,10 +43,12 @@ final class AnalyticsProcessor {
             }
         } catch {
             print("Error processing events: \(error)")
+            // TODO: Handle the error (e.g., retry, log, alert the user)
         }
-        
+
         isProcessing = false
     }
+
 
     private func processBatch(_ batch: [AnalyticsEvent]) async throws {
         for event in batch {
@@ -68,16 +70,17 @@ final class AnalyticsProcessor {
     private func processCravingEvent(_ event: AnalyticsEvent) async {
         guard let cravingEvent = event as? CravingEvent else { return }
         print("Processing craving event: \(cravingEvent.cravingText)")
-        
+
         if let cravingId = cravingEvent.cravingId {
             do {
-                let metadata = try await storage.fetchMetadata(forCravingId: cravingId)
-                await updateMetadata(metadata, for: cravingEvent)
+                let metadata = try await storage.fetchMetadata(forCravingId: cravingId) // Fetch existing
+                await updateMetadata(metadata, for: cravingEvent) // Pass cravingEvent
             } catch {
                 print("Error processing craving event: \(error)")
             }
         }
     }
+
 
     private func processInteractionEvent(_ event: AnalyticsEvent) async {
         print("Processing interaction event")
@@ -91,11 +94,12 @@ final class AnalyticsProcessor {
         print("Processing user event")
     }
 
-    private func updateMetadata(_ metadata: AnalyticsMetadata?, for event: CravingEvent) async {
+    private func updateMetadata(_ metadata: AnalyticsMetadata?, for event: CravingEvent) async { // Pass CravingEvent
         guard let metadata = metadata else { return }
-        metadata.interactionCount += 1
-        metadata.lastProcessed = Date()
-        
+
+        metadata.interactionCount += 1 // Increment a counter
+        metadata.lastProcessed = Date() // Update the last processed date
+
         do {
             try storage.modelContext.save()
         } catch {

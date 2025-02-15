@@ -1,7 +1,7 @@
 //
 //
 //  🍒
-//  CRAVEApp/Analytics/AnalyticsReporter.swift
+//  CRAVEApp/Analytics/Services/AnalyticsReporter.swift
 //  Purpose: Generates and manages analytics reports with customizable formats and delivery mechanisms
 //
 //

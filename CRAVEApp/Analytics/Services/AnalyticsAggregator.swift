@@ -1,8 +1,8 @@
 //
 //
 //  🍒
-//  CRAVEApp/Analytics/AnalyticsAggregator.swift
-//  Purpose: 
+//  CRAVEApp/Analytics/Services/AnalyticsAggregator.swift
+//  Purpose:
 //
 //
 
@@ -80,8 +80,8 @@ final class AnalyticsAggregator {
             // Add user action
             let action = AnalyticsMetadata.UserAction(
                 timestamp: Date(),
-                actionType: "craving_logged",  //String
-                metadata: ["text": cravingEvent.cravingText]
+                actionType: "craving_logged",
+                metadata: ["text": cravingEvent.cravingText] // Use optional chaining
             )
             metadata.userActions.append(action)
 

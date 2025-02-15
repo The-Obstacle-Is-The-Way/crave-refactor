@@ -1,7 +1,7 @@
 //
 //
 //  🍒
-//  CRAVEApp/Analytics/AnalyticsManager.swift
+//  CRAVEApp/Analytics/Services/AnalyticsManager.swift
 //  Purpose: Central manager for all analytics operations and data processing
 //
 //
