@@ -9,8 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) private var modelContext // Get the modelContext
-    @State private var selection = 0 // Start with the first tab (Cravings)
+    @Environment(\.modelContext) private var modelContext
+    @State private var selection = 0
 
     var body: some View {
         TabView(selection: $selection) {
@@ -28,11 +28,11 @@ struct CRAVETabView: View {
 
             DateListView()
                 .tabItem {
-                    Label("Cravings by Date", systemImage: "calendar") // Changed the image
+                    Label("Cravings by Date", systemImage: "calendar")
                 }
                 .tag(2)
             
-            AnalyticsDashboardView() // Added the AnalyticsDashboardView
+            AnalyticsDashboardView()
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar.fill")
                 }
@@ -40,3 +40,4 @@ struct CRAVETabView: View {
         }
     }
 }
+

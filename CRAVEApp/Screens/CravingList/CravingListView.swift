@@ -12,7 +12,7 @@ struct CravingListView: View {
     @StateObject private var viewModel = CravingListViewModel()
 
     var body: some View {
-        NavigationView { // Keep this NavigationView
+        NavigationView {
             List {
                 ForEach(viewModel.cravings) { craving in
                     VStack(alignment: .leading) {
@@ -24,13 +24,13 @@ struct CravingListView: View {
                     .swipeActions {
                         Button(role: .destructive) {
                             Task {
-                                await viewModel.archiveCraving(craving, modelContext: modelContext) // Pass context
+                                await viewModel.archiveCraving(craving, modelContext: modelContext)
                             }
                         } label: {
-                            Label("Archive", systemImage: "archivebox") // Corrected the image name
+                            Label("Archive", systemImage: "archivebox")
                         }
                         
-                        Button(role: .destructive) { //Added delete button
+                        Button(role: .destructive) {
                             Task {
                                 await viewModel.deleteCraving(craving, modelContext: modelContext)
                             }
@@ -41,8 +41,8 @@ struct CravingListView: View {
                 }
             }
             .navigationTitle("Cravings")
-            .task { // Use .task for async loading
-                await viewModel.loadData(modelContext: modelContext) // Pass context
+            .task {
+                await viewModel.loadData(modelContext: modelContext)
             }
         }
     }
