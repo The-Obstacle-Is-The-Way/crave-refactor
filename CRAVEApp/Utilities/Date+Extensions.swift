@@ -1,8 +1,7 @@
 //
-//
 //  🍒
-//  Date+Extensions.swift
-//  CRAVE
+//  CRAVEApp/Utilities/Date+Extensions.swift
+//  Purpose: Provides date-related extensions.
 //
 
 import Foundation

@@ -5,7 +5,6 @@
 //
 //
 
-
 import SwiftUI
 import SwiftData
 
@@ -15,9 +14,9 @@ struct CRAVEApp: App {
 
     init() {
         do {
-             container: ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration())
             // Register Value Transformers *before* creating the ModelContainer
-            ValueTransformer.registerTransformers()
+            ValueTransformer.registerTransformers()  // Corrected order
+            container = ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration())
         } catch {
             fatalError("Failed to create model container: \(error)")
         }
@@ -30,4 +29,3 @@ struct CRAVEApp: App {
         }
     }
 }
-
