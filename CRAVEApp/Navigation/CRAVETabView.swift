@@ -1,7 +1,7 @@
 //
 //  🍒
 //  CRAVEApp/Navigation/CRAVETabView.swift
-//  Purpose: Tab view for the CRAVE app
+//  Purpose:
 //
 
 import SwiftUI

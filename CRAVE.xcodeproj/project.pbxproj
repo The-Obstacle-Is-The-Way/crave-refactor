@@ -63,7 +63,6 @@
 				Analytics/Services/AnalyticsAggregator.swift = (ios, );
 				Analytics/Services/AnalyticsManager.swift = (ios, );
 				Analytics/Services/AnalyticsProcessor.swift = (ios, );
-				Analytics/Services/AnalyticsService.swift = (ios, );
 				Analytics/Services/AnalyticsStorage.swift = (ios, );
 				Analytics/Services/PatternDetectionService.swift = (ios, );
 				Analytics/UI/Components/AnalyticsInsightView.swift = (ios, );

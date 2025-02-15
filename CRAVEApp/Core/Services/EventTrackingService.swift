@@ -4,6 +4,7 @@
 //  Purpose: Dedicated service for tracking and managing user and system events
 //
 //
+//
 
 import Foundation
 import SwiftData
@@ -147,12 +148,11 @@ enum EventTrackingError: Error, LocalizedError {
     }
 }
 
-// MARK: - Testing Support
 // MARK: - Testing Support and Dependency Injection
 extension EventTrackingService {
     static func preview() -> EventTrackingService {
         // Use a preview context here.
-        let container = try! ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+      let container = try! ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
         return EventTrackingService(
             storage: AnalyticsStorage(modelContext: container.mainContext), // Pass in the context here
             configuration: .preview
