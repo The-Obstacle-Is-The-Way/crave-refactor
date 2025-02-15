@@ -32,3 +32,14 @@ struct TimeOfDayPieChart: View {
         }
     }
 }
+
+struct TimeOfDayPieChart_Previews: PreviewProvider {
+    static var previews: some View {
+        TimeOfDayPieChart(data: [
+            "Morning": 3,
+            "Afternoon": 5,
+            "Evening": 2,
+            "Night": 4
+        ])
+    }
+}

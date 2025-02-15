@@ -69,7 +69,7 @@ final class AnalyticsMetadata {
 
 // MARK: - Supporting Types (Consolidated within the file)
 
-    enum TimeOfDay: String, Codable, CaseIterable {
+    enum TimeOfDay: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String RawValue
         case morning, afternoon, evening, night
 
         static var current: TimeOfDay {
@@ -83,7 +83,7 @@ final class AnalyticsMetadata {
         }
     }
 
-    enum DayOfWeek: String, Codable, CaseIterable {
+    enum DayOfWeek: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String RawValue
         case sunday, monday, tuesday, wednesday, thursday, friday, saturday
 
         static var current: DayOfWeek {
@@ -102,33 +102,33 @@ final class AnalyticsMetadata {
         }
     }
 
-    struct UserAction: Codable {
+    struct UserAction: Codable { // MARKED: Codable
         let timestamp: Date
         let actionType: String // Store as String, use enum for calculations
         let metadata: [String: String]
     }
 
-    struct CorrelationFactor: Codable {
+    struct CorrelationFactor: Codable { // MARKED: Codable
         let factor: String
         let correlation: Double // -1.0 to 1.0
         let confidence: Double // 0.0 to 1.0
         let sampleSize: Int
     }
 
-    struct StreakData: Codable { // Removed from the main model.
+    struct StreakData: Codable { // MARKED: Codable
         var currentStreak: Int = 0
         var longestStreak: Int = 0
         var totalStreaks: Int = 0
         var streakHistory: [StreakPeriod] = []
 
-        struct StreakPeriod: Codable {
+        struct StreakPeriod: Codable { // MARKED: Codable
             let startDate: Date
             let endDate: Date
             let duration: Int
         }
     }
-    
-    enum ProcessingState: String, Codable, CaseIterable { //added case iterable
+
+    enum ProcessingState: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String RawValue
         case pending, processing, completed, failed
     }
 }

@@ -1,6 +1,9 @@
 //
+//
+//  🍒
 // File: EventTrackingService.swift
 // Purpose: Dedicated service for tracking and managing user and system events
+//
 //
 
 import Foundation
@@ -30,6 +33,9 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
 
     // MARK: - Internal State
     private var cancellables = Set<AnyCancellable>()
+
+    // ADDED: eventPublisher - This was missing and causing errors
+    var eventPublisher = PassthroughSubject<AnalyticsEvent, Never>()
 
     // MARK: - Initialization
     init(
@@ -63,7 +69,7 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
         guard trackingEnabled else { return }
         try await trackEvent(event)
     }
-    
+
     func getEvents(ofType type: EventType, in timeRange: DateInterval) async throws -> [TrackedEvent] {
         return []  // Placeholder: No events being tracked
     }
@@ -89,6 +95,7 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
             try await storage.store(event)
             lastTrackedEvent = event
             updateMetrics(for: event) // Pass the event
+            eventPublisher.send(event) // ADDED: Send the event through the publisher
 
         } catch {
             trackingMetrics.incrementErrors()
@@ -149,4 +156,3 @@ extension EventTrackingService {
         )
     }
 }
-

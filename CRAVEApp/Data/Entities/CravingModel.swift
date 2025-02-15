@@ -59,7 +59,7 @@ final class CravingModel: Identifiable {
     }
 }
 
-enum CravingCategory: String, Codable, CaseIterable {
+enum CravingCategory: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String Raw Value
     case food
     case drink
     case substance
@@ -67,17 +67,17 @@ enum CravingCategory: String, Codable, CaseIterable {
     case undefined
 }
 
-struct LocationData: Codable {
+struct LocationData: Codable { // MARKED: Codable
     let latitude: Double
     let longitude: Double
     let locationName: String? // Optional
 }
 
-struct ContextualFactor: Codable {
+struct ContextualFactor: Codable { // MARKED: Codable
     let factor: String
     let impact: Impact
 
-    enum Impact: String, Codable {
+    enum Impact: String, Codable { // MARKED: Codable, String Raw Value
         case positive
         case negative
         case neutral

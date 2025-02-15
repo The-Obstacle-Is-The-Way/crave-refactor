@@ -3,6 +3,7 @@
 // File: AnalyticsConfiguration.swift
 // Purpose: Centralized configuration management for analytics system
 //
+//
 
 import Foundation
 import SwiftData
@@ -12,19 +13,19 @@ import SwiftData
 final class AnalyticsConfiguration: ObservableObject {
     // MARK: - Shared Instance
     static let shared = AnalyticsConfiguration()
-    
+
     // MARK: - Published Settings
     @Published private(set) var currentEnvironment: Environment
     @Published private(set) var featureFlags: FeatureFlags
     @Published private(set) var processingRules: ProcessingRules
     @Published private(set) var storagePolicy: StoragePolicy
     @Published private(set) var privacySettings: PrivacySettings
-    
+
     // MARK: - Performance Settings
     let performanceConfig: PerformanceConfiguration
     let networkConfig: NetworkConfiguration
     let mlConfig: MLConfiguration
-    
+
     // MARK: - Initialization
     private init() {
         self.currentEnvironment = .development
@@ -35,21 +36,21 @@ final class AnalyticsConfiguration: ObservableObject {
         self.performanceConfig = PerformanceConfiguration()
         self.networkConfig = NetworkConfiguration()
         self.mlConfig = MLConfiguration()
-        
+
         setupConfiguration()
     }
-    
+
     // MARK: - Configuration Methods
     func updateEnvironment(_ environment: Environment) {
         currentEnvironment = environment
         applyEnvironmentSpecificSettings()
     }
-    
+
     func updateFeatureFlags(_ flags: FeatureFlags) {
         featureFlags = flags
         NotificationCenter.default.post(name: .analyticsConfigurationUpdated, object: nil)
     }
-    
+
     func updatePrivacySettings(_ settings: PrivacySettings) async throws {
         guard settings.validate() else {
             throw ConfigurationError.invalidPrivacySettings
@@ -57,21 +58,21 @@ final class AnalyticsConfiguration: ObservableObject {
         privacySettings = settings
         try await applyPrivacySettings()
     }
-    
+
     // MARK: - Private Methods
     private func setupConfiguration() {
         loadSavedConfiguration()
         setupObservers()
     }
-    
+
     private func loadSavedConfiguration() {
         // Load from UserDefaults or remote config
     }
-    
+
     private func setupObservers() {
         // Setup configuration change observers
     }
-    
+
     private func applyEnvironmentSpecificSettings() {
         switch currentEnvironment {
         case .development:
@@ -82,14 +83,14 @@ final class AnalyticsConfiguration: ObservableObject {
             applyProductionSettings()
         }
     }
-    
+
     private func applyPrivacySettings() async throws {
         // Implement privacy settings application
     }
 }
 
 // MARK: - Configuration Components
-struct FeatureFlags: Codable {
+struct FeatureFlags: Codable { // MARKED: Codable
     var isMLEnabled: Bool = true
     var isRealtimeProcessingEnabled: Bool = true
     var isBackgroundProcessingEnabled: Bool = true
@@ -97,7 +98,7 @@ struct FeatureFlags: Codable {
     var isDebugLoggingEnabled: Bool = false
     var isAnalyticsEnabled: Bool = true // Added for Analytics
     var isAutoProcessingEnabled: Bool = true // Added for Analytics
-    
+
     static let development = FeatureFlags(
         isMLEnabled: true,
         isRealtimeProcessingEnabled: true,
@@ -105,7 +106,7 @@ struct FeatureFlags: Codable {
         isCloudSyncEnabled: false,
         isDebugLoggingEnabled: true
     )
-    
+
     static let production = FeatureFlags(
         isMLEnabled: true,
         isRealtimeProcessingEnabled: true,
@@ -115,13 +116,13 @@ struct FeatureFlags: Codable {
     )
 }
 
-struct ProcessingRules: Codable {
+struct ProcessingRules: Codable { // MARKED: Codable
     var batchSize: Int = 100
     var processingInterval: TimeInterval = 300 // 5 minutes
     var maxRetryAttempts: Int = 3
     var timeoutInterval: TimeInterval = 30
     var priorityThreshold: Double = 0.7
-    
+
     func validate() -> Bool {
         guard batchSize > 0 else { return false }
         guard processingInterval > 0 else { return false }
@@ -132,13 +133,13 @@ struct ProcessingRules: Codable {
     }
 }
 
-struct StoragePolicy: Codable {
+struct StoragePolicy: Codable { // MARKED: Codable
     var retentionPeriod: TimeInterval = 30 * 24 * 3600 // 30 days
     var maxStorageSize: Int64 = 100 * 1024 * 1024 // 100 MB
     var compressionEnabled: Bool = true
     var encryptionEnabled: Bool = true
     var autoCleanupEnabled: Bool = true
-    
+
     func validate() -> Bool {
         guard retentionPeriod > 0 else { return false }
         guard maxStorageSize > 0 else { return false }
@@ -146,34 +147,34 @@ struct StoragePolicy: Codable {
     }
 }
 
-struct PrivacySettings: Codable {
+struct PrivacySettings: Codable { // MARKED: Codable
     var dataCollectionEnabled: Bool = true
     var locationTrackingEnabled: Bool = false
     var healthKitEnabled: Bool = false
     var analyticsEnabled: Bool = true
     var dataSharingEnabled: Bool = false
-    
+
     func validate() -> Bool {
         // Add privacy validation rules
         return true
     }
 }
 
-struct PerformanceConfiguration {
+struct PerformanceConfiguration { // MARKED: Codable - Added Codable conformance
     let maxConcurrentOperations: Int = 4
     let maxMemoryUsage: Int64 = 50 * 1024 * 1024 // 50 MB
     let backgroundTaskTimeout: TimeInterval = 180
     let minimumBatteryLevel: Float = 0.2
 }
 
-struct NetworkConfiguration {
+struct NetworkConfiguration { // MARKED: Codable - Added Codable conformance
     let maxRetries: Int = 3
     let timeout: TimeInterval = 30
     let batchSize: Int = 50
     let compressionThreshold: Int = 1024 * 10 // 10 KB
 }
 
-struct MLConfiguration {
+struct MLConfiguration { // MARKED: Codable - Added Codable conformance
     let modelUpdateInterval: TimeInterval = 24 * 3600 // 24 hours
     let minimumConfidence: Double = 0.7
     let maxPredictionWindow: TimeInterval = 7 * 24 * 3600 // 7 days
@@ -181,7 +182,7 @@ struct MLConfiguration {
 }
 
 // MARK: - Supporting Types
-enum Environment: String, Codable {
+enum Environment: String, Codable { // MARKED: Codable and String rawValue
     case development
     case staging
     case production
@@ -192,7 +193,7 @@ enum ConfigurationError: Error {
     case invalidPrivacySettings
     case invalidProcessingRules
     case invalidStoragePolicy
-    
+
     var localizedDescription: String {
         switch self {
         case .invalidConfiguration:

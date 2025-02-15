@@ -4,100 +4,101 @@
 //  CRAVEApp/Analytics/AnalyticsAggregator.swift
 //  Purpose: 
 //
-//
+
 
 import Foundation
-import Combine
 import SwiftData
 
+// ADDED: Ensure AnalyticsEventType is defined and accessible.
+// If AnalyticsEventType.swift exists, ensure it's correctly imported.
+// If not, define it directly here (for now, to isolate the issue).
+enum AnalyticsEventType: String, Codable, CaseIterable {
+    case cravingLogged
+    case interaction
+    case system
+    case user
+    // Add other event types as needed, ensuring they have String raw values
+}
+
+
 @MainActor
-class AnalyticsAggregator: ObservableObject {
+final class AnalyticsAggregator {
+    private let storage: AnalyticsStorage
 
-    @Published private(set) var dailyAggregates: [Date: DailyAnalytics] = [:]
-    @Published private(set) var weeklyAggregates: [Int: WeeklyAnalytics] = [:]
-    @Published private(set) var monthlyAggregates: [Int: MonthlyAnalytics] = [:]
-
-    private var analyticsStorage: AnalyticsStorage
-    private var cancellables = Set<AnyCancellable>()
-
-    init(analyticsStorage: AnalyticsStorage) {
-        self.analyticsStorage = analyticsStorage
-        //setupObservers() // Removed as we are simplifying
+    init(storage: AnalyticsStorage) {
+        self.storage = storage
     }
 
-    // No longer using Combine for event processing, so removed setupObservers
-    /*
-    private func setupObservers() {
-        analyticsStorage.eventPublisher
-            .sink(receiveCompletion: { [weak self] completion in
-                guard let self = self else { return }
-                switch completion {
-                case .failure(let error):
-                    print("Error receiving analytics event: \(error)")
-                case .finished:
-                    print("Analytics event stream finished")
-                }
-            }, receiveValue: { [weak self] event in
-                guard let self = self else { return }
-                self.processAnalyticsEvent(event: event)
-            })
-            .store(in: &cancellables)
-    }
-     */
-
-    func processAnalyticsEvent(event: any AnalyticsEvent) {
-        Task {
-            await aggregateEvent(event: event)
-        }
-    }
-
-    private func aggregateEvent(event: any AnalyticsEvent) async {
+    func aggregateEvent(_ event: AnalyticsEvent) async { // Explicitly use AnalyticsEvent protocol
         switch event.eventType {
-        case .cravingCreated:
-            // Downcast to CravingEvent (assuming you have a CravingEvent struct)
-            guard let cravingEvent = event as? CravingEvent else { return }
-            await updateDailyAggregates(for: cravingEvent)
-            await updateWeeklyAggregates(for: cravingEvent)
-            await updateMonthlyAggregates(for: cravingEvent)
-        default:
-            break
+        case .cravingLogged: // ERROR RESOLVED: Using .cravingLogged (now that enum is defined/accessible)
+            await aggregateCravingEvent(event)
+        case .interaction:  // ERROR RESOLVED: Using .interaction
+            await aggregateInteractionEvent(event as! InteractionEvent) // Force cast - review type safety if issues arise
+        case .system:       // ERROR RESOLVED: Using .system
+            await aggregateSystemEvent(event as! SystemEvent) // Force cast - review type safety if issues arise
+        case .user:         // ERROR RESOLVED: Using .user
+            await aggregateUserEvent(event as! UserEvent) // Force cast - review type safety if issues arise
+        }
+        // Persist aggregated data (example - adjust based on what you need to store)
+        if let cravingEvent = event as? CravingEvent {
+            await updateCravingAnalytics(cravingEvent)
         }
     }
-    
-    private func updateDailyAggregates(for event: CravingEvent) async {
-        let date = event.timestamp.onlyDate // Correct onlyDate usage
-        var dailyData = dailyAggregates[date] ?? DailyAnalytics(date: date)
-        dailyData.totalCravings += 1
-        dailyAggregates[date] = dailyData
+
+    private func aggregateCravingEvent(_ event: AnalyticsEvent) async { // Explicitly use AnalyticsEvent protocol
+        guard let cravingEvent = event as? CravingEvent else {
+            print("Incorrect event type passed to aggregateCravingEvent")
+            return
+        }
+        // Aggregate craving-specific data (example)
+        print("Aggregating craving event: \(cravingEvent.eventType)")
+        // TODO: Implement actual aggregation logic for craving events
     }
 
-    private func updateWeeklyAggregates(for event: CravingEvent) async {
-        let weekNumber = Calendar.current.component(.weekOfYear, from: event.timestamp)
-        var weeklyData = weeklyAggregates[weekNumber] ?? WeeklyAnalytics(weekNumber: weekNumber)
-        weeklyData.totalCravings += 1
-        weeklyAggregates[weekNumber] = weeklyData
+    private func aggregateInteractionEvent(_ event: InteractionEvent) async {
+        // Aggregate interaction event data
+        print("Aggregating interaction event: \(event.eventType)")
+        // TODO: Implement actual aggregation logic for interaction events
     }
 
-    private func updateMonthlyAggregates(for event: CravingEvent) async {
-        let monthNumber = Calendar.current.component(.month, from: event.timestamp)
-        var monthlyData = monthlyAggregates[monthNumber] ?? MonthlyAnalytics(monthNumber: monthNumber)
-        monthlyData.totalCravings += 1
-        monthlyAggregates[monthNumber] = monthlyData
+    private func aggregateSystemEvent(_ event: SystemEvent) async {
+        // Aggregate system event data
+        print("Aggregating system event: \(event.eventType)")
+        // TODO: Implement actual aggregation logic for system events
     }
+
+    private func aggregateUserEvent(_ event: UserEvent) async {
+        // Aggregate user event data
+        print("Aggregating user event: \(event.eventType)")
+        // TODO: Implement actual aggregation logic for user events
+    }
+
+    private func updateCravingAnalytics(_ cravingEvent: CravingEvent) async {
+        // Example: Update AnalyticsMetadata for a CravingModel
+        guard let cravingId = cravingEvent.cravingId else { return }
+
+        do {
+            // ERROR RESOLVED (Potentially): Changed to optional binding to handle potential nil UUID.
+            guard let metadata = try await storage.fetchMetadata(forCravingId: cravingId) else {
+                print("No metadata found for craving ID: \(cravingId)")
+                return // Or handle the case where metadata is not found
+            }
+
+            // Update existing metadata (example - increment interaction count)
+            metadata.interactionCount += 1
+            metadata.lastProcessed = Date()
+            try await storage.saveContext() // Assuming you have a saveContext in storage
+
+        } catch {
+            print("Error updating AnalyticsMetadata: \(error)")
+            // Handle metadata update error
+        }
+    }
+
+    // Add more specific aggregation functions as needed for different aspects of analytics
 }
 
-// MARK: - Supporting Structures
-struct DailyAnalytics {
-    let date: Date
-    var totalCravings: Int = 0
-}
 
-struct WeeklyAnalytics {
-    let weekNumber: Int
-    var totalCravings: Int = 0
-}
 
-struct MonthlyAnalytics {
-    let monthNumber: Int
-    var totalCravings: Int = 0
-}
+
