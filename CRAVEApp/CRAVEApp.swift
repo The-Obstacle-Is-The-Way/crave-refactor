@@ -25,8 +25,7 @@ struct CRAVEApp: App {
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
-                .modelContainer(container) // Use the container created in init
+                .modelContainer(container) // Inject the container here.
         }
     }
 }
-
