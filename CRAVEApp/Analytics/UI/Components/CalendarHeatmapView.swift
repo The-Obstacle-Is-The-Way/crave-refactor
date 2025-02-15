@@ -5,18 +5,15 @@
 //
 //
 
+
 import SwiftUI
 
-public struct CalendarHeatmapView: View {
+struct CalendarHeatmapView: View {
     let data: [Date: Int]
     private let calendar = Calendar.current
     private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
     
-    public init(data: [Date: Int]) {
-        self.data = data
-    }
-    
-    public var body: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if data.isEmpty {
                 Text("No data available")
@@ -36,7 +33,11 @@ public struct CalendarHeatmapView: View {
                                     .foregroundColor(.white)
                                     .opacity(count > 0 ? 1 : 0)
                             )
-                            .toolTip("\(formatDate(date)): \(count) cravings")
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            )
+                            .help("\(formatDate(date)): \(count) cravings")
                     }
                 }
                 
@@ -68,12 +69,6 @@ public struct CalendarHeatmapView: View {
         }
     }
     
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
-    }
-    
     private func legendLabel(for level: Int) -> String {
         switch level {
         case 0: return "None"
@@ -83,4 +78,24 @@ public struct CalendarHeatmapView: View {
         default: return "Very High"
         }
     }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
+    }
+}
+
+#Preview {
+    CalendarHeatmapView(data: {
+        var data = [Date: Int]()
+        let calendar = Calendar.current
+        let today = Date()
+        for offset in 0..<30 {
+            if let date = calendar.date(byAdding: .day, value: -offset, to: today) {
+                data[date] = Int.random(in: 0...4)
+            }
+        }
+        return data
+    }())
 }

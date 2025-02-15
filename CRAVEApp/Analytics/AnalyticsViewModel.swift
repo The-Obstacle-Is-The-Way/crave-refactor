@@ -3,6 +3,7 @@
 //  CRAVE
 //
 
+
 import SwiftUI
 import SwiftData
 import Combine
@@ -48,13 +49,6 @@ final class AnalyticsViewModel: ObservableObject {
     
     func refreshData(modelContext: ModelContext) async {
         await loadAnalytics(modelContext: modelContext)
-    }
-    
-    // MARK: - Helper Methods
-    private func processError(_ error: Error) {
-        self.error = error
-        self.showError = true
-        print("Analytics error: \(error.localizedDescription)")
     }
 }
 

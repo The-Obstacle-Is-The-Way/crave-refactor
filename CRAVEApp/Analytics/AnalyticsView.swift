@@ -6,6 +6,7 @@
 //
 //
 
+
 import SwiftUI
 import SwiftData
 import Charts
@@ -200,7 +201,67 @@ private struct ChartSection<Content: View>: View {
     }
 }
 
-// MARK: - Preview
+private struct InsightsCard: View {
+    let stats: BasicAnalyticsResult
+    let mostActive: (slot: String, count: Int)
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Key Insights")
+                .font(.title2)
+                .bold()
+            
+            VStack(alignment: .leading, spacing: 8) {
+                InsightRow(
+                    icon: "clock",
+                    title: "Peak Time",
+                    value: "\(mostActive.slot) (\(mostActive.count) cravings)"
+                )
+                
+                InsightRow(
+                    icon: "calendar",
+                    title: "Total Tracked",
+                    value: "\(stats.totalCravings) cravings"
+                )
+                
+                if stats.averageCravingsPerDay > 0 {
+                    InsightRow(
+                        icon: "chart.bar",
+                        title: "Daily Average",
+                        value: String(format: "%.1f cravings", stats.averageCravingsPerDay)
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+}
+
+private struct InsightRow: View {
+    let icon: String
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(.blue)
+                .frame(width: 24)
+            
+            Text(title)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Text(value)
+                .bold()
+        }
+    }
+}
+
 #Preview {
     AnalyticsView()
         .modelContainer(for: CravingModel.self, inMemory: true)

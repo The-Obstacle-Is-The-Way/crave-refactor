@@ -10,32 +10,21 @@ import SwiftData
 
 @MainActor
 final class AnalyticsProcessor {
-    // MARK: - Properties
     private let configuration: AnalyticsConfiguration
     private let storage: AnalyticsStorage
     private var processingQueue: [AnalyticsEvent] = []
     private var isProcessing: Bool = false
 
-    // MARK: - Initialization
     init(configuration: AnalyticsConfiguration, storage: AnalyticsStorage) {
         self.configuration = configuration
         self.storage = storage
     }
 
-    // MARK: - Public Methods
     func processEvent(_ event: AnalyticsEvent) async {
         await queueEvent(event)
         await processQueueIfNeeded()
     }
 
-    func processEventBatch(_ events: [AnalyticsEvent]) async {
-        for event in events {
-            await queueEvent(event)
-        }
-        await processQueueIfNeeded()
-    }
-
-    // MARK: - Private Methods
     private func queueEvent(_ event: AnalyticsEvent) async {
         processingQueue.append(event)
     }
@@ -80,7 +69,6 @@ final class AnalyticsProcessor {
         guard let cravingEvent = event as? CravingEvent else { return }
         print("Processing craving event: \(cravingEvent.cravingText)")
         
-        // Add processing logic here
         if let cravingId = cravingEvent.cravingId {
             do {
                 let metadata = try await storage.fetchMetadata(forCravingId: cravingId)
@@ -93,27 +81,20 @@ final class AnalyticsProcessor {
 
     private func processInteractionEvent(_ event: AnalyticsEvent) async {
         print("Processing interaction event")
-        // Add interaction processing logic
     }
 
     private func processSystemEvent(_ event: AnalyticsEvent) async {
         print("Processing system event")
-        // Add system event processing logic
     }
 
     private func processUserEvent(_ event: AnalyticsEvent) async {
         print("Processing user event")
-        // Add user event processing logic
     }
 
     private func updateMetadata(_ metadata: AnalyticsMetadata?, for event: CravingEvent) async {
         guard let metadata = metadata else { return }
-        
-        // Update metadata based on the event
         metadata.interactionCount += 1
         metadata.lastProcessed = Date()
-        
-        // Add any additional metadata updates
         
         do {
             try storage.modelContext.save()
@@ -123,7 +104,7 @@ final class AnalyticsProcessor {
     }
 }
 
-// MARK: - Testing Support
+// MARK: - Preview Support
 extension AnalyticsProcessor {
     static func preview(storage: AnalyticsStorage) -> AnalyticsProcessor {
         AnalyticsProcessor(

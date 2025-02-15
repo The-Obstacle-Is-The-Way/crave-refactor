@@ -14,7 +14,7 @@ final class AnalyticsConfiguration: ObservableObject {
     static let shared = AnalyticsConfiguration()
 
     // MARK: - Published Settings
-    @Published private(set) var currentEnvironment: Environment
+    @Published private(set) var currentEnvironment: Environment = .development
     @Published private(set) var featureFlags: FeatureFlags
     @Published private(set) var processingRules: ProcessingRules
     @Published private(set) var storagePolicy: StoragePolicy
@@ -26,21 +26,19 @@ final class AnalyticsConfiguration: ObservableObject {
     let mlConfig: MLConfiguration
 
     private init() {
-        self.currentEnvironment = .development
-        self.featureFlags = FeatureFlags()
+        self.featureFlags = .development
         self.processingRules = ProcessingRules()
         self.storagePolicy = StoragePolicy()
         self.privacySettings = PrivacySettings()
         self.performanceConfig = PerformanceConfiguration()
         self.networkConfig = NetworkConfiguration()
         self.mlConfig = MLConfiguration()
-
-        setupConfiguration()
     }
 
     func updateEnvironment(_ environment: Environment) {
         currentEnvironment = environment
-        applyEnvironmentSpecificSettings()
+        featureFlags = environment == .production ? .production : .development
+        NotificationCenter.default.post(name: .analyticsConfigurationUpdated, object: nil)
     }
 
     func updateFeatureFlags(_ flags: FeatureFlags) {
@@ -54,48 +52,26 @@ final class AnalyticsConfiguration: ObservableObject {
         }
         privacySettings = settings
     }
-
-    private func setupConfiguration() {
-        loadSavedConfiguration()
-        setupObservers()
-    }
-
-    private func loadSavedConfiguration() {
-        // Load from UserDefaults or remote config
-    }
-
-    private func setupObservers() {
-        // Setup configuration change observers
-    }
-
-    private func applyEnvironmentSpecificSettings() {
-        switch currentEnvironment {
-        case .development:
-            featureFlags = .development
-        case .staging:
-            featureFlags = .development // Use development settings for staging
-        case .production:
-            featureFlags = .production
-        }
-    }
 }
 
-// MARK: - Configuration Components
+// MARK: - Configuration Types
 struct FeatureFlags: Codable {
-    var isMLEnabled: Bool = true
-    var isRealtimeProcessingEnabled: Bool = true
-    var isBackgroundProcessingEnabled: Bool = true
-    var isCloudSyncEnabled: Bool = false
-    var isDebugLoggingEnabled: Bool = false
-    var isAnalyticsEnabled: Bool = true
-    var isAutoProcessingEnabled: Bool = true
+    var isMLEnabled: Bool
+    var isRealtimeProcessingEnabled: Bool
+    var isBackgroundProcessingEnabled: Bool
+    var isCloudSyncEnabled: Bool
+    var isDebugLoggingEnabled: Bool
+    var isAnalyticsEnabled: Bool
+    var isAutoProcessingEnabled: Bool
 
     static let development = FeatureFlags(
         isMLEnabled: true,
         isRealtimeProcessingEnabled: true,
         isBackgroundProcessingEnabled: true,
         isCloudSyncEnabled: false,
-        isDebugLoggingEnabled: true
+        isDebugLoggingEnabled: true,
+        isAnalyticsEnabled: true,
+        isAutoProcessingEnabled: true
     )
 
     static let production = FeatureFlags(
@@ -103,7 +79,9 @@ struct FeatureFlags: Codable {
         isRealtimeProcessingEnabled: true,
         isBackgroundProcessingEnabled: true,
         isCloudSyncEnabled: true,
-        isDebugLoggingEnabled: false
+        isDebugLoggingEnabled: false,
+        isAnalyticsEnabled: true,
+        isAutoProcessingEnabled: true
     )
 }
 
@@ -113,17 +91,6 @@ struct ProcessingRules: Codable {
     var maxRetryAttempts: Int = 3
     var timeoutInterval: TimeInterval = 30
     var priorityThreshold: Double = 0.7
-
-    func validate() -> Bool {
-        guard batchSize > 0,
-              processingInterval > 0,
-              maxRetryAttempts > 0,
-              timeoutInterval > 0,
-              priorityThreshold >= 0 && priorityThreshold <= 1 else {
-            return false
-        }
-        return true
-    }
 }
 
 struct StoragePolicy: Codable {
@@ -132,10 +99,6 @@ struct StoragePolicy: Codable {
     var compressionEnabled: Bool = true
     var encryptionEnabled: Bool = true
     var autoCleanupEnabled: Bool = true
-
-    func validate() -> Bool {
-        return retentionPeriod > 0 && maxStorageSize > 0
-    }
 }
 
 struct PrivacySettings: Codable {
@@ -145,9 +108,7 @@ struct PrivacySettings: Codable {
     var analyticsEnabled: Bool = true
     var dataSharingEnabled: Bool = false
 
-    func validate() -> Bool {
-        return true // Add validation rules as needed
-    }
+    func validate() -> Bool { return true }
 }
 
 struct PerformanceConfiguration {
@@ -185,12 +146,11 @@ enum ConfigurationError: Error {
     case invalidStoragePolicy
 }
 
-// MARK: - Notification Extensions
 extension Notification.Name {
     static let analyticsConfigurationUpdated = Notification.Name("analyticsConfigurationUpdated")
 }
 
-// MARK: - Testing Support
+// MARK: - Preview Support
 extension AnalyticsConfiguration {
     static var preview: AnalyticsConfiguration {
         let config = AnalyticsConfiguration()
