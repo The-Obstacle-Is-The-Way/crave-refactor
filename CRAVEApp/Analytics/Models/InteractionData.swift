@@ -1,7 +1,8 @@
 //
 //  🍒
-//  CRAVEApp/Data/Entities/InteractionData.swift
-//  CRAVE
+//  CRAVEApp/Data/Models/InteractionData.swift
+//  Purpose: Model for tracking user interactions.
+//
 //
 
 import Foundation
@@ -19,7 +20,7 @@ final class InteractionData {
     var viewDuration: TimeInterval
     var interactionType: InteractionType
     var interactionResult: InteractionResult
-    var userActions: [UserInteractionEvent]
+    @Attribute(.externalStorage) var userActions: [UserInteractionEvent] // Use external storage
 
     // MARK: - UI/UX Data
     var screenPath: [String]
@@ -39,25 +40,39 @@ final class InteractionData {
 
     // MARK: - Initialization
     init(cravingId: UUID,
+         timestamp: Date = Date(), // Add timestamp
+         viewDuration: TimeInterval = 0,
          interactionType: InteractionType = .view,
-         inputMethod: InputMethod = .direct) {
+         interactionResult: InteractionResult = .pending,
+         userActions: [UserInteractionEvent] = [],
+         screenPath: [String] = [],
+         inputMethod: InputMethod = .direct,
+         completionTime: TimeInterval = 0,
+         retryCount: Int = 0,
+         responseTime: TimeInterval = 0,
+         loadTime: TimeInterval = 0,
+         renderTime: TimeInterval = 0,
+         validationAttempts: Int = 0,
+         validationErrors: [ValidationError] = [],
+         isValidated: Bool = false
+    ) {
         self.id = UUID()
         self.cravingId = cravingId
-        self.timestamp = Date()
-        self.viewDuration = 0
+        self.timestamp = timestamp // Use the provided timestamp
+        self.viewDuration = viewDuration
         self.interactionType = interactionType
-        self.interactionResult = .pending
-        self.userActions = []
-        self.screenPath = []
+        self.interactionResult = interactionResult
+        self.userActions = userActions
+        self.screenPath = screenPath
         self.inputMethod = inputMethod
-        self.completionTime = 0
-        self.retryCount = 0
-        self.responseTime = 0
-        self.loadTime = 0
-        self.renderTime = 0
-        self.validationAttempts = 0
-        self.validationErrors = []
-        self.isValidated = false
+        self.completionTime = completionTime
+        self.retryCount = retryCount
+        self.responseTime = responseTime
+        self.loadTime = loadTime
+        self.renderTime = renderTime
+        self.validationAttempts = validationAttempts
+        self.validationErrors = validationErrors
+        self.isValidated = isValidated
     }
 
     // MARK: - Supporting Types
@@ -115,3 +130,4 @@ final class InteractionData {
         }
     }
 }
+```
