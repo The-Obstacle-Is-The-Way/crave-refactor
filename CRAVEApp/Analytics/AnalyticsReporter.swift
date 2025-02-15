@@ -5,7 +5,6 @@
 
 import Foundation
 import Combine // Import Combine if needed for publishers
-import CRAVEApp.AnalyticsModel // ✅ Added import for AnalyticsStorage
 
 @MainActor
 class AnalyticsReporter: ObservableObject { // Marked as ObservableObject and @MainActor if used in UI

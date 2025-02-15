@@ -6,9 +6,6 @@
 import Foundation
 import SwiftData
 import Combine
-import CRAVEApp.Analytics // ✅ Added import for AnalyticsEvent
-import CRAVEApp.AnalyticsModel // ✅ Added import for AnalyticsStorage
-
 
 // MARK: - Analytics Processor
 @MainActor

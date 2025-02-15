@@ -1,56 +1,39 @@
 //
-// CravingModel.swift
+//
+// CRAVEApp/Data/Entities/CravingModel.swift
+// 
 //
 
 import Foundation
 import SwiftData
-import NaturalLanguage
 
 @Model
 final class CravingModel: Identifiable {
-    // MARK: - Core Properties
     @Attribute(.unique) var id: UUID
     var cravingText: String
     var timestamp: Date
     var isArchived: Bool
 
-    // MARK: - Analytics Properties
     var intensity: Int
-    var duration: TimeInterval
     var category: CravingCategory
-    var triggers: Set<String> // Changed to Set<String> for simplicity
+    var triggers: [String] // Changed to [String]
 
-    // MARK: - Metadata
-    var location: LocationData?
-    var contextualFactors: [ContextualFactor] // Use this for structured context
-    var successfulResistance: Bool
+    // Metadata (Optional, consider if really needed)
+    var location: LocationData?  // Keep this optional
+    var contextualFactors: [ContextualFactor] //keep
 
-    // MARK: - NLP Extracted Entities (NEW)
-    var extractedEntities: [String: String] = [:] // e.g., ["food": "chocolate", "place": "home"]
-
-    // MARK: - Tracking
     var createdAt: Date
     var modifiedAt: Date
     var analyticsProcessed: Bool
 
-    // MARK: - Relationships
-    @Relationship(.cascade) var analyticsData: CravingAnalyticsData? // You might not need this
+    @Relationship(deleteRule: .cascade, inverse: \AnalyticsMetadata.craving)
+    var analyticsMetadata: AnalyticsMetadata?
 
-    // MARK: - Computed Properties
-    var durationInMinutes: Double {
-        return duration / 60.0
-    }
-
-    var isActive: Bool {
-        return !isArchived
-    }
-
-    // MARK: - Initialization
     init(cravingText: String,
-         intensity: Int = 0,
+         intensity: Int = 0, //Default value
          category: CravingCategory = .undefined,
-         triggers: Set<String> = [],
-         location: LocationData? = nil) {
+         triggers: [String] = [],
+         location: LocationData? = nil) { //location is now optional
         self.id = UUID()
         self.cravingText = cravingText
         self.timestamp = Date()
@@ -59,59 +42,23 @@ final class CravingModel: Identifiable {
         self.category = category
         self.triggers = triggers
         self.location = location
-        self.contextualFactors = []
-        self.successfulResistance = false
         self.createdAt = Date()
         self.modifiedAt = Date()
         self.analyticsProcessed = false
-
-        // Perform initial NLP analysis (NEW)
-        Task {
-            await analyzeCravingText()
-        }
     }
 
-    // MARK: - Validation
+    // Validation (Example)
     func validate() throws {
-        guard !cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             throw CravingModelError.emptyText
         }
-
-        guard intensity >= 0 && intensity <= 10 else {
+        if intensity < 0 || intensity > 10 {
             throw CravingModelError.invalidIntensity
         }
     }
-
-    // MARK: - Analytics
-    func prepareForAnalytics() -> CravingAnalytics {
-        return CravingAnalytics(
-            id: self.id,
-            timestamp: self.timestamp,
-            intensity: self.intensity,
-            triggers: self.triggers,
-            metadata: [:] // Add relevant metadata here
-        )
-    }
-
-    func updateAnalytics() {
-        modifiedAt = Date()
-        analyticsProcessed = false
-    }
-
-    // MARK: - NLP Analysis (NEW)
-    func analyzeCravingText() async {
-        let analyzer = CravingAnalyzer()
-        let results = await analyzer.analyze(text: cravingText)
-        self.extractedEntities = results
-
-        // Extract triggers based on keywords (basic example)
-        let triggerKeywords = ["stress", "bored", "sad", "lonely", "tired"]
-        self.triggers = Set(results.keys.filter { triggerKeywords.contains($0) })
-    }
 }
 
-// MARK: - Supporting Types (No changes, but included for completeness)
-enum CravingCategory: String, Codable {
+enum CravingCategory: String, Codable, CaseIterable {
     case food
     case drink
     case substance
@@ -119,16 +66,11 @@ enum CravingCategory: String, Codable {
     case undefined
 }
 
-//struct CravingTrigger: Hashable, Codable { // Changed to simple String
- //   let id: UUID
- //   let name: String
-//    let category: TriggerCategory
-//}
-
+// Consider moving LocationData and ContextualFactor to separate files if they grow.
 struct LocationData: Codable {
     let latitude: Double
     let longitude: Double
-    let locationName: String?
+    let locationName: String? // Optional
 }
 
 struct ContextualFactor: Codable {
@@ -142,12 +84,11 @@ struct ContextualFactor: Codable {
     }
 }
 
-// MARK: - Error Handling
 enum CravingModelError: Error {
     case emptyText
     case invalidIntensity
-    case invalidDuration
-    case invalidCategory
+    case invalidDuration // No longer used, but kept in case you add duration back
+    case invalidCategory // No longer used, but kept in case you add category back
     case invalidLocation
 
     var localizedDescription: String {
@@ -165,5 +106,4 @@ enum CravingModelError: Error {
         }
     }
 }
-
 

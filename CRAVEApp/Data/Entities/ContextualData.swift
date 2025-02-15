@@ -1,4 +1,8 @@
-// CRAVE/Data/Entities/ContextualData.swift
+//
+//
+// CRAVEApp/Data/Entities/ContextualData.swift
+//
+//
 
 import Foundation
 import SwiftData

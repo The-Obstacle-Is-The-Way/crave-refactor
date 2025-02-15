@@ -6,9 +6,6 @@
 import Foundation
 import SwiftData
 import CoreML
-import CRAVEApp.Analytics // ✅ Added import for CravingAnalytics, PredictionType, PredictionMetadata
-import CRAVEApp.Data //  ✅ Added import for CravingAnalytics (if defined in Data module)
-
 
 // MARK: - Prediction Protocol
 protocol AnalyticsPrediction: Identifiable, Codable {

@@ -1,16 +1,14 @@
 //
+//
 // CRAVEApp/Analytics/AnalyticsCoordinator.swift
 // Purpose: Coordinates and orchestrates all analytics operations across the app
 //
+//
 
+import Foundation
 import SwiftUI
 import SwiftData
 import Combine
-import CRAVEApp.Analytics // ✅ Imports for AnalyticsEvent, CravingEvent, etc.
-import CRAVEApp.Core.Configuration // ✅ Import for AnalyticsConfiguration
-import CRAVEApp.Analytics // ✅ Import for AnalyticsStorage
-import CRAVEApp.Core.Services // ✅ Import for AnalyticsService, EventTrackingService, PatternDetectionService
-
 
 @MainActor
 class AnalyticsCoordinator: ObservableObject {

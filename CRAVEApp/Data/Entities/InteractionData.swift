@@ -1,5 +1,5 @@
 //
-//  InteractionData.swift
+//  CRAVEApp/Data/Entities/InteractionData.swift
 //  CRAVE
 //
 

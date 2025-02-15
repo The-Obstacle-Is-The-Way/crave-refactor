@@ -1,5 +1,7 @@
+//
+//
 // CRAVEApp/Data/CravingManager.swift
-
+//
 
 import Foundation
 import SwiftData

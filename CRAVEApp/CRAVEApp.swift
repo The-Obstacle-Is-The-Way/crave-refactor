@@ -1,6 +1,9 @@
 //
+//
 // CRAVEApp/CRAVEApp.swift
 //
+//
+
 
 import SwiftUI
 import SwiftData
@@ -10,54 +13,45 @@ struct CRAVEApp: App {
     let container: ModelContainer
 
     init() {
-        // Register value transformers
-        registerValueTransformers()
+        // Register Value Transformers *before* creating the ModelContainer.
+        ValueTransformer.setValueTransformer(
+            UserActionsTransformer(),
+            forName: NSValueTransformerName("UserActionsTransformer")
+        )
+        ValueTransformer.setValueTransformer(
+            PatternIdentifiersTransformer(),
+            forName: NSValueTransformerName("PatternIdentifiersTransformer")
+        )
+        ValueTransformer.setValueTransformer(
+            CorrelationFactorsTransformer(),
+            forName: NSValueTransformerName("CorrelationFactorsTransformer")
+        )
+        ValueTransformer.setValueTransformer(
+            StreakDataTransformer(),
+            forName: NSValueTransformerName("StreakDataTransformer")
+        )
 
-        // Initialize container
+
         do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            // Include *all* your model types here.
+            let config = ModelConfiguration(isStoredInMemoryOnly: false) // Use false for on-disk persistence
             container = try ModelContainer(
                 for: CravingModel.self, AnalyticsMetadata.self,
                 configurations: config
             )
         } catch {
-            fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
+            // Handle the error appropriately.  Don't just print in a production app.
+            fatalError("Failed to create ModelContainer: \(error)")
         }
     }
 
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                CRAVETabView()
+              CravingListView() // Assuming you have a CravingListView
             }
         }
         .modelContainer(container)
-    }
-
-    private func registerValueTransformers() {
-        // User Actions Transformer
-        ValueTransformer.setValueTransformer(
-            UserActionsTransformer(),
-            forName: NSValueTransformerName("UserActionsTransformer")
-        )
-
-        // Pattern Identifiers Transformer
-        ValueTransformer.setValueTransformer(
-            PatternIdentifiersTransformer(),
-            forName: NSValueTransformerName("PatternIdentifiersTransformer")
-        )
-
-        // Correlation Factors Transformer
-        ValueTransformer.setValueTransformer(
-            CorrelationFactorsTransformer(),
-            forName: NSValueTransformerName("CorrelationFactorsTransformer")
-        )
-
-        // Streak Data Transformer
-        ValueTransformer.setValueTransformer(
-            StreakDataTransformer(),
-            forName: NSValueTransformerName("StreakDataTransformer")
-        )
     }
 }
 

@@ -1,6 +1,6 @@
 //
 //
-// File: AnalyticsService.swift
+// CRAVEApp/Core/Services/AnalyticsService.swift
 // Purpose: Central service coordinating all analytics operations and providing a clean public API
 //
 //
@@ -8,23 +8,11 @@
 import Foundation
 import SwiftData
 import Combine
-import CRAVEApp.Analytics // ✅ Added import for AnalyticsEvent, AnalyticsInsight, AnalyticsPrediction, ReportType, ReportFormat
-import CRAVEApp.AnalyticsModel // ✅ Added import for AnalyticsStorage
 
-
-// MARK: - Analytics Service Protocol
 protocol AnalyticsServiceProtocol {
-    // Core Operations
-    func trackEvent(_ event: AnalyticsEvent) async throws
+    // Core Operations - Simplified for now. We'll add complexity *after* the basics work.
+    func trackEvent(_ event: CravingModel) async throws // Simplified to take CravingModel
     func processAnalytics() async throws
-    func generateInsights() async throws -> [any AnalyticsInsight] // ✅ Use 'any AnalyticsInsight'
-    func generatePredictions() async throws -> [any AnalyticsPrediction] // ✅ Use 'any AnalyticsPrediction'
-    func analyzeData(patterns: [any DetectedPattern]) async throws // ✅ Added protocol method declaration
-
-
-    // Reporting
-    func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report // Corrected to type:timeRange:
-
     // State Management
     var currentState: AnalyticsState { get }
     var isProcessing: Bool { get }
@@ -32,117 +20,86 @@ protocol AnalyticsServiceProtocol {
 }
 
 // MARK: - Analytics Service Implementation
-@MainActor
 final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
     // MARK: - Published State
     @Published private(set) var currentState: AnalyticsState = .idle
     @Published private(set) var isProcessing: Bool = false
     @Published private(set) var lastProcessingTime: Date?
-    @Published private(set) var processingMetrics: ServiceMetrics = ServiceMetrics()
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
-    private let manager: AnalyticsManager
-    private let processor: AnalyticsProcessor
-    private let reporter: AnalyticsReporter
+    private let manager: AnalyticsManager // We'll address this later
+    //private let processor: AnalyticsProcessor // Removed, as we are starting simple
+    //private let reporter: AnalyticsReporter // Removed, as we are starting simple
     private let storage: AnalyticsStorage
 
     // MARK: - Internal Components
-    private let queue: AsyncQueue<AnalyticsEvent> // ✅ No longer ambiguous with proper imports
+    //private let queue: AsyncQueue<AnalyticsEvent> // Removed, using simple array
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
     init(
         configuration: AnalyticsConfiguration = .shared,
-        modelContext: ModelContext
+        modelContext: ModelContext // Directly inject the context
     ) {
         self.configuration = configuration
-        self.storage = AnalyticsStorage(modelContext: modelContext) // ✅ No longer ambiguous with proper imports
-        self.manager = AnalyticsManager(modelContext: modelContext)
-        self.processor = AnalyticsProcessor(configuration: configuration, storage: storage)
-        self.reporter = AnalyticsReporter(configuration: configuration, storage: storage)
-        self.queue = AsyncQueue() // ✅ No longer ambiguous with proper imports
+        self.storage = AnalyticsStorage(modelContext: modelContext)
+        self.manager = AnalyticsManager(modelContext: modelContext) // Pass the context
+        //self.processor = AnalyticsProcessor(configuration: configuration, storage: storage)
+        //self.reporter = AnalyticsReporter(configuration: configuration, storage: storage)
+        //self.queue = AsyncQueue() // Removed.
 
-        setupService()
+        setupService() // Keep setup for potential future use.
     }
 
-    // MARK: - Public API
-    func trackEvent(_ event: AnalyticsEvent) async throws { // ✅ No longer ambiguous with proper imports
-        guard configuration.featureFlags.isAnalyticsEnabled else { return }
-
+    // MARK: - Public API (Simplified)
+    func trackEvent(_ event: CravingModel) async throws { // Simplified to take CravingModel
+        // No feature flags for now. Add back if needed, but keep it simple.
         do {
-            if event.priority == .critical { // ✅ Corrected access to critical
-                try await processEventImmediately(event)
-            } else {
-                await queue.enqueue(event)
-            }
+            let metadata = AnalyticsMetadata(cravingId: event.id)
+            event.analyticsMetadata = metadata //connect metadata
+            try modelContext.insert(metadata)
+            try modelContext.insert(event) // Insert the event (CravingModel).
+            try modelContext.save() // Explicit save.
 
-            updateMetrics(for: .eventTracked)
         } catch {
-            updateMetrics(for: .error)
+            // TODO: Improve error handling. Don't just print.
+            print("Analytics tracking failed: \(error)")
             throw AnalyticsServiceError.trackingFailed(error)
         }
     }
 
-    func processAnalytics() async throws {
+     func processAnalytics() async throws {
+        // Placeholder for now.  We'll add more later.
         guard !isProcessing else { return }
 
         isProcessing = true
         currentState = .processing
 
-        do {
-            // Process queued events
-            try await processQueuedEvents()
+        // do {
+             //try await storage.fetch()
+             // TODO: Add actual processing logic.
 
-            // Generate insights
-            let insights = try await generateInsights() // ✅ Method should now exist
+             currentState = .completed // Simplified state
+             lastProcessingTime = Date()
 
-            // Generate predictions
-            let predictions = try await generatePredictions() // ✅ Method should now exist
 
-            // Update state
-            currentState = .completed(insights: insights, predictions: predictions) // ✅ Use 'any AnalyticsInsight', 'any AnalyticsPrediction'
-            lastProcessingTime = Date()
-
-            updateMetrics(for: .processingCompleted)
-
-        } catch {
-            currentState = .error(error)
-            updateMetrics(for: .error)
-            throw AnalyticsServiceError.processingFailed(error)
-        }
+        // } catch {
+        //     currentState = .error(error)
+        //     throw AnalyticsServiceError.processingFailed(error)
+        // }
 
         isProcessing = false
     }
 
-    func generateInsights() async throws -> [any AnalyticsInsight] { // ✅ Use 'any AnalyticsInsight' - placeholder implementation
-        print("AnalyticsService generateInsights - Placeholder Implementation")
-        return [] // Return an empty array
-    }
-
-    func generatePredictions() async throws -> [any AnalyticsPrediction] { // ✅ Use 'any AnalyticsPrediction' - placeholder implementation
-        print("AnalyticsService generatePredictions - Placeholder Implementation")
-        return [] // Return an empty array
-    }
-    
-    func analyzeData(patterns: [any DetectedPattern]) async throws { // ✅ Placeholder implementation
-        print("AnalyticsService analyzeData - Placeholder Implementation")
-        // Implement logic here
-    }
-
-
-    func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report { // ✅ Corrected to type:timeRange:
-        return try await reporter.generateReport(type: type, timeRange: timeRange) // ✅ Corrected call to generateReport - placeholder DateInterval
-    }
-
     func reset() async throws {
+        // Placeholder.  We'll implement this later.
         isProcessing = true
         currentState = .resetting
 
         do {
-            try await storage.clear()
-            queue.clear()
-            processingMetrics = ServiceMetrics()
+            //try await storage.clear() // We'll add a clear method to storage later.
+            //queue.clear() // Removed
 
             currentState = .idle
             isProcessing = false
@@ -152,101 +109,38 @@ final class AnalyticsService: AnalyticsServiceProtocol, ObservableObject {
         }
     }
 
-    // MARK: - Private Methods
+    // MARK: - Private Methods (Simplified)
     private func setupService() {
-        setupConfigurationObservers()
-        setupAutoProcessing()
-    }
-
-    private func setupConfigurationObservers() {
-        NotificationCenter.default
-            .publisher(for: .analyticsConfigurationUpdated)
-            .sink { [weak self] _ in
-                self?.handleConfigurationUpdate()
-            }
-            .store(in: &cancellables)
-    }
-
-    private func setupAutoProcessing() {
-        guard configuration.featureFlags.isAutoProcessingEnabled else { return }
-
-        Timer.publish(every: configuration.processingRules.processingInterval, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                Task {
-                    try? await self?.processAnalytics()
-                }
-            }
-            .store(in: &cancellables)
-    }
-
-    private func processEventImmediately(_ event: AnalyticsEvent) async throws { // ✅ No longer ambiguous with proper imports
-        try await processor.process(event)
-    }
-
-    private func processQueuedEvents() async throws {
-        let events = await queue.dequeueAll() as [AnalyticsEvent] // ✅ Explicitly specify [AnalyticsEvent]
-        try await processor.processBatch(events)
-    }
-
-    private func handleConfigurationUpdate() {
-        // Handle configuration changes
-    }
-
-    private func updateMetrics(for operation: ServiceOperation) {
-        processingMetrics.update(for: operation)
+        //setupConfigurationObservers() //Removed
+        //setupAutoProcessing() // Removed
     }
 }
 
-// MARK: - Supporting Types
+// MARK: - Supporting Types (Simplified)
 enum AnalyticsState: Equatable {
     case idle
     case processing
-    case completed(insights: [any AnalyticsInsight], predictions: [any AnalyticsPrediction]) // ✅ Use 'any AnalyticsInsight', 'any AnalyticsPrediction'
-    case error(Error)
+    case completed // Simplified
+    case error(Error) // Keep the error case
     case resetting
 
+    //Equatable for AnalyticsState
     static func == (lhs: AnalyticsState, rhs: AnalyticsState) -> Bool {
         switch (lhs, rhs) {
         case (.idle, .idle),
              (.processing, .processing),
+             (.completed, .completed),
              (.resetting, .resetting):
             return true
-        case (.completed(let lhsInsights, let lhsPredictions),
-              .completed(let rhsInsights, let rhsPredictions)):
-            return lhsInsights.count == rhsInsights.count &&
-                   lhsPredictions.count == rhsPredictions.count
-        case (.error(let lhsError), .error(let rhsError)):
-            return lhsError.localizedDescription == rhsError.localizedDescription
+        case (.error, .error):
+            return true // For simplicity, treat all errors as equal.
         default:
             return false
         }
     }
 }
 
-enum ServiceOperation {
-    case eventTracked
-    case processingCompleted
-    case error
-}
 
-struct ServiceMetrics {
-    var totalEventsTracked: Int = 0
-    var totalProcessingRuns: Int = 0
-    var totalErrors: Int = 0
-    var averageProcessingTime: TimeInterval = 0
-
-    mutating func update(for operation: ServiceOperation) {
-        switch operation {
-        case .eventTracked:
-            totalEventsTracked += 1
-        case .processingCompleted:
-            totalProcessingRuns += 1
-        case .error:
-            totalErrors += 1
-        }
-    }
-}
 
 enum AnalyticsServiceError: Error {
     case trackingFailed(Error)
@@ -268,36 +162,12 @@ enum AnalyticsServiceError: Error {
     }
 }
 
-// MARK: - Async Queue
-actor AsyncQueue<T> {
-    private var items: [T] = []
-
-    func enqueue(_ item: T) {
-        items.append(item)
-    }
-
-    func dequeue() -> T? {
-        guard !items.isEmpty else { return nil }
-        return items.removeFirst()
-    }
-
-    func dequeueAll() -> [T] {
-        let all = items
-        items.removeAll()
-        return all
-    }
-
-    func clear() {
-        items.removeAll()
-    }
-}
-
-// MARK: - Testing Support
+// MARK: - Testing Support (Placeholder)
 extension AnalyticsService {
-    static func preview(modelContext: ModelContext) -> AnalyticsService {
+     static func preview(modelContext: ModelContext) -> AnalyticsService { //Added modelContext
         AnalyticsService(
             configuration: .preview,
-            modelContext: modelContext
+            modelContext: modelContext // Pass the context here
         )
     }
 }
