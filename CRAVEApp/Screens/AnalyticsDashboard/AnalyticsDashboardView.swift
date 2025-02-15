@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftData
 
 struct AnalyticsDashboardView: View { // Corrected struct name
-    @Environment(\.modelContext) var modelContext: ModelContext // NO private keyword
+    @Environment(\.modelContext) var modelContext // NO private keyword
     @StateObject private var viewModel = AnalyticsDashboardViewModel()
 
     var body: some View {
@@ -72,7 +72,7 @@ struct AnalyticsDashboardView: View { // Corrected struct name
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
             let container = try ModelContainer(for: CravingModel.self, configurations: config)
             return AnalyticsDashboardView()
-                .modelContainer(container)
+                .modelContainer(container) // Moved inside the initializer.  MUCH CLEANER.
         } catch {
             fatalError("Failed to create model container: \(error)") // Improved error handling
         }

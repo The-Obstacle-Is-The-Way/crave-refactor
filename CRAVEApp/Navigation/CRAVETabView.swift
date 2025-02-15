@@ -39,5 +39,3 @@ struct CRAVETabView: View {
         }
     }
 }
-
-

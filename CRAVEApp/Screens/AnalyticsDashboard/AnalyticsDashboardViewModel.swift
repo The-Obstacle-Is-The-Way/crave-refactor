@@ -23,8 +23,7 @@ final class AnalyticsDashboardViewModel: ObservableObject {
                 self.basicStats = await manager.getBasicStats()
             } else {
                 // Handle the case where analyticsManager is nil (shouldn't happen, but good practice)
-                print("Error: AnalyticsManager not 
-                      initialized.")
+                print("Error: AnalyticsManager not initialized.")
                 // Consider setting an error state here, which you could display in the UI.
             }
         }

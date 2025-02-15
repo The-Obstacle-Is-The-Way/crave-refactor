@@ -39,7 +39,6 @@ class AnalyticsCoordinator: ObservableObject {
         self.reporter = AnalyticsReporter(analyticsStorage: storage)
         self.eventTrackingService = EventTrackingService(storage: storage, configuration: configuration)
         self.patternDetectionService = PatternDetectionService(storage: storage, configuration: configuration)
-        
         setupBindings()
         setupObservers()
         loadInitialState()
@@ -54,7 +53,7 @@ class AnalyticsCoordinator: ObservableObject {
 
     private func setupObservers() {
         // Store the cancellable returned by sink
-        let eventSubscription = eventTrackingService.eventPublisher
+         eventTrackingService.eventPublisher
             .sink { completion in
                 switch completion {
                 case .finished:
@@ -68,9 +67,9 @@ class AnalyticsCoordinator: ObservableObject {
                     await self?.handleEvent(event)
                 }
             }
-        cancellables.insert(eventSubscription) // Store the cancellable
+            .store(in: &cancellables) // Use .store(in:) - MUCH CLEANER
 
-        let detectionStateSubscription = patternDetectionService.$detectionState
+         patternDetectionService.$detectionState
             .sink { [weak self] (state: DetectionState) in // Add type annotation here
                 switch state {
                 case .idle:
@@ -83,11 +82,11 @@ class AnalyticsCoordinator: ObservableObject {
                     self?.detectionState = .error(error)
                 }
             }
-        cancellables.insert(detectionStateSubscription) // Store the cancellable
+            .store(in: &cancellables) // Use .store(in:) - MUCH CLEANER
 
-       let patternSubscription = patternDetectionService.$detectedPatterns
+        patternDetectionService.$detectedPatterns
             .assign(to: &$detectedPatterns) // Directly assign, type is now correct
-        cancellables.insert(patternSubscription) //Store the cancellable
+            // Removed cancellables.insert. assign(to:) handles this.
     }
 
     private func loadInitialState() {
@@ -115,7 +114,7 @@ class AnalyticsCoordinator: ObservableObject {
             detectionState = .error(error) // Use the associated value for the error
         }
     }
-    
+
     //Enum for the detectionState
     enum DetectionState { // Added enum for state
         case idle
@@ -124,4 +123,3 @@ class AnalyticsCoordinator: ObservableObject {
         case error(Error)
     }
 }
-

@@ -4,11 +4,12 @@
 //
 //
 
+
 import SwiftUI
 import SwiftData
 
 struct CravingListView: View {
-    @Environment(\.modelContext) var modelContext // Removed private
+    @Environment(\.modelContext) var modelContext: ModelContext // Removed private
     @StateObject private var viewModel = CravingListViewModel()
 
     var body: some View {
