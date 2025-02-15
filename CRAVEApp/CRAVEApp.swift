@@ -15,8 +15,8 @@ struct CRAVEApp: App {
     init() {
         do {
             // Register Value Transformers *before* creating the ModelContainer
-            ValueTransformer.registerTransformers()  // Corrected order
-            container = ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration())
+            ValueTransformer.registerTransformers()
+            container = try ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration())
         } catch {
             fatalError("Failed to create model container: \(error)")
         }
@@ -29,3 +29,4 @@ struct CRAVEApp: App {
         }
     }
 }
+

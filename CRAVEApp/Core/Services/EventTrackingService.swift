@@ -1,5 +1,4 @@
 //
-//
 //  🍒
 //  CRAVEApp/Core/Services/EventTrackingService.swift
 //  Purpose: Dedicated service for tracking and managing user and system events
@@ -8,7 +7,7 @@
 //
 
 import Foundation
-import SwiftData
+import SwiftData //Make sure you have this.
 import Combine
 
 @MainActor
@@ -19,7 +18,7 @@ final class EventTrackingService: ObservableObject {
     @Published private(set) var trackingMetrics: TrackingMetrics
 
     // MARK: - Dependencies
-    private let storage: AnalyticsStorage
+    private let storage: AnalyticsStorage // No change here
     private let configuration: AnalyticsConfiguration
 
     // MARK: - Internal State
@@ -152,9 +151,12 @@ enum EventTrackingError: Error, LocalizedError {
 // MARK: - Testing Support
 extension EventTrackingService {
     static func preview() -> EventTrackingService {
-        EventTrackingService(
-            storage: .preview(),
+        // Use a preview context here.
+      let container = try! ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        return EventTrackingService(
+            storage: .preview(modelContext: container.mainContext), //Pass in the context
             configuration: .preview
         )
     }
 }
+

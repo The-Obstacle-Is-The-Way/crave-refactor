@@ -1,8 +1,7 @@
 //
-//
 //  🍒
 //  CRAVEApp/Navigation/CRAVETabView.swift
-//  Purpose: Main navigation view for the app.
+//  Purpose: Tab view for the CRAVE app
 //
 
 import SwiftUI
@@ -40,3 +39,4 @@ struct CRAVETabView: View {
         }
     }
 }
+
