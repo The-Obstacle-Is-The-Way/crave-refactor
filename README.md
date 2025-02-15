@@ -16,7 +16,8 @@ CRAVEApp/
 │   │   └── crave-navigation-states.png
 │   ├── AnalyticsArchitecture.md
 │   ├── AnalyticsImplementationGuide.md
-│   └── AnalyticsAPIReference.md
+│   ├── AnalyticsAPIReference.md
+|   └── README.md
 │
 ├── CRAVE.entitlements
 ├── Info.plist
