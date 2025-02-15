@@ -1,8 +1,8 @@
 //
 //
-// 🍒
-// File: AnalyticsFormatter.swift
-// Purpose: Handles all formatting and data transformation for analytics data presentation
+//  🍒
+//  CRAVEApp/Analytics/Utilities/AnalyticsFormatter.swift
+//  Purpose: Handles all formatting and data transformation for analytics data presentation
 //
 //
 
@@ -103,16 +103,7 @@ final class AnalyticsFormatter {
             return "\(count) per month"
         }
     }
-
-    func formatPattern(_ pattern: DetectedPattern) -> FormattedPattern {
-        return FormattedPattern(
-            title: formatPatternTitle(pattern),
-            description: formatPatternDescription(pattern),
-            frequency: formatPatternFrequency(pattern),
-            strength: formatPatternStrength(pattern.strength)
-        )
-    }
-
+    
     // MARK: - Chart Data Formatting
     func formatChartData(_ data: [ChartDataPoint]) -> [FormattedChartPoint] {
         return data.map { point in
@@ -157,35 +148,6 @@ final class AnalyticsFormatter {
         // Time Interval Formatter
         timeIntervalFormatter.unitsStyle = .short
         timeIntervalFormatter.allowedUnits = [.hour, .minute]
-    }
-
-    private func formatPatternTitle(_ pattern: DetectedPattern) -> String {
-        switch pattern.type {
-        case .time:
-            return "Time-based Pattern"
-        case .behavior:
-            return "Behavioral Pattern"
-        case .context:
-            return "Contextual Pattern"
-        }
-    }
-
-    private func formatPatternDescription(_ pattern: DetectedPattern) -> String {
-        return pattern.description
-    }
-
-    private func formatPatternFrequency(_ pattern: DetectedPattern) -> String {
-        return formatFrequency(Int(pattern.frequency), timeFrame: .weekly) // Example
-    }
-
-
-    private func formatPatternStrength(_ strength: Double) -> String {
-        return formatPercentage(strength)
-    }
-
-    private func formatRecommendation(_ recommendation: String) -> String {
-        // Implement recommendation formatting (if needed)
-        return recommendation
     }
 
     private func formatChartLabel(_ point: ChartDataPoint) -> String {
@@ -249,13 +211,6 @@ enum NumberFormatStyle {
 }
 enum TimeFrame {
     case daily, weekly, monthly
-}
-
-struct FormattedPattern {
-    let title: String
-    let description: String
-    let frequency: String
-    let strength: String
 }
 
 struct ChartDataPoint {

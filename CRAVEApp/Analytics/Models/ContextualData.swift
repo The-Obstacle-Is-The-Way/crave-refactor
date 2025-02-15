@@ -1,8 +1,9 @@
 //
 //  🍒
-// CRAVEApp/Data/Entities/ContextualData.swift
+//  CRAVEApp/Analytics/Models/ContextualData.swift
+//  Purpose: Defines the contextual data model for analytics insights
 //
-//
+
 
 import Foundation
 import SwiftData
