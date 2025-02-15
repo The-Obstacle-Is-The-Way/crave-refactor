@@ -1,7 +1,6 @@
 //
-//
 //  🍒
-//  CRAVEApp/Analytics/AnalyticsCoordinator.swift
+//  CRAVEApp/Analytics/Coordination/AnalyticsCoordinator.swift
 //  Purpose: Generates and manages analytics reports with customizable formats and delivery mechanisms
 //
 //
@@ -16,12 +15,12 @@ class AnalyticsCoordinator: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var isAnalyticsEnabled: Bool = false
     @Published private(set) var lastEvent: (any AnalyticsEvent)?
-    @Published private(set) var detectionState: AnalyticsService.AnalyticsState = .idle // Use the enum from AnalyticsService
+    @Published private(set) var detectionState: DetectionState = .idle // Changed to local enum
     @Published private(set) var detectedPatterns: [DetectedPattern] = [] // Use DetectedPattern
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
-    private let storage: AnalyticsStorage
+    private let storage: AnalyticsStorage // Corrected type
     private let aggregator: AnalyticsAggregator
     private let processor: AnalyticsProcessor
     private let reporter: AnalyticsReporter
@@ -114,6 +113,14 @@ class AnalyticsCoordinator: ObservableObject {
             print("Pattern detection failed: \(error)")
             detectionState = .error(error) // Use the associated value for the error
         }
+    }
+    
+    //Enum for the detectionState
+    enum DetectionState { // Added enum for state
+        case idle
+        case processing
+        case completed
+        case error(Error)
     }
 }
 

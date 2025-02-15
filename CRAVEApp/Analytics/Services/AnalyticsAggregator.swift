@@ -1,5 +1,4 @@
 //
-//
 //  🍒
 //  CRAVEApp/Analytics/Services/AnalyticsAggregator.swift
 //  Purpose:
@@ -11,7 +10,7 @@ import SwiftData
 
 @MainActor
 final class AnalyticsAggregator {
-    private let storage: AnalyticsStorage
+    private let storage: AnalyticsStorage //Keep this
 
     init(storage: AnalyticsStorage) {
         self.storage = storage
@@ -120,3 +119,4 @@ extension AnalyticsAggregator {
         AnalyticsAggregator(storage: storage)
     }
 }
+

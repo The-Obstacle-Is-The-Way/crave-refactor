@@ -1,12 +1,10 @@
 //
-//
 //  🍒
 //  CRAVEApp/Analytics/Services/AnalyticsReporter.swift
 //  Purpose: Generates and manages analytics reports with customizable formats and delivery mechanisms
 //
 //
 //
-
 
 import Foundation
 import Combine
@@ -16,7 +14,7 @@ final class AnalyticsReporter: ObservableObject {
     @Published private(set) var reportGenerationState: ReportGenerationState = .idle
     @Published private(set) var lastReport: Report?
 
-    private let analyticsStorage: AnalyticsStorage // You might use this later
+    private let analyticsStorage: AnalyticsStorage // Keep this.
     private var cancellables = Set<AnyCancellable>()
 
     init(analyticsStorage: AnalyticsStorage) {
@@ -53,3 +51,4 @@ final class AnalyticsReporter: ObservableObject {
         print("Handling report: \(report.metadata.reportType)")
     }
 }
+

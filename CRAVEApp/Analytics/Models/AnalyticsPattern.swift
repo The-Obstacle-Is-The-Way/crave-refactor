@@ -1,13 +1,22 @@
 //
-//
 //  🍒
-//  CRAVEApp/Analytics/AnalyticsPattern.swift
+//  CRAVEApp/Analytics/Models/AnalyticsPattern.swift
 //  Purpose: Defines pattern recognition and analysis for craving behaviors
 //
 //
 
 import Foundation
 import SwiftData
+
+// MARK: - CravingAnalytics Struct (NEW)
+// Define this struct to represent the data used for pattern matching.
+struct CravingAnalytics {  // Create a struct to hold the data
+    let timestamp: Date
+    let triggers: Set<String> // Assuming triggers are strings
+    let intensity: Int  // Assuming intensity is available
+    // Add other relevant properties as needed
+}
+
 
 // MARK: - Pattern Protocol
 protocol AnalyticsPattern: Codable, Identifiable {
@@ -19,8 +28,8 @@ protocol AnalyticsPattern: Codable, Identifiable {
     var lastObserved: Date { get }
     var metadata: PatternMetadata { get }
     
-    func matches(_ analytics: CravingAnalytics) -> Bool // You will need to define or import CravingAnalytics
-    func updateWith(_ analytics: CravingAnalytics)
+    func matches(_ analytics: CravingAnalytics) -> Bool // Use CravingAnalytics
+    func updateWith(_ analytics: CravingAnalytics) // Use CravingAnalytics
     func calculateConfidence() -> Double
 }
 
@@ -47,11 +56,11 @@ class BasePattern: AnalyticsPattern {
         self.observations = []
     }
     
-    func matches(_ analytics: CravingAnalytics) -> Bool {
+    func matches(_ analytics: CravingAnalytics) -> Bool { // Use CravingAnalytics
         fatalError("Must be implemented by subclass")
     }
     
-    func updateWith(_ analytics: CravingAnalytics) {
+    func updateWith(_ analytics: CravingAnalytics) { // Use CravingAnalytics
         frequency += 1
         lastObserved = analytics.timestamp
         
@@ -79,12 +88,12 @@ class BasePattern: AnalyticsPattern {
         return averageStrength * frequencyFactor * timeFactor
     }
     
-    private func calculateStrength(for analytics: CravingAnalytics) -> Double {
+    private func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
         // Default implementation - override in subclasses
         return 1.0
     }
     
-    private func updateMetadata(with analytics: CravingAnalytics) {
+    private func updateMetadata(with analytics: CravingAnalytics) { // Use CravingAnalytics
         metadata.updateWith(analytics)
     }
     
@@ -129,13 +138,13 @@ class TimeBasedPattern: BasePattern {
         super.init(type: .timeBased, metadata: PatternMetadata())
     }
     
-    override func matches(_ analytics: CravingAnalytics) -> Bool {
+    override func matches(_ analytics: CravingAnalytics) -> Bool {  // Use CravingAnalytics
         let hour = Calendar.current.component(.hour, from: analytics.timestamp)
         let minuteDifference = abs(Double(hour - targetHour) * 3600)
         return minuteDifference <= timeWindow
     }
     
-    override func calculateStrength(for analytics: CravingAnalytics) -> Double {
+    override func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
         let hour = Calendar.current.component(.hour, from: analytics.timestamp)
         let hourDifference = abs(Double(hour - targetHour))
         return max(1.0 - (hourDifference / 12.0), 0.0)
@@ -153,7 +162,7 @@ class TimeBasedPattern: BasePattern {
         try super.init(from: decoder)
     }
     
-    override func encode(to encoder: Encoder) throws {
+     override func encode(to encoder: Encoder) throws {
          try super.encode(to: encoder)
          var container = encoder.container(keyedBy: TimeBasedPatternCodingKeys.self)
          try container.encode(timeWindow, forKey: .timeWindow)
@@ -169,11 +178,11 @@ class TriggerBasedPattern: BasePattern {
         super.init(type: .triggerBased, metadata: PatternMetadata())
     }
     
-    override func matches(_ analytics: CravingAnalytics) -> Bool {
+    override func matches(_ analytics: CravingAnalytics) -> Bool { // Use CravingAnalytics
         !triggerSet.isDisjoint(with: analytics.triggers)
     }
     
-    override func calculateStrength(for analytics: CravingAnalytics) -> Double {
+    override func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
         let commonTriggers = triggerSet.intersection(analytics.triggers)
         return Double(commonTriggers.count) / Double(triggerSet.count)
     }
@@ -212,7 +221,7 @@ struct PatternMetadata: Codable {
     var successRate: Double = 0.0
     var contextualFactors: [String: Int] = [:]
     
-    mutating func updateWith(_ analytics: CravingAnalytics) {
+    mutating func updateWith(_ analytics: CravingAnalytics) { // Use CravingAnalytics
         observations += 1
         averageIntensity = ((averageIntensity * Double(observations - 1)) + Double(analytics.intensity)) / Double(observations)
         // Update other metadata...
@@ -226,14 +235,14 @@ struct PatternObservation: Codable {
 
 // MARK: - Pattern Recognition Engine (Placeholder - will be implemented later)
 class PatternRecognitionEngine {
-    private var patterns: [AnalyticsPattern] = []
+    private var patterns: [any AnalyticsPattern] = [] // Use 'any'
     private let configuration: PatternConfiguration
     
     init(configuration: PatternConfiguration = .default) {
         self.configuration = configuration
     }
     
-    func processAnalytics(_ analytics: CravingAnalytics) {
+    func processAnalytics(_ analytics: CravingAnalytics) { // Use CravingAnalytics
         // Update existing patterns
         updateExistingPatterns(with: analytics)
         
@@ -246,7 +255,7 @@ class PatternRecognitionEngine {
         prunePatterns()
     }
     
-    private func updateExistingPatterns(with analytics: CravingAnalytics) {
+    private func updateExistingPatterns(with analytics: CravingAnalytics) { // Use CravingAnalytics
         patterns.forEach { pattern in
             if pattern.matches(analytics) {
                 pattern.updateWith(analytics)
@@ -254,7 +263,7 @@ class PatternRecognitionEngine {
         }
     }
     
-    private func detectNewPattern(from analytics: CravingAnalytics) -> AnalyticsPattern? {
+    private func detectNewPattern(from analytics: CravingAnalytics) -> (any AnalyticsPattern)? { // Use 'any'
         // Implement pattern detection logic
         return nil
     }
@@ -283,3 +292,4 @@ extension BasePattern {
         BasePattern(type: type, metadata: PatternMetadata())
     }
 }
+

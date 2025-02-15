@@ -1,66 +1,65 @@
 //
-//
+//  🍒
 //  CRAVEApp/Analytics/Services/AnalyticsStorage.swift
-//  CRAVE
+//  Purpose: Central service coordinating all analytics operations and providing a clean public API
 //
-//  Created by John H Jung on 2/11/25.
 //
-
 
 import Foundation
 import SwiftData
 
 @MainActor
 final class AnalyticsStorage {
-    let modelContext: ModelContext // Changed to let
+    let modelContext: ModelContext
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
 
     // MARK: - Event Storage
-    func store(_ event: any AnalyticsEvent) async throws { // Use protocol type 'any AnalyticsEvent'
+    func store(_ event: any AnalyticsEvent) async throws {
+        // This method now focuses SOLELY on storing the event.
+        // The AnalyticsAggregator will handle the logic of *what* to store.
         if let cravingEvent = event as? CravingEvent {
-             modelContext.insert(CravingModel(cravingText: cravingEvent.cravingText, timestamp: cravingEvent.timestamp)) //Example, adjust as needed
+            // This is an example.  You'd likely want a dedicated CravingEventEntity.
+             modelContext.insert(CravingModel(cravingText: cravingEvent.cravingText, timestamp: cravingEvent.timestamp))
         } else if let systemEvent = event as? SystemEvent {
-            print("Storing System Event: \(systemEvent.eventType)") // Example action
-            // TODO: Store SystemEvent data if needed
+            print("Storing System Event: \(systemEvent.eventType)")
         } else if let userEvent = event as? UserEvent {
-            print("Storing User Event: \(userEvent.eventType)") //Example action
-            // TODO: Store UserEvent data if needed
+            print("Storing User Event: \(userEvent.eventType)")
         } else if let interactionEvent = event as? InteractionEvent {
-             modelContext.insert(InteractionData(cravingId: interactionEvent.cravingId, timestamp: interactionEvent.timestamp, interactionType: .view)) //Example, adjust as needed
+             modelContext.insert(InteractionData(cravingId: interactionEvent.cravingId, timestamp: interactionEvent.timestamp, interactionType: .view))
         } else {
-            print("Unknown event type: \(event.eventType)") // Fallback for unknown types
+            print("Unknown event type: \(event.eventType)")
         }
         try saveContext()
     }
 
-
-    // MARK: - Data Fetching (Examples - Adapt as needed)
+    // MARK: - Data Fetching
     func fetchMetadata(forCravingId cravingId: UUID) async throws -> AnalyticsMetadata? {
         let descriptor = FetchDescriptor<AnalyticsMetadata>(
             predicate: #Predicate { $0.cravingId == cravingId }
         )
-        return try modelContext.fetch(descriptor).first // Returns first or nil
+        return try modelContext.fetch(descriptor).first
     }
 
-    func fetchAllEvents() async throws -> [CravingModel] { // Example - adjust return type as needed
+    func fetchAllEvents() async throws -> [CravingModel] { // Example - adjust return type
         let descriptor = FetchDescriptor<CravingModel>(sortBy: [SortDescriptor(\.timestamp)])
         return try modelContext.fetch(descriptor)
     }
 
     // MARK: - Data Aggregation (Example - Adapt as needed)
     func countEvents(ofType eventType: AnalyticsEventType, in dateInterval: DateInterval) async throws -> Int {
-        let descriptor = FetchDescriptor<CravingModel>( //Example - adjust entity type if needed
+        // You'll need a way to filter events by type.  This is just an example.
+        // Assuming you have a way to get the relevant entity for the event type:
+        let descriptor = FetchDescriptor<CravingModel>( // Example
             predicate: #Predicate {
                 $0.timestamp >= dateInterval.start && $0.timestamp <= dateInterval.end
-                //&& $0.eventType == eventType  // Assuming CravingModel doesn't have eventType directly
+                // && $0.eventType == eventType // You'd need a way to filter by event type
             }
         )
         return try modelContext.fetchCount(descriptor)
     }
-
 
     // MARK: - Utility Functions
     func saveContext() throws {
@@ -73,7 +72,7 @@ final class AnalyticsStorage {
     }
 
     func clearAllData() throws {
-        try modelContext.deleteAll() // Use with caution in production!
+        try modelContext.deleteAll() // Be *very* careful with this in production!
         try saveContext()
     }
 }
@@ -97,9 +96,4 @@ enum StorageError: Error {
 }
 
 // MARK: - Preview and Testing Support
-extension AnalyticsStorage {
-    static func preview() -> AnalyticsStorage {
-        let container = try! ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
-        return AnalyticsStorage(modelContext: container.mainContext)
-    }
-}
+

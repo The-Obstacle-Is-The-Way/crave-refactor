@@ -11,7 +11,7 @@ import SwiftData
 @MainActor
 final class AnalyticsProcessor {
     private let configuration: AnalyticsConfiguration
-    private let storage: AnalyticsStorage
+    private let storage: AnalyticsStorage //Keep this
     private var processingQueue: [AnalyticsEvent] = []
     private var isProcessing: Bool = false
 
@@ -117,3 +117,4 @@ extension AnalyticsProcessor {
         )
     }
 }
+
