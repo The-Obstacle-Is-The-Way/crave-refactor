@@ -4,7 +4,6 @@
 //  CRAVEApp/Navigation/CRAVETabView.swift
 //  Purpose:
 //
-//
 
 import SwiftUI
 import SwiftData
@@ -41,4 +40,3 @@ struct CRAVETabView: View {
         }
     }
 }
-

@@ -47,4 +47,3 @@ struct CravingListView: View {
         }
     }
 }
-

@@ -24,7 +24,8 @@ enum AnalyticsEventType: String, Codable, CaseIterable {
     case unknown = "unknown" // Add a default case for decoding safety
 }
 
-enum EventPriority: String, Codable, CaseIterable {
+// Ensure EventPriority is Codable
+enum EventPriority: String, Codable, CaseIterable { // Corrected: Added CaseIterable
     case normal
     case critical
 }
@@ -165,7 +166,7 @@ final class InteractionEvent: BaseAnalyticsEvent {
 }
 
 // MARK: - Tracked Event
-struct TrackedEvent: Identifiable, Codable {
+struct TrackedEvent: Identifiable, Codable {  //Removed this in favor of specific event types
     let id: UUID
     let type: EventType
     //let payload: Any // We'll use a concrete type later
@@ -188,10 +189,7 @@ struct TrackedEvent: Identifiable, Codable {
     }
 }
 
-enum EventPriority: String, Codable, CaseIterable {
-    case normal
-    case critical
-}
+
 enum EventType: String, Codable, CaseIterable {
     case user
     case system

@@ -60,12 +60,7 @@ public struct CalendarHeatmapView: View {
 struct CalendarHeatmapView_Previews: PreviewProvider {
     static var previews: some View {
         // Create some sample data for the preview
-        CalendarHeatmapView(data: {
-            var data = [Date: Int]()
-            let calendar = Calendar.current
-            let today = Date()
-            for offset in 0..<30 { // Display data for the past 30 days
-                if let date = calendar.date(byAdding: .day, value: -offset, to: today) {
+        CalendarHeatmapView(, value: -offset, to: today) {
                     data[date] = Int.random(in: 0...4) // Random craving count between 0 and 4
                 }
             }

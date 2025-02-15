@@ -1,9 +1,7 @@
 //
-//
 //  🍒
 //  CRAVEApp/CRAVEApp.swift
 //  Purpose: Main entry point for the app.
-//
 //
 
 import SwiftUI
