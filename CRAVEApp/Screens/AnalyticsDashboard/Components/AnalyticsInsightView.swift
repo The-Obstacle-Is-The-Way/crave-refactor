@@ -5,6 +5,7 @@
 //
 
 import SwiftUI
+import Charts
 
 struct AnalyticsInsightView: View {
     let calendarData: [Date: Int]
@@ -16,44 +17,46 @@ struct AnalyticsInsightView: View {
                 .font(.title)
                 .padding()
 
-            // Reference the single CalendarHeatmapView from CalendarHeatmapView.swift
-            CalendarHeatmapView(data: calendarData)
-                .padding(.horizontal)
+            VStack(alignment: .leading) {
+                Text("Daily Activity")
+                    .font(.headline)
+                    .padding(.horizontal)
+                
+                CalendarHeatmapView(data: calendarData)
+                    .padding(.horizontal)
+            }
 
-            // Reference the single TimeOfDayPieChart from PatternVisualizationView.swift
-            TimeOfDayPieChart(data: timeOfDayData)
-                .padding(.horizontal)
+            VStack(alignment: .leading) {
+                Text("Time of Day Patterns")
+                    .font(.headline)
+                    .padding(.horizontal)
+                
+                TimeOfDayPieChart(data: timeOfDayData)
+                    .padding(.horizontal)
+            }
         }
         .padding(.bottom, 20)
     }
 }
 
-struct AnalyticsInsightView_Previews: PreviewProvider {
-    static var previews: some View {
-        AnalyticsInsightView(
-            calendarData: sampleCalendarData(),
-            timeOfDayData: sampleTimeOfDayData()
-        )
-    }
-
-    static func sampleCalendarData() -> [Date: Int] {
-        var data = [Date: Int]()
-        let calendar = Calendar.current
-        let today = Date()
-        for offset in 0..<30 {
-            if let date = calendar.date(byAdding: .day, value: -offset, to: today) {
-                data[date] = Int.random(in: 0...4)
+#Preview {
+    AnalyticsInsightView(
+        calendarData: {
+            var data = [Date: Int]()
+            let calendar = Calendar.current
+            let today = Date()
+            for offset in 0..<30 {
+                if let date = calendar.date(byAdding: .day, value: -offset, to: today) {
+                    data[date] = Int.random(in: 0...4)
+                }
             }
-        }
-        return data
-    }
-
-    static func sampleTimeOfDayData() -> [String: Int] {
-        return [
+            return data
+        }(),
+        timeOfDayData: [
             "Morning": 3,
             "Afternoon": 2,
             "Evening": 5,
             "Night": 1
         ]
-    }
+    )
 }

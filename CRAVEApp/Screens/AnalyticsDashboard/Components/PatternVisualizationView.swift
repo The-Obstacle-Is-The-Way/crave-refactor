@@ -9,37 +9,48 @@
 import SwiftUI
 import Charts
 
-struct TimeOfDayPieChart: View {
-    let data: [String: Int]
+struct PatternVisualizationView: View {
+    let timeOfDayData: [String: Int]
+    let patternData: [String: Double]
 
     var body: some View {
-        VStack {
-            if data.isEmpty {
-                Text("No cravings logged yet.")
-                    .font(.headline)
-                    .foregroundColor(.gray)
-                    .padding()
-            } else {
-                Chart(data.sorted(by: { $0.key < $1.key }), id: \.key) { time, count in
-                    SectorMark(
-                        angle: .value("Cravings", count)
+        VStack(spacing: 20) {
+            Text("Time of Day Distribution")
+                .font(.headline)
+            
+            TimeOfDayPieChart(data: timeOfDayData)
+            
+            Text("Pattern Strength")
+                .font(.headline)
+            
+            // Additional pattern visualization components can go here
+            
+            if !patternData.isEmpty {
+                Chart(patternData.sorted(by: { $0.key < $1.key }), id: \.key) { pattern, strength in
+                    BarMark(
+                        x: .value("Pattern", pattern),
+                        y: .value("Strength", strength)
                     )
-                    .foregroundStyle(by: .value("Time", time))
                 }
-                .frame(height: 300)
-                .padding()
+                .frame(height: 200)
             }
         }
+        .padding()
     }
 }
 
-struct TimeOfDayPieChart_Previews: PreviewProvider {
-    static var previews: some View {
-        TimeOfDayPieChart(data: [
+#Preview {
+    PatternVisualizationView(
+        timeOfDayData: [
             "Morning": 3,
             "Afternoon": 5,
             "Evening": 2,
             "Night": 4
-        ])
-    }
+        ],
+        patternData: [
+            "Daily": 0.8,
+            "Weekly": 0.6,
+            "Monthly": 0.4
+        ]
+    )
 }

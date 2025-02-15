@@ -14,30 +14,63 @@ struct AnalyticsDashboardView: View {
     var body: some View {
         VStack {
             if let stats = viewModel.basicStats {
-                Text("Cravings by Day")
-                    .font(.title2)
-                    .bold()
-                    .padding(.top)
-
-                // Bar Chart (Placeholder - you'll need to implement CravingBarChart)
-                CravingBarChart(data: stats.cravingsPerDay)
-
-                Text("Time of Day")
-                    .font(.title2)
-                    .bold()
-                    .padding(.top)
-
-                // Pie Chart (Placeholder - you'll need to implement TimeOfDayPieChart)
-                TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
-
-                Spacer()
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Cravings by Day Section
+                        VStack(alignment: .leading) {
+                            Text("Cravings by Day")
+                                .font(.title2)
+                                .bold()
+                                .padding(.horizontal)
+                            
+                            CravingBarChart(data: stats.cravingsPerDay)
+                                .frame(height: 300)
+                                .padding(.horizontal)
+                        }
+                        
+                        // Time of Day Section
+                        VStack(alignment: .leading) {
+                            Text("Time of Day Distribution")
+                                .font(.title2)
+                                .bold()
+                                .padding(.horizontal)
+                            
+                            TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
+                                .frame(height: 300)
+                                .padding(.horizontal)
+                        }
+                        
+                        // Additional insights can be added here
+                        if !stats.cravingsByFrequency.isEmpty {
+                            VStack(alignment: .leading) {
+                                Text("Activity Calendar")
+                                    .font(.title2)
+                                    .bold()
+                                    .padding(.horizontal)
+                                
+                                CalendarHeatmapView(data: stats.cravingsByFrequency)
+                                    .padding(.horizontal)
+                            }
+                        }
+                    }
+                    .padding(.vertical)
+                }
             } else {
                 ProgressView("Loading Analytics...")
             }
         }
-        .navigationTitle("Analytics") // Keep navigationTitle
+        .navigationTitle("Analytics")
         .onAppear {
-            viewModel.loadAnalytics(modelContext: modelContext) // Pass modelContext
+            viewModel.loadAnalytics(modelContext: modelContext)
         }
+    }
+}
+
+#Preview {
+    MainActor.assumeIsolated {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: CravingModel.self, configurations: config)
+        return AnalyticsDashboardView()
+            .modelContainer(container)
     }
 }

@@ -10,7 +10,7 @@ import SwiftUI
 import Charts
 
 struct TimeOfDayPieChart: View {
-    let data: [String: Int] // Takes a dictionary: ["Morning": 5, "Afternoon": 3, ...]
+    let data: [String: Int]
 
     var body: some View {
         VStack {
@@ -23,15 +23,24 @@ struct TimeOfDayPieChart: View {
                 Chart(data.sorted(by: { $0.key < $1.key }), id: \.key) { time, count in
                     SectorMark(
                         angle: .value("Cravings", count),
-                        innerRadius: .ratio(0.618), // Optional: Create a "donut" chart
-                        angularInset: 1.5 // Optional: Add some spacing between slices
+                        innerRadius: .ratio(0.618),
+                        angularInset: 1.5
                     )
                     .foregroundStyle(by: .value("Time", time))
-                    .cornerRadius(5) // Optional: Rounded corners
+                    .cornerRadius(5)
                 }
                 .frame(height: 300)
                 .padding()
             }
         }
     }
+}
+
+#Preview {
+    TimeOfDayPieChart(data: [
+        "Morning": 3,
+        "Afternoon": 5,
+        "Evening": 2,
+        "Night": 4
+    ])
 }
