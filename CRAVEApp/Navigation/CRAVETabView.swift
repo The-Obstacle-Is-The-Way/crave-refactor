@@ -8,8 +8,7 @@ import SwiftUI
 import SwiftData
 
 struct CRAVETabView: View {
-    @Environment(\.modelContext) private var modelContext// Correct usage
-    
+    @Environment(\.modelContext) private var modelContext: ModelContext // Explicit type
     @State private var selection: Int = 0
 
     var body: some View {

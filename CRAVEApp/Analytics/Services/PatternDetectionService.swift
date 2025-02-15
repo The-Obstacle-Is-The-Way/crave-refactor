@@ -24,7 +24,7 @@ protocol PatternDetectionServiceProtocol {
 final class PatternDetectionService: PatternDetectionServiceProtocol, ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var detectedPatterns: [DetectedPattern] = []
-    @Published private(set) var detectionState: DetectionState = .idle
+    @Published private(set) var detectionState: AnalyticsCoordinator.DetectionState = .idle // Use fully qualified name
     @Published private(set) var lastDetectionTime: Date?
 
     // MARK: - Dependencies
@@ -32,14 +32,7 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
     private let configuration: AnalyticsConfiguration
     private let mlModel: MLModel?
 
-    // MARK: - Pattern Detection Components
-    //private let timePatternDetector: TimePatternDetector //Removed
-    //private let behaviorPatternDetector: BehaviorPatternDetector //Removed
-    //private let contextPatternDetector: ContextPatternDetector //Removed
-    //private let correlationAnalyzer: CorrelationAnalyzer //Removed
-
     // MARK: - Internal State
-    //private var patternCache: PatternCache //Removed
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
@@ -50,13 +43,6 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
         self.storage = storage
         self.configuration = configuration
         self.mlModel = try? MLModel.load() //  Handle or log this error appropriately in a real app
-
-        //self.timePatternDetector = TimePatternDetector() //Removed
-        //self.behaviorPatternDetector = BehaviorPatternDetector() //Removed
-        //self.contextPatternDetector = ContextPatternDetector() //Removed
-        //self.correlationAnalyzer = CorrelationAnalyzer() //Removed
-        //self.patternCache = PatternCache() //Removed
-
         setupService()
     }
 
@@ -84,22 +70,10 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
     }
 }
 
-// MARK: - Supporting Types
-enum DetectionState { // Added enum for state
-    case idle
-    case processing
-    case completed
-    case error(Error)
-}
+
 // MARK: Placeholders, to be implemented later
 
 // MARK: - Supporting Types
-enum DetectionState: Equatable {
-    case idle
-    case detecting
-    case completed
-    case error(String)
-}
 struct DetectedPattern: Identifiable { // Placeholder
     let id: UUID = UUID()
     let type: String  // Use String for now
@@ -122,12 +96,6 @@ struct RankedPattern { // Placeholder
 }
 
 protocol PatternInsight { } // Placeholder
-
-//enum PatternType { //Placeholder //Removed
-//    case time
-//    case behavior
-//    case context
-//}
 
 extension MLModel { // Placeholder
     static func load() throws -> MLModel? {
