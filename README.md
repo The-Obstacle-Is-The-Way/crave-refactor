@@ -29,8 +29,7 @@ CRAVE
 │   │   │   ├── log-craving-flow.png
 │   │   │   └── crave-navigation-states.png
 │   │   ├── AnalyticsAPIReference.md
-│   │   ├── AnalyticsImplementationGuide.md
-│   │   └── README.md
+│   │   └── AnalyticsImplementationGuide.md
 │   ├── Models
 │   │   ├── AnalyticsMetadata.swift
 │   │   ├── BasicAnalyticsResults.swift
