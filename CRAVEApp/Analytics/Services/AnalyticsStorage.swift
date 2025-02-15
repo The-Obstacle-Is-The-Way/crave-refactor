@@ -96,4 +96,9 @@ enum StorageError: Error {
 }
 
 // MARK: - Preview and Testing Support
+extension AnalyticsStorage{
+    static func preview(modelContext: ModelContext) -> AnalyticsStorage { //add context
+        return AnalyticsStorage(modelContext: modelContext)
+    }
+}
 
