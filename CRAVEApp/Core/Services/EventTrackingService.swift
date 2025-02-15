@@ -1,8 +1,9 @@
 //
 //
 //  🍒
-// File: EventTrackingService.swift
-// Purpose: Dedicated service for tracking and managing user and system events
+//  CRAVEApp/Core/Services/EventTrackingService.swift
+//  Purpose: Dedicated service for tracking and managing user and system events
+//
 //
 //
 
@@ -10,21 +11,11 @@ import Foundation
 import SwiftData
 import Combine
 
-// MARK: - Event Tracking Protocol
-protocol EventTrackingServiceProtocol {
-    func trackUserEvent(_ event: UserEvent) async throws
-    func trackSystemEvent(_ event: SystemEvent) async throws
-    func trackCravingEvent(_ event: CravingEvent) async throws
-    func trackInteractionEvent(_ event: InteractionEvent) async throws
-    func getEvents(ofType type: EventType, in timeRange: DateInterval) async throws -> [TrackedEvent] // Assuming TrackedEvent is still needed, though we might remove it later
-}
-
-// MARK: - Event Tracking Service
 @MainActor
-final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject {
+final class EventTrackingService: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var trackingEnabled: Bool
-    @Published private(set) var lastTrackedEvent: (any AnalyticsEvent)? // Use the protocol
+    @Published private(set) var lastTrackedEvent: (any AnalyticsEvent)?
     @Published private(set) var trackingMetrics: TrackingMetrics
 
     // MARK: - Dependencies
@@ -33,11 +24,8 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
 
     // MARK: - Internal State
     private var cancellables = Set<AnyCancellable>()
-
-    // ADDED: eventPublisher - This was missing and causing errors
     var eventPublisher = PassthroughSubject<AnalyticsEvent, Never>()
 
-    // MARK: - Initialization
     init(
         storage: AnalyticsStorage,
         configuration: AnalyticsConfiguration = .shared
@@ -49,7 +37,6 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
         setupService()
     }
 
-    // MARK: - Public Methods
     func trackUserEvent(_ event: UserEvent) async throws {
         guard trackingEnabled else { return }
         try await trackEvent(event)
@@ -70,12 +57,12 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
         try await trackEvent(event)
     }
 
-    func getEvents(ofType type: EventType, in timeRange: DateInterval) async throws -> [TrackedEvent] {
-        return []  // Placeholder: No events being tracked
+    func getEvents(ofType type: TrackingEventType, in timeRange: DateInterval) async throws -> [TrackedEvent] {
+        guard trackingEnabled else { return [] }
+        // Placeholder implementation
+        return []
     }
 
-
-    // MARK: - Private Methods
     private func setupService() {
         setupConfigurationObserver()
     }
@@ -89,14 +76,12 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
             .store(in: &cancellables)
     }
 
-
-    private func trackEvent(_ event: any AnalyticsEvent) async throws { // Use the protocol
+    private func trackEvent(_ event: any AnalyticsEvent) async throws {
         do {
             try await storage.store(event)
             lastTrackedEvent = event
-            updateMetrics(for: event) // Pass the event
-            eventPublisher.send(event) // ADDED: Send the event through the publisher
-
+            updateMetrics(for: event)
+            eventPublisher.send(event)
         } catch {
             trackingMetrics.incrementErrors()
             throw EventTrackingError.trackingFailed(error)
@@ -107,20 +92,37 @@ final class EventTrackingService: EventTrackingServiceProtocol, ObservableObject
         trackingEnabled = configuration.featureFlags.isAnalyticsEnabled
     }
 
-    private func updateMetrics(for event: any AnalyticsEvent) { // Use the protocol
-        trackingMetrics.incrementTracked(eventType: event.eventType) // Use the eventType property
+    private func updateMetrics(for event: any AnalyticsEvent) {
+        trackingMetrics.incrementTracked(eventType: event.eventType)
     }
 }
 
-
 // MARK: - Supporting Types
+enum TrackingEventType: String, Codable {
+    case user
+    case system
+    case craving
+    case interaction
+}
+
+struct TrackedEvent: Identifiable, Codable {
+    let id: UUID
+    let type: TrackingEventType
+    let timestamp: Date
+    
+    init(type: TrackingEventType) {
+        self.id = UUID()
+        self.type = type
+        self.timestamp = Date()
+    }
+}
 
 struct TrackingMetrics {
     private(set) var totalTracked: Int = 0
     private(set) var errorCount: Int = 0
-    private(set) var eventCounts: [AnalyticsEventType: Int] = [:] // Use the enum
+    private(set) var eventCounts: [AnalyticsEventType: Int] = [:]
 
-    mutating func incrementTracked(eventType: AnalyticsEventType) { // Use the enum
+    mutating func incrementTracked(eventType: AnalyticsEventType) {
         totalTracked += 1
         eventCounts[eventType, default: 0] += 1
     }
@@ -130,12 +132,12 @@ struct TrackingMetrics {
     }
 }
 
-enum EventTrackingError: Error {
+enum EventTrackingError: Error, LocalizedError {
     case trackingFailed(Error)
-    case validationFailed(String) // Not used now, but kept for potential future use
+    case validationFailed(String)
     case storageError(Error)
 
-    var localizedDescription: String {
+    var errorDescription: String? {
         switch self {
         case .trackingFailed(let error):
             return "Event tracking failed: \(error.localizedDescription)"
@@ -147,7 +149,7 @@ enum EventTrackingError: Error {
     }
 }
 
-// MARK: - Testing Support (Placeholder)
+// MARK: - Testing Support
 extension EventTrackingService {
     static func preview() -> EventTrackingService {
         EventTrackingService(

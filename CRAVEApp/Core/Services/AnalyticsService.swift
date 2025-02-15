@@ -1,7 +1,8 @@
 //
 //
-// CRAVEApp/Core/Services/AnalyticsService.swift
-// Purpose: Central service coordinating all analytics operations and providing a clean public API
+//  🍒
+//  CRAVEApp/Core/Services/AnalyticsService.swift
+//  Purpose: Central service coordinating all analytics operations and providing a clean public API
 //
 //
 
@@ -41,15 +42,16 @@ final class AnalyticsService: ObservableObject {
             storage.modelContext.insert(metadata)
             storage.modelContext.insert(event)
             try storage.modelContext.save()
-
         } catch {
             print("Analytics tracking failed: \(error)")
             throw AnalyticsServiceError.trackingFailed(error)
         }
     }
 
-    func processAnalytics() async throws {
-        guard !isProcessing else { return }
+    func processAnalytics() async throws -> BasicAnalyticsResult {
+        guard !isProcessing else {
+            throw AnalyticsServiceError.processingInProgress
+        }
 
         isProcessing = true
         currentState = .processing
@@ -58,19 +60,19 @@ final class AnalyticsService: ObservableObject {
             let stats = try await manager.getBasicStats()
             currentState = .completed
             lastProcessingTime = Date()
+            isProcessing = false
             return stats
         } catch {
+            isProcessing = false
             currentState = .error(error)
             throw AnalyticsServiceError.processingFailed(error)
-        } finally {
-            isProcessing = false
         }
     }
 
     func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report {
         let reportData = ReportData(
             title: "\(type.rawValue) Report",
-            content: "Analysis for period: \(timeRange.start) to \(timeRange.end)"
+            content: "Analysis for period: \(timeRange.start.formatted()) to \(timeRange.end.formatted())"
         )
         
         return Report(
@@ -84,6 +86,16 @@ final class AnalyticsService: ObservableObject {
             generationDate: .now,
             state: .completed
         )
+    }
+
+    func fetchInsights() async throws -> [any AnalyticsInsight] {
+        // Placeholder implementation
+        return []
+    }
+
+    func fetchPredictions() async throws -> [any AnalyticsPrediction] {
+        // Placeholder implementation
+        return []
     }
 }
 
@@ -110,9 +122,25 @@ enum AnalyticsState: Equatable {
     }
 }
 
-enum AnalyticsServiceError: Error {
+enum AnalyticsServiceError: Error, LocalizedError {
     case trackingFailed(Error)
     case processingFailed(Error)
+    case processingInProgress
     case resetFailed(Error)
     case configurationError
+
+    var errorDescription: String? {
+        switch self {
+        case .trackingFailed(let error):
+            return "Analytics tracking failed: \(error.localizedDescription)"
+        case .processingFailed(let error):
+            return "Analytics processing failed: \(error.localizedDescription)"
+        case .processingInProgress:
+            return "Analytics processing already in progress"
+        case .resetFailed(let error):
+            return "Analytics reset failed: \(error.localizedDescription)"
+        case .configurationError:
+            return "Invalid analytics configuration"
+        }
+    }
 }

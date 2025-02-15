@@ -8,7 +8,6 @@
 import Foundation
 import SwiftData
 
-// MARK: - Main Configuration
 @MainActor
 final class AnalyticsConfiguration: ObservableObject {
     // MARK: - Shared Instance
@@ -26,7 +25,6 @@ final class AnalyticsConfiguration: ObservableObject {
     let networkConfig: NetworkConfiguration
     let mlConfig: MLConfiguration
 
-    // MARK: - Initialization
     private init() {
         self.currentEnvironment = .development
         self.featureFlags = FeatureFlags()
@@ -40,7 +38,6 @@ final class AnalyticsConfiguration: ObservableObject {
         setupConfiguration()
     }
 
-    // MARK: - Configuration Methods
     func updateEnvironment(_ environment: Environment) {
         currentEnvironment = environment
         applyEnvironmentSpecificSettings()
@@ -56,10 +53,8 @@ final class AnalyticsConfiguration: ObservableObject {
             throw ConfigurationError.invalidPrivacySettings
         }
         privacySettings = settings
-        try await applyPrivacySettings()
     }
 
-    // MARK: - Private Methods
     private func setupConfiguration() {
         loadSavedConfiguration()
         setupObservers()
@@ -76,28 +71,24 @@ final class AnalyticsConfiguration: ObservableObject {
     private func applyEnvironmentSpecificSettings() {
         switch currentEnvironment {
         case .development:
-            applyDevelopmentSettings()
+            featureFlags = .development
         case .staging:
-            applyStagingSettings()
+            featureFlags = .development // Use development settings for staging
         case .production:
-            applyProductionSettings()
+            featureFlags = .production
         }
-    }
-
-    private func applyPrivacySettings() async throws {
-        // Implement privacy settings application
     }
 }
 
 // MARK: - Configuration Components
-struct FeatureFlags: Codable { // MARKED: Codable
+struct FeatureFlags: Codable {
     var isMLEnabled: Bool = true
     var isRealtimeProcessingEnabled: Bool = true
     var isBackgroundProcessingEnabled: Bool = true
     var isCloudSyncEnabled: Bool = false
     var isDebugLoggingEnabled: Bool = false
-    var isAnalyticsEnabled: Bool = true // Added for Analytics
-    var isAutoProcessingEnabled: Bool = true // Added for Analytics
+    var isAnalyticsEnabled: Bool = true
+    var isAutoProcessingEnabled: Bool = true
 
     static let development = FeatureFlags(
         isMLEnabled: true,
@@ -116,38 +107,38 @@ struct FeatureFlags: Codable { // MARKED: Codable
     )
 }
 
-struct ProcessingRules: Codable { // MARKED: Codable
+struct ProcessingRules: Codable {
     var batchSize: Int = 100
-    var processingInterval: TimeInterval = 300 // 5 minutes
+    var processingInterval: TimeInterval = 300
     var maxRetryAttempts: Int = 3
     var timeoutInterval: TimeInterval = 30
     var priorityThreshold: Double = 0.7
 
     func validate() -> Bool {
-        guard batchSize > 0 else { return false }
-        guard processingInterval > 0 else { return false }
-        guard maxRetryAttempts > 0 else { return false }
-        guard timeoutInterval > 0 else { return false }
-        guard priorityThreshold >= 0 && priorityThreshold <= 1 else { return false }
+        guard batchSize > 0,
+              processingInterval > 0,
+              maxRetryAttempts > 0,
+              timeoutInterval > 0,
+              priorityThreshold >= 0 && priorityThreshold <= 1 else {
+            return false
+        }
         return true
     }
 }
 
-struct StoragePolicy: Codable { // MARKED: Codable
-    var retentionPeriod: TimeInterval = 30 * 24 * 3600 // 30 days
-    var maxStorageSize: Int64 = 100 * 1024 * 1024 // 100 MB
+struct StoragePolicy: Codable {
+    var retentionPeriod: TimeInterval = 30 * 24 * 3600
+    var maxStorageSize: Int64 = 100 * 1024 * 1024
     var compressionEnabled: Bool = true
     var encryptionEnabled: Bool = true
     var autoCleanupEnabled: Bool = true
 
     func validate() -> Bool {
-        guard retentionPeriod > 0 else { return false }
-        guard maxStorageSize > 0 else { return false }
-        return true
+        return retentionPeriod > 0 && maxStorageSize > 0
     }
 }
 
-struct PrivacySettings: Codable { // MARKED: Codable
+struct PrivacySettings: Codable {
     var dataCollectionEnabled: Bool = true
     var locationTrackingEnabled: Bool = false
     var healthKitEnabled: Bool = false
@@ -155,34 +146,33 @@ struct PrivacySettings: Codable { // MARKED: Codable
     var dataSharingEnabled: Bool = false
 
     func validate() -> Bool {
-        // Add privacy validation rules
-        return true
+        return true // Add validation rules as needed
     }
 }
 
-struct PerformanceConfiguration { // MARKED: Codable - Added Codable conformance
+struct PerformanceConfiguration {
     let maxConcurrentOperations: Int = 4
-    let maxMemoryUsage: Int64 = 50 * 1024 * 1024 // 50 MB
+    let maxMemoryUsage: Int64 = 50 * 1024 * 1024
     let backgroundTaskTimeout: TimeInterval = 180
     let minimumBatteryLevel: Float = 0.2
 }
 
-struct NetworkConfiguration { // MARKED: Codable - Added Codable conformance
+struct NetworkConfiguration {
     let maxRetries: Int = 3
     let timeout: TimeInterval = 30
     let batchSize: Int = 50
-    let compressionThreshold: Int = 1024 * 10 // 10 KB
+    let compressionThreshold: Int = 1024 * 10
 }
 
-struct MLConfiguration { // MARKED: Codable - Added Codable conformance
-    let modelUpdateInterval: TimeInterval = 24 * 3600 // 24 hours
+struct MLConfiguration {
+    let modelUpdateInterval: TimeInterval = 24 * 3600
     let minimumConfidence: Double = 0.7
-    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600 // 7 days
+    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600
     let trainingDataLimit: Int = 1000
 }
 
 // MARK: - Supporting Types
-enum Environment: String, Codable { // MARKED: Codable and String rawValue
+enum Environment: String, Codable {
     case development
     case staging
     case production
@@ -193,19 +183,6 @@ enum ConfigurationError: Error {
     case invalidPrivacySettings
     case invalidProcessingRules
     case invalidStoragePolicy
-
-    var localizedDescription: String {
-        switch self {
-        case .invalidConfiguration:
-            return "Invalid analytics configuration"
-        case .invalidPrivacySettings:
-            return "Invalid privacy settings"
-        case .invalidProcessingRules:
-            return "Invalid processing rules"
-        case .invalidStoragePolicy:
-            return "Invalid storage policy"
-        }
-    }
 }
 
 // MARK: - Notification Extensions

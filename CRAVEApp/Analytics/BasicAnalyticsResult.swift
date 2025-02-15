@@ -3,14 +3,16 @@
 //  CRAVE
 //
 
+
 import Foundation
 
 struct BasicAnalyticsResult {
+    // MARK: - Core Data
     let cravingsByFrequency: [Date: Int]
     let cravingsPerDay: [Date: Int]
     let cravingsByTimeSlot: [String: Int]
     
-    // Computed properties
+    // MARK: - Computed Properties
     var totalCravings: Int {
         cravingsPerDay.values.reduce(0, +)
     }
@@ -32,6 +34,7 @@ struct BasicAnalyticsResult {
         return earliest...latest
     }
     
+    // MARK: - Initialization
     init(
         cravingsByFrequency: [Date: Int] = [:],
         cravingsPerDay: [Date: Int] = [:],
@@ -42,7 +45,7 @@ struct BasicAnalyticsResult {
         self.cravingsByTimeSlot = cravingsByTimeSlot
     }
     
-    // Helper methods
+    // MARK: - Helper Methods
     func getCravings(in dateRange: DateInterval) -> [Date: Int] {
         cravingsPerDay.filter { dateRange.contains($0.key) }
     }
@@ -50,6 +53,31 @@ struct BasicAnalyticsResult {
     func timeSlotDistribution() -> [String: Double] {
         guard totalCravings > 0 else { return [:] }
         return cravingsByTimeSlot.mapValues { Double($0) / Double(totalCravings) }
+    }
+    
+    func weeklyAverage() -> Double {
+        guard !cravingsByFrequency.isEmpty else { return 0 }
+        let weekCount = Double(Calendar.current.dateComponents([.weekOfYear],
+            from: dateRange?.lowerBound ?? Date(),
+            to: dateRange?.upperBound ?? Date()).weekOfYear ?? 1)
+        return Double(totalCravings) / max(weekCount, 1)
+    }
+    
+    func monthlyTrend() -> [(month: Date, count: Int)] {
+        guard !cravingsByFrequency.isEmpty else { return [] }
+        
+        let calendar = Calendar.current
+        var monthlyData: [Date: Int] = [:]
+        
+        for (date, count) in cravingsByFrequency {
+            let components = calendar.dateComponents([.year, .month], from: date)
+            if let monthStart = calendar.date(from: components) {
+                monthlyData[monthStart, default: 0] += count
+            }
+        }
+        
+        return monthlyData.sorted { $0.key < $1.key }
+            .map { (month: $0.key, count: $0.value) }
     }
 }
 
@@ -92,5 +120,15 @@ extension BasicAnalyticsResult {
             }
         }
         return data
+    }
+}
+
+// MARK: - Date Formatting
+extension Date {
+    func formattedForAnalytics() -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: self)
     }
 }

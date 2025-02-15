@@ -90,6 +90,24 @@ final class AnalyticsCoordinator: ObservableObject {
             self.detectionState = .error(error)
         }
     }
+
+    func generateReport(type: ReportType, timeRange: DateInterval) async throws -> Report {
+        let report = try await analyticsService.generateReport(type: type, timeRange: timeRange)
+        await reporter.handleReport(report)
+        return report
+    }
+
+    func fetchInsights() async throws -> [any AnalyticsInsight] {
+        let insights = try await analyticsService.fetchInsights()
+        await reporter.handleInsights(insights)
+        return insights
+    }
+
+    func fetchPredictions() async throws -> [any AnalyticsPrediction] {
+        let predictions = try await analyticsService.fetchPredictions()
+        await reporter.handlePredictions(predictions)
+        return predictions
+    }
 }
 
 // MARK: - Supporting Types

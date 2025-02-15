@@ -1,11 +1,11 @@
 //
 //
-// File: PatternDetectionService.swift
-// Purpose: Service for detecting and analyzing patterns in user behavior and cravings
+//  🍒
+//  CRAVEApp/Core/Services/PatternDetectionService.swift
+//  Purpose: Service for detecting and analyzing patternsin user behavior and cravings
 //
 //
-
-
+//
 
 import Foundation
 import SwiftData
