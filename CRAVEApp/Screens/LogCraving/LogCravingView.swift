@@ -4,24 +4,23 @@
 //  Purpose: A view for logging a craving.
 //
 
-
 import SwiftUI
 import SwiftData
 
 struct LogCravingView: View {
-    @Environment(\.modelContext) var modelContext: ModelContext // Correct usage
+    @Environment(\.modelContext) var modelContext // Correct: Get from environment
     @StateObject private var viewModel = LogCravingViewModel()
     @State private var showAlert = false
     @State private var alertMessage = ""
-    
+
     var body: some View {
         NavigationView {
             VStack {
                 CraveTextEditor(text: $viewModel.cravingText, placeholder: "Enter craving...")
                     .padding()
-                
+
                 CraveButton(title: "Log Craving") {
-                    viewModel.addCraving(modelContext: modelContext) { success in // Corrected: Pass modelContext
+                    viewModel.addCraving(modelContext: modelContext) { success in
                         if success {
                             // Success
                         } else {
@@ -31,7 +30,7 @@ struct LogCravingView: View {
                     }
                 }
                 .padding()
-                
+
                 Spacer()
             }
             .navigationTitle("Log Craving")

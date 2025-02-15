@@ -10,6 +10,6 @@ import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        CRAVETabView() // No changes needed here. modelContext is now available.
+        CRAVETabView() // No changes needed.  Gets modelContext from environment.
     }
 }

@@ -25,7 +25,7 @@ struct CRAVEApp: App {
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
-                .modelContainer(container) // Inject the container here.
+                .modelContainer(container) // CRITICAL: Inject the container here.
         }
     }
 }
