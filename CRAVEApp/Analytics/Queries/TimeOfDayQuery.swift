@@ -52,9 +52,3 @@ struct CalendarViewQuery {
     }
 }
 
-// MARK: - Date Extensions
-extension Date {
-    var onlyDate: Date {
-        Calendar.current.startOfDay(for: self)
-    }
-}

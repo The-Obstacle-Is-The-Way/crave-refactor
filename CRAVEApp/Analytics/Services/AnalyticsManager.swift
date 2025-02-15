@@ -8,33 +8,29 @@
 
 import Foundation
 import SwiftData
+import Combine // Add Combine import
 
 @MainActor
-final class AnalyticsManager {
+class AnalyticsManager: ObservableObject { // Added ObservableObject
     private let modelContext: ModelContext
-    private let timeOfDayQuery = TimeOfDayQuery()
-    private let frequencyQuery = FrequencyQuery()
-    private let calendarViewQuery = CalendarViewQuery()
-    private let storage: AnalyticsStorage
-    
+
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.storage = AnalyticsStorage(modelContext: modelContext)
     }
-    
-    func getBasicStats() async -> BasicAnalyticsResult {
+
+    func getBasicStats() async -> BasicAnalyticsResult { // No 'throws' as we handle errors internally
         do {
             let fetchDescriptor = FetchDescriptor<CravingModel>(
                 predicate: #Predicate { !$0.isArchived },
-                sortBy: [SortDescriptor(\CravingModel.timestamp, order: .reverse)]
+                sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
             )
-            
             let allCravings = try modelContext.fetch(fetchDescriptor)
-            
-            let cravingsByFrequency = frequencyQuery.cravingsPerDay(using: allCravings)
-            let cravingsPerDay = calendarViewQuery.cravingsPerDay(using: allCravings)
-            let cravingsByTimeSlot = timeOfDayQuery.cravingsByTimeSlot(using: allCravings)
-            
+
+            // Use helper functions for clarity and testability
+            let cravingsByFrequency = cravingsPerDay(using: allCravings)
+            let cravingsPerDay = cravingsByDate(using: allCravings)  // Consistent naming
+            let cravingsByTimeSlot = cravingsByTimeOfDay(using: allCravings)
+
             return BasicAnalyticsResult(
                 cravingsByFrequency: cravingsByFrequency,
                 cravingsPerDay: cravingsPerDay,
@@ -42,27 +38,37 @@ final class AnalyticsManager {
             )
         } catch {
             print("Error fetching cravings: \(error)")
-            return BasicAnalyticsResult()
+            // Return an empty result on error.  Consider a more robust error handling strategy.
+            return BasicAnalyticsResult(cravingsByFrequency: [:], cravingsPerDay: [:], cravingsByTimeSlot: [:])
         }
     }
-    
-    func trackEvent(_ event: CravingModel) async throws {
-        let metadata = AnalyticsMetadata(cravingId: event.id)
-        event.analyticsMetadata = metadata
-        
-        storage.modelContext.insert(metadata)
-        storage.modelContext.insert(event)
-        try storage.modelContext.save()
-    }
-    
-    func processHistoricalData(_ startDate: Date, _ endDate: Date) async {
-        print("Processing historical data from \(startDate) to \(endDate)")
-    }
-}
 
-// MARK: - Preview Support
-extension AnalyticsManager {
-    static func preview(modelContext: ModelContext) -> AnalyticsManager {
-        AnalyticsManager(modelContext: modelContext)
+    // Helper functions to encapsulate the logic (and make it testable later)
+
+    private func cravingsPerDay(using cravings: [CravingModel]) -> [Date: Int] {
+        Dictionary(grouping: cravings, by: { $0.timestamp.onlyDate }).mapValues { $0.count }
+    }
+
+    private func cravingsByDate(using cravings: [CravingModel]) -> [Date: Int] {
+        Dictionary(grouping: cravings, by: {$0.timestamp.onlyDate}).mapValues {$0.count }
+    }
+
+    private func cravingsByTimeOfDay(using cravings: [CravingModel]) -> [String: Int] {
+        var timeSlots: [String: Int] = [:]
+        for craving in cravings {
+            let hour = Calendar.current.component(.hour, from: craving.timestamp)
+            let timeSlot = timeSlotString(for: hour)
+            timeSlots[timeSlot, default: 0] += 1
+        }
+        return timeSlots
+    }
+
+    private func timeSlotString(for hour: Int) -> String {
+        switch hour {
+        case 5..<12: return "Morning"
+        case 12..<17: return "Afternoon"
+        case 17..<22: return "Evening"
+        default: return "Night"
+        }
     }
 }

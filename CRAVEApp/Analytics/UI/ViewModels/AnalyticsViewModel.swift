@@ -2,82 +2,29 @@
 //  AnalyticsViewModel.swift
 //  CRAVE
 //
+//
 
-
-import SwiftUI
+import Foundation
 import SwiftData
 import Combine
 
 @MainActor
-final class AnalyticsViewModel: ObservableObject {
-    // MARK: - Published Properties
+class AnalyticsViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
-    @Published var isLoading: Bool = false
-    @Published var error: Error?
-    @Published var showError: Bool = false
-    
-    // MARK: - Private Properties
-    private var analyticsManager: AnalyticsManager?
-    private var cancellables = Set<AnyCancellable>()
-    
-    // MARK: - Public Methods
-    func loadAnalytics(modelContext: ModelContext) async {
-        isLoading = true
-        error = nil
-        
-        do {
-            self.analyticsManager = AnalyticsManager(modelContext: modelContext)
-            
+    private var analyticsManager: AnalyticsManager? // Use the manager
+
+    func loadAnalytics(modelContext: ModelContext) {
+        // Initialize the AnalyticsManager here, when the context is available
+        analyticsManager = AnalyticsManager(modelContext: modelContext)
+
+        Task {
+            // Safely unwrap the optional manager
             if let manager = analyticsManager {
-                let stats = await manager.getBasicStats()
-                await MainActor.run {
-                    self.basicStats = stats
-                    self.isLoading = false
-                }
+                self.basicStats = await manager.getBasicStats()
             } else {
-                throw AnalyticsError.managerInitializationFailed
+                print("Error: AnalyticsManager not initialized.")
+                // Consider setting an error state here that you can display in the UI.
             }
-        } catch {
-            await MainActor.run {
-                self.error = error
-                self.showError = true
-                self.isLoading = false
-            }
-            print("Error loading analytics: \(error)")
         }
-    }
-    
-    func refreshData(modelContext: ModelContext) async {
-        await loadAnalytics(modelContext: modelContext)
-    }
-}
-
-// MARK: - Supporting Types
-enum AnalyticsError: LocalizedError {
-    case managerInitializationFailed
-    case dataProcessingFailed
-    case invalidTimeRange
-    case noDataAvailable
-    
-    var errorDescription: String? {
-        switch self {
-        case .managerInitializationFailed:
-            return "Failed to initialize analytics manager"
-        case .dataProcessingFailed:
-            return "Failed to process analytics data"
-        case .invalidTimeRange:
-            return "Invalid time range selected"
-        case .noDataAvailable:
-            return "No analytics data available"
-        }
-    }
-}
-
-// MARK: - Preview Support
-extension AnalyticsViewModel {
-    static var preview: AnalyticsViewModel {
-        let viewModel = AnalyticsViewModel()
-        viewModel.basicStats = .preview
-        return viewModel
     }
 }

@@ -43,7 +43,10 @@ final class AnalyticsAggregator {
     }
 
     private func aggregateCravingEvent(_ event: AnalyticsEvent) async {
-        guard let cravingEvent = event as? CravingEvent else { return }
+        guard let cravingEvent = event as? CravingEvent else {
+            print("Incorrect event type passed to aggregateCravingEvent")
+            return
+        }
         print("Aggregating craving event: \(cravingEvent.eventType)")
     }
 
@@ -60,21 +63,31 @@ final class AnalyticsAggregator {
     }
 
     private func updateCravingAnalytics(_ cravingEvent: CravingEvent) async {
-        guard let cravingId = cravingEvent.cravingId else { return }
+        // Only proceed if we have a valid cravingId
+        guard let cravingId = cravingEvent.cravingId else {
+            print("No craving ID available for analytics update")
+            return
+        }
 
         do {
+            // Fetch existing metadata or create new if none exists
             let metadata = try await storage.fetchMetadata(forCravingId: cravingId) ?? createNewMetadata(for: cravingId)
+
+            // Update metadata
             metadata.interactionCount += 1
             metadata.lastProcessed = Date()
             
+            // Add user action
             let action = AnalyticsMetadata.UserAction(
                 timestamp: Date(),
-                actionType: "craving_logged",
+                actionType: "craving_logged",  //String
                 metadata: ["text": cravingEvent.cravingText]
             )
             metadata.userActions.append(action)
 
+            // Save changes
             try await storage.saveContext()
+
         } catch {
             print("Error updating AnalyticsMetadata: \(error)")
         }
@@ -87,3 +100,23 @@ final class AnalyticsAggregator {
     }
 }
 
+// MARK: - Analytics Event Processing Extensions
+extension AnalyticsAggregator {
+    func processEventBatch(_ events: [AnalyticsEvent]) async {
+        for event in events {
+            await aggregateEvent(event)
+        }
+    }
+    
+    func processHistoricalData(_ startDate: Date, _ endDate: Date) async {
+        // Implementation for processing historical data
+        print("Processing historical data from \(startDate) to \(endDate)")
+    }
+}
+
+// MARK: - Testing Support
+extension AnalyticsAggregator {
+    static func preview(storage: AnalyticsStorage) -> AnalyticsAggregator {
+        AnalyticsAggregator(storage: storage)
+    }
+}
