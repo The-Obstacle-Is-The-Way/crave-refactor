@@ -30,7 +30,7 @@ struct CRAVETabView: View {
                     Label("Cravings by Date", systemImage: "calendar")
                 }
                 .tag(2)
-            
+
             AnalyticsDashboardView()
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar.fill")

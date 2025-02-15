@@ -53,7 +53,8 @@ class AnalyticsCoordinator: ObservableObject {
     }
 
     private func setupObservers() {
-        eventTrackingService.eventPublisher
+        // Store the cancellable returned by sink
+        let eventSubscription = eventTrackingService.eventPublisher
             .sink { completion in
                 switch completion {
                 case .finished:
@@ -67,10 +68,10 @@ class AnalyticsCoordinator: ObservableObject {
                     await self?.handleEvent(event)
                 }
             }
-            .store(in: &cancellables)
+        cancellables.insert(eventSubscription) // Store the cancellable
 
-        patternDetectionService.$detectionState
-            .sink { [weak self] state in
+        let detectionStateSubscription = patternDetectionService.$detectionState
+            .sink { [weak self] (state: DetectionState) in // Add type annotation here
                 switch state {
                 case .idle:
                     self?.detectionState = .idle
@@ -82,11 +83,11 @@ class AnalyticsCoordinator: ObservableObject {
                     self?.detectionState = .error(error)
                 }
             }
-            .store(in: &cancellables)
+        cancellables.insert(detectionStateSubscription) // Store the cancellable
 
-        patternDetectionService.$detectedPatterns
+       let patternSubscription = patternDetectionService.$detectedPatterns
             .assign(to: &$detectedPatterns) // Directly assign, type is now correct
-            .store(in: &cancellables)
+        cancellables.insert(patternSubscription) //Store the cancellable
     }
 
     private func loadInitialState() {

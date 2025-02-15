@@ -72,7 +72,12 @@ final class AnalyticsStorage {
     }
 
     func clearAllData() throws {
-        try modelContext.deleteAll() // Be *very* careful with this in production!
+        // You need to delete each model type separately.
+        try modelContext.delete(model: CravingModel.self)
+        try modelContext.delete(model: AnalyticsMetadata.self)
+        try modelContext.delete(model: InteractionData.self)
+        try modelContext.delete(model: ContextualData.self)
+       
         try saveContext()
     }
 }
