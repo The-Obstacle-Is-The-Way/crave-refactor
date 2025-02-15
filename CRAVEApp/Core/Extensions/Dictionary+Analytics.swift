@@ -1,7 +1,7 @@
 //
-//  Dictionary+Analytics.swift
-//  CRAVE
 //
-//  Created by Your Name on 2/12/25.
 //
-
+//  CRAVEApp/Core/Extensions/Dictionary+Analytics.swift
+//
+//
+//

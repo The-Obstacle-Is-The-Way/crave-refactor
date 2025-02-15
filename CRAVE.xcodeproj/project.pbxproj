@@ -95,7 +95,6 @@
 				Screens/DateList/DateListViewModel.swift = (ios, );
 				Screens/LogCraving/LogCravingView.swift = (ios, );
 				Screens/LogCraving/LogCravingViewModel.swift = (ios, );
-				"Utilities/Date+Extensions.swift" = (ios, );
 			};
 			target = 28B8D8DE2D5CD84000FA0F1E /* CRAVE */;
 		};

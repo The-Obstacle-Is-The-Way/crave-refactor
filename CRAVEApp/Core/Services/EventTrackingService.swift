@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import SwiftData //Make sure you have this.
+import SwiftData
 import Combine
 
 @MainActor
@@ -18,7 +18,7 @@ final class EventTrackingService: ObservableObject {
     @Published private(set) var trackingMetrics: TrackingMetrics
 
     // MARK: - Dependencies
-    private let storage: AnalyticsStorage // No change here
+    private let storage: AnalyticsStorage
     private let configuration: AnalyticsConfiguration
 
     // MARK: - Internal State
@@ -152,11 +152,10 @@ enum EventTrackingError: Error, LocalizedError {
 extension EventTrackingService {
     static func preview() -> EventTrackingService {
         // Use a preview context here.
-      let container = try! ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+      let container = try! ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)) //Add all your models here
         return EventTrackingService(
-            storage: .preview(modelContext: container.mainContext), //Pass in the context
+            storage: AnalyticsStorage(modelContext: container.mainContext), //Pass in the context
             configuration: .preview
         )
     }
 }
-

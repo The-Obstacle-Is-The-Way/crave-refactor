@@ -122,4 +122,3 @@ extension BasicAnalyticsResult {
         return data
     }
 }
-

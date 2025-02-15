@@ -34,7 +34,7 @@ CRAVEApp/
 │   │       ├── CraveButton.swift    // Reusable UI components
 │   │       └── CraveTextEditor.swift
 │   ├── Extensions/
-│   │   ├── Date+Formatting.swift  // ALL Date extensions in ONE file.
+│   │   ├── Date+Extensions.swift  // ALL Date extensions in ONE file.
 │   │   ├── View+Extensions.swift
 │   │   ├── Array+Analytics.swift  // If you have array-specific extensions for analytics.
 │   │   └── Dictionary+Analytics.swift // If you have dictionary-specific extensions.
@@ -123,6 +123,7 @@ CRAVEApp/
     │   └── InteractionDataTests.swift
     └── CRAVEUITests/  <-- Your UI tests.
         └── CRAVEUITests.swift
+
 
 
 ```
