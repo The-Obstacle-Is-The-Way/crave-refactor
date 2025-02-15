@@ -1,6 +1,8 @@
 //
-//  CravingBarChart.swift
-//  CRAVE
+//  🍒
+//  CRAVEApp/Screens/AnalyticsDashboard/Components/CravingBarChart
+//  Purpose:
+//
 //
 
 import SwiftUI
@@ -20,19 +22,21 @@ struct CravingBarChart: View {
                 Chart {
                     ForEach(data.sorted(by: { $0.key < $1.key }), id: \.key) { date, count in
                         BarMark(
-                            x: .value("Date", date),
+                            x: .value("Date", date, unit: .day), // Use .day for daily data
                             y: .value("Cravings", count)
                         )
+                        .foregroundStyle(Color.blue) // Use a specific color
                     }
                 }
                 .chartYAxis {
-                    AxisMarks(position: .leading)
+                    AxisMarks(position: .leading) // Keep Y axis on the leading edge
                 }
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 7)) { value in
+                    AxisMarks(values: .automatic(desiredCount: 7)) { value in // Aim for ~7 marks
                         AxisGridLine()
                         AxisTick()
-                        AxisValueLabel(format: .dateTime.month().day())
+                        // Format as month and day
+                        AxisValueLabel(format: .dateTime.month(.abbreviated).day())
                     }
                 }
                 .frame(height: 300)

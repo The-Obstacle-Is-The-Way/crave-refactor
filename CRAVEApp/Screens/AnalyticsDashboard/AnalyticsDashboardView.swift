@@ -1,4 +1,9 @@
-//CRAVEApp/Screens/AnalyticsDashboard/AnalyticsDashboardView.swift
+//
+//  🍒
+//  CRAVEApp/Screens/AnalyticsDashboard/AnalyticsDashboardView.swift
+//
+//
+
 import SwiftUI
 import SwiftData
 
@@ -13,28 +18,27 @@ struct AnalyticsDashboardView: View {
                     .font(.title2)
                     .bold()
                     .padding(.top)
-                
-                // Bar Chart
+
+                // Bar Chart (Placeholder - you'll need to implement CravingBarChart)
                 CravingBarChart(data: stats.cravingsPerDay)
 
                 Text("Time of Day")
                     .font(.title2)
                     .bold()
                     .padding(.top)
-                
-                // Pie Chart
+
+                // Pie Chart (Placeholder - you'll need to implement TimeOfDayPieChart)
                 TimeOfDayPieChart(data: stats.cravingsByTimeSlot)
-                
+
                 Spacer()
             } else {
                 ProgressView("Loading Analytics...")
             }
         }
+        .navigationTitle("Analytics") // Keep navigationTitle
         .onAppear {
-            viewModel.setModelContext(modelContext)
-            viewModel.loadAnalytics()
+            viewModel.loadAnalytics(modelContext: modelContext) // Pass modelContext
         }
     }
 }
-
 

@@ -1,6 +1,9 @@
 //
-// CRAVEApp/Analytics/AnalyticsInsight.swift
-// Purpose: Defines the insight generation system for analytics data
+//
+//  🍒
+//  CRAVEApp/Analytics/AnalyticsInsight.swift
+//  Purpose: Defines the insight generation system for analytics data
+//
 //
 
 import Foundation

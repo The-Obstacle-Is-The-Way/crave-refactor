@@ -1,4 +1,9 @@
-// CalendarHeatmapView.swift
+//
+//  🍒
+//  CRAVEApp/Screens/AnalyticsDashboard/Components/CalendarHeatmapView.swift
+//  Purpose:
+//
+//
 
 import SwiftUI
 

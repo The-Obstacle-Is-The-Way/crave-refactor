@@ -1,4 +1,9 @@
-// CRAVEApp/Screens/CravingList/CravingListAnalytics.swift
+//
+//  🍒
+//  CRAVEApp/Screens/CravingList/CravingListAnalytics.swift
+//
+//
+
 
 import SwiftUI
 import SwiftData

@@ -1,6 +1,9 @@
 //
-//  PatternVisualizationView.swift
-//  CRAVE
+//
+//  🍒
+//  CRAVEApp/Screens/AnalyticsDashboard/Components/PatternVisualizationView.swift
+//  Purpose:
+//
 //
 
 import SwiftUI

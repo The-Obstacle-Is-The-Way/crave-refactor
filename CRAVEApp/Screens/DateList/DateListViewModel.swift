@@ -1,55 +1,56 @@
+//
+// 🍒
 // CRAVEApp/Screens/DateList/DateListViewModel.swift
+//
+//
+
 import Foundation
 import SwiftData
 
 @MainActor
 final class DateListViewModel: ObservableObject {
     @Published var cravings: [CravingModel] = []
-    private var modelContext: ModelContext? // Keep this as an optional
 
     init() {
+        // Initialization, if needed
     }
 
     /// Groups cravings by the day they occurred.
     var groupedCravings: [String: [CravingModel]] {
         Dictionary(grouping: cravings) { craving in
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
-            return formatter.string(from: craving.timestamp)
+            craving.timestamp.formattedDate() // Use the extension method
         }
     }
 
-    /// Loads cravings from the persistent store asynchronously.
-      func loadCravings() {
-        // No guard needed here, we handle the optional context in fetchCravings
+    func loadCravings(modelContext: ModelContext) { // Pass modelContext
         Task {
-            let fetchedCravings = await fetchCravings()
-            await MainActor.run {
-                cravings = fetchedCravings
-            }
+            await fetchCravings(modelContext: modelContext) // Await the fetch
         }
     }
 
-    private func fetchCravings() async -> [CravingModel] {
-        guard let modelContext = self.modelContext else { // Correct unwrapping
-            print("ModelContext not available.")
-            return []
-        }
+    private func fetchCravings(modelContext: ModelContext) async { // Separate async method
         do {
-            let descriptor = FetchDescriptor<CravingModel>(predicate: #Predicate { !$0.isArchived }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
-            return try modelContext.fetch(descriptor) // Correctly use the LOCAL 'modelContext'
+            let descriptor = FetchDescriptor<CravingModel>(
+                predicate: #Predicate { !$0.isArchived },
+                sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+            )
+            let fetchedCravings = try modelContext.fetch(descriptor)
+            // Update on the main thread
+            self.cravings = fetchedCravings // No need for MainActor.run, we're already on @MainActor
+
         } catch {
             print("Error fetching cravings: \(error)")
-            return []
+            // TODO: Handle the error (e.g., show an error message)
         }
-    }
-    
-    func setModelContext(_ context: ModelContext) {
-        // Only set and load if context is not already set
-        guard self.modelContext == nil else { return }
-        self.modelContext = context
-        loadCravings() // Load cravings when context is set
     }
 }
 
+// Extension for date formatting (Keep this for now)
+extension Date {
+    /// Returns a formatted date string (e.g., "Jan 1, 2023").
+    func formattedDate() -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: self)
+    }
+}

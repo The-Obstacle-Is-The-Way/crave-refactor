@@ -1,29 +1,31 @@
 //
-//  AnalyticsDashboardViewModel.swift
-//  CRAVE
+//  🍒
+//  CRAVEApp/Screens/AnalyticsDashboard/AnalyticsDashboardViewModel.swift
+//
 //
 
 import SwiftUI
 import SwiftData
+import Combine
 
 @MainActor
 final class AnalyticsDashboardViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
-    private var analyticsManager: AnalyticsManager?
+    private var analyticsManager: AnalyticsManager? // Optional, as it depends on modelContext
 
-    // Function to set the ModelContext
-    func setModelContext(_ modelContext: ModelContext) {
+    func loadAnalytics(modelContext: ModelContext) {
+        // Initialize AnalyticsManager here, when modelContext is available
         self.analyticsManager = AnalyticsManager(modelContext: modelContext)
-    }
 
-    // Load analytics data
-    func loadAnalytics() {
-        guard let analyticsManager = analyticsManager else {
-            print("ModelContext is not set.")
-            return
-        }
         Task {
-            self.basicStats = await analyticsManager.getBasicStats()
+            // Use 'if let' to safely unwrap analyticsManager
+            if let manager = analyticsManager {
+                self.basicStats = await manager.getBasicStats()
+            } else {
+                // Handle the case where analyticsManager is nil (shouldn't happen, but good practice)
+                print("Error: AnalyticsManager not initialized.")
+                // Consider setting an error state here, which you could display in the UI.
+            }
         }
     }
 }

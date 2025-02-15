@@ -1,14 +1,15 @@
-// CRAVEApp/Screens/CravingList/CravingListView.swift
+//
+//  🍒
+//  CRAVEApp/Screens/CravingList/CravingListView.swift
+//
+//
+
 import SwiftUI
 import SwiftData
 
 struct CravingListView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var viewModel: CravingListViewModel  // Declare, not initialize
-
-    init() {
-        _viewModel = StateObject(wrappedValue: CravingListViewModel()) // Initialize in init
-    }
+    @StateObject private var viewModel = CravingListViewModel()
 
     var body: some View {
         NavigationView { // Keep this NavigationView
@@ -23,24 +24,26 @@ struct CravingListView: View {
                     .swipeActions {
                         Button(role: .destructive) {
                             Task {
-                                await viewModel.archiveCraving(craving)
+                                await viewModel.archiveCraving(craving, modelContext: modelContext) // Pass context
                             }
                         } label: {
-                            Label("Archive", systemImage: "archive")
+                            Label("Archive", systemImage: "archivebox") // Corrected the image name
+                        }
+                        
+                        Button(role: .destructive) { //Added delete button
+                            Task {
+                                await viewModel.deleteCraving(craving, modelContext: modelContext)
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
                     }
                 }
             }
             .navigationTitle("Cravings")
-            .refreshable {
-                await viewModel.refreshData()
+            .task { // Use .task for async loading
+                await viewModel.loadData(modelContext: modelContext) // Pass context
             }
-           // .task { // Removed .task
-            //    await viewModel.loadInitialData()
-           // }
-        }
-        .onAppear {
-            viewModel.setModelContext(modelContext) // Set context here
         }
     }
 }

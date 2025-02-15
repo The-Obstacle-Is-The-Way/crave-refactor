@@ -1,3 +1,5 @@
-// CRAVEApp/Screens/LogCraving/LogCravingAnalytics.swift
-
-
+//
+//  🍒
+//  CRAVEApp/Screens/LogCraving/LogCravingAnalytics.swift
+//
+//

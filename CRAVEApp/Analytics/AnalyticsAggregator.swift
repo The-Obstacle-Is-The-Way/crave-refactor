@@ -1,6 +1,9 @@
 //
-// CRAVEApp/Analytics/AnalyticsAggregator.swift
-//  CRAVE
+//
+//  🍒
+//  CRAVEApp/Analytics/AnalyticsAggregator.swift
+//  Purpose: 
+//
 //
 
 import Foundation

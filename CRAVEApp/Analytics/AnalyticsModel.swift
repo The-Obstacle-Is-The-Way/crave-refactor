@@ -1,5 +1,9 @@
 //
-// CRAVEApp/Analytics/AnalyticsModel.swift
+//
+//  🍒
+//  CRAVEApp/Analytics/AnalyticsModel.swift
+//  Purpose
+//
 //
 
 import Foundation

@@ -1,7 +1,8 @@
 //
 //
-// CRAVEApp/Analytics/AnalyticsCoordinator.swift
-// Purpose: Coordinates and orchestrates all analytics operations across the app
+//  🍒
+//  CRAVEApp/Analytics/AnalyticsCoordinator.swift
+//  Purpose: Coordinates and orchestrates all analytics operations across the app
 //
 //
 

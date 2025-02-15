@@ -1,45 +1,53 @@
-// CRAVEApp/Screens/CravingList/CravingListViewModel.swift
+//
+//  🍒
+//  CRAVEApp/Screens/CravingList/CravingListViewModel.swift
+//
+//
+
 import SwiftUI
 import SwiftData
 
 @MainActor
 final class CravingListViewModel: ObservableObject {
     @Published private(set) var cravings: [CravingModel] = []
-    private var modelContext: ModelContext?
-    
-    func setModelContext(_ context: ModelContext) {
-         // Only set the context and load if it hasn't been set before.
-        guard self.modelContext == nil else { return }
-        self.modelContext = context
-        Task { // Use Task to load on context setting
-            await loadInitialData()
-        }
+    //private var modelContext: ModelContext? // Removed.  We'll use dependency injection.
+
+    init() {
+       //We'll use a method to set the Model Context
     }
-    
-    func loadInitialData() async {
-        guard let modelContext = self.modelContext else { return } // Correct unwrapping
+
+    func loadData(modelContext: ModelContext) async { // Added ModelContext
         do {
             let descriptor = FetchDescriptor<CravingModel>(
-                predicate: #Predicate<CravingModel> { !$0.isArchived }
+                predicate: #Predicate<CravingModel> { !$0.isArchived },
+                sortBy: [SortDescriptor(\.timestamp, order: .reverse)] // Correct order
             )
-            cravings = try modelContext.fetch(descriptor) // Correctly use the LOCAL 'modelContext'
+            cravings = try modelContext.fetch(descriptor)
         } catch {
             print("Error loading cravings: \(error)")
+            // TODO: Handle the error more gracefully (e.g., show an error message to the user)
+        }
+    }
+
+    func archiveCraving(_ craving: CravingModel, modelContext: ModelContext) async { // Added ModelContext
+        craving.isArchived = true
+        do {
+            try modelContext.save()
+            await loadData(modelContext: modelContext) // Reload after archiving. Pass the context.
+        } catch {
+            print("Error archiving craving: \(error)")
+            // TODO: Handle the error
         }
     }
     
-    func refreshData() async {
-        await loadInitialData()
-    }
-    
-    func archiveCraving(_ craving: CravingModel) async {
-       guard let modelContext = self.modelContext else { return } // Correct unwrapping
+    func deleteCraving(_ craving: CravingModel, modelContext: ModelContext) async { // Added delete function
+        modelContext.delete(craving)
         do {
-            craving.isArchived = true
-            try modelContext.save()  // Correctly use the LOCAL 'modelContext'
-            await loadInitialData() // Reload after archiving
+            try modelContext.save()
+            await loadData(modelContext: modelContext) // Reload after archiving. Pass the context.
         } catch {
-            print("Error archiving craving: \(error)")
+            print("Error deleting craving: \(error)")
+            // TODO: Handle the error
         }
     }
 }

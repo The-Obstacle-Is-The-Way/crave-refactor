@@ -1,6 +1,9 @@
 //
-// CRAVEApp/Analytics/AnalyticsEvent.swift
-// Purpose: Defines the core analytics event system and event processing pipeline
+//
+//  🍒
+//  CRAVEApp/Analytics/AnalyticsEvent.swift
+//  Purpose: Defines the core analytics event system and event processing pipeline
+//
 //
 
 import Foundation

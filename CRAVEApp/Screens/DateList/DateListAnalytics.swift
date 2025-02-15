@@ -1,4 +1,9 @@
-// CRAVEApp/Screens/DateList/DateListAnalytics.swift
+//
+//  🍒
+//  CRAVEApp/Screens/DateList/DateListAnalytics.swift
+//
+//
+
 import SwiftUI
 import SwiftData
 

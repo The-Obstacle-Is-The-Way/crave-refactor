@@ -1,5 +1,10 @@
-// File: AnalyticsPattern.swift
-// Purpose: Defines pattern recognition and analysis for craving behaviors
+//
+//
+//  🍒
+//  CRAVEApp/Analytics/AnalyticsPattern.swift
+//  Purpose: Defines pattern recognition and analysis for craving behaviors
+//
+//
 
 import Foundation
 import SwiftData

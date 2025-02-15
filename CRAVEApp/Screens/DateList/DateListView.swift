@@ -1,10 +1,15 @@
+//
+// 🍒
 // CRAVEApp/Screens/DateList/DateListView.swift
+//
+//
+
 import SwiftUI
 import SwiftData
 
 struct DateListView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var viewModel = DateListViewModel() // Initialize here
+    @StateObject private var viewModel = DateListViewModel()
 
     var body: some View {
         NavigationView {
@@ -31,10 +36,9 @@ struct DateListView: View {
                 }
             }
             .navigationTitle("Cravings by Date")
-            .onAppear {
-                viewModel.setModelContext(modelContext) // Set context here
+            .task { // Use .task for async loading
+                viewModel.loadCravings(modelContext: modelContext) // Pass the modelContext
             }
         }
     }
 }
-
