@@ -34,6 +34,15 @@ struct LogCravingView: View {
                 Spacer()
             }
             .navigationTitle("Log Craving")
+            //UPDATE: Use the new title font
+            .navigationBarTitleDisplayMode(.inline)
+              .toolbar {
+                  ToolbarItem(placement: .principal) {
+                      Text("Log Craving")
+                          .font(CRAVEDesignSystem.Typography.headline)
+                          .foregroundColor(CRAVEDesignSystem.Colors.textPrimary)
+                  }
+              }
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Invalid Input"),
