@@ -4,7 +4,6 @@
 //  Purpose: Defines the contextual data model for analytics insights
 //
 
-
 import Foundation
 import SwiftData
 import CoreLocation
@@ -49,18 +48,17 @@ final class ContextualData {
         self.triggerPatterns = []
         self.copingStrategies = []
     }
-} // End of ContextualData class
+}
 
+// MARK: - Supporting Types
 
-// MARK: - Supporting Types (ALL marked Codable)
-
-struct LocationContext: Codable { // MARKED: Codable
-    var coordinate: CLLocationCoordinate2D // Using CoreLocation type
+struct LocationContext: Codable {
+    var coordinate: CLLocationCoordinate2D
     var placeName: String?
     var placeType: PlaceType
     var isFrequentLocation: Bool
 
-    enum PlaceType: String, Codable { // MARKED: Codable, String RawValue
+    enum PlaceType: String, Codable {
         case home
         case work
         case social
@@ -68,10 +66,14 @@ struct LocationContext: Codable { // MARKED: Codable
         case shopping
         case unknown
     }
-    
+
     // Custom CodingKeys and init(from:) for CLLocationCoordinate2D
     enum CodingKeys: String, CodingKey {
-        case latitude, longitude, placeName, placeType, isFrequentLocation
+        case latitude
+        case longitude
+        case placeName
+        case placeType
+        case isFrequentLocation
     }
 
     init(from decoder: Decoder) throws {
@@ -92,9 +94,9 @@ struct LocationContext: Codable { // MARKED: Codable
         try container.encode(placeType, forKey: .placeType)
         try container.encode(isFrequentLocation, forKey: .isFrequentLocation)
     }
-    
-    //initializer to create location
-    init(coordinate: CLLocationCoordinate2D, placeName: String? = nil, placeType: PlaceType, isFrequentLocation: Bool){
+
+    // Initializer to create LocationContext
+    init(coordinate: CLLocationCoordinate2D, placeName: String? = nil, placeType: PlaceType, isFrequentLocation: Bool) {
         self.coordinate = coordinate
         self.placeName = placeName
         self.placeType = placeType
@@ -102,14 +104,13 @@ struct LocationContext: Codable { // MARKED: Codable
     }
 }
 
-
-struct WeatherContext: Codable { // MARKED: Codable
+struct WeatherContext: Codable {
     var temperature: Double
     var condition: WeatherCondition
     var humidity: Double
     var pressure: Double
 
-    enum WeatherCondition: String, Codable { // MARKED: Codable, String RawValue
+    enum WeatherCondition: String, Codable {
         case clear
         case cloudy
         case rainy
@@ -118,35 +119,44 @@ struct WeatherContext: Codable { // MARKED: Codable
     }
 }
 
-struct TimeContext: Codable { // MARKED: Codable
+struct TimeContext: Codable {
     var timeOfDay: TimeOfDay
     var dayOfWeek: DayOfWeek
     var isWeekend: Bool
     var isHoliday: Bool
     var season: Season
 
-    enum TimeOfDay: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String RawValue
+    enum TimeOfDay: String, Codable, CaseIterable {
         case morning, afternoon, evening, night
     }
 
-    enum DayOfWeek: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String RawValue
+    enum DayOfWeek: String, Codable, CaseIterable {
         case sunday, monday, tuesday, wednesday, thursday, friday, saturday
     }
 
-    enum Season: String, Codable { // MARKED: Codable, String RawValue
+    enum Season: String, Codable {
         case spring
         case summer
         case fall
         case winter
     }
+
+    init() {
+        // Initialize with default values or logic
+        self.timeOfDay = .morning
+        self.dayOfWeek = .monday
+        self.isWeekend = false
+        self.isHoliday = false
+        self.season = .spring
+    }
 }
 
-struct EnvironmentalFactor: Codable { // MARKED: Codable
+struct EnvironmentalFactor: Codable {
     var type: FactorType
     var intensity: Int // 1-10
     var impact: Impact
 
-    enum FactorType: String, Codable { // MARKED: Codable, String RawValue
+    enum FactorType: String, Codable {
         case noise
         case lighting
         case crowding
@@ -154,20 +164,20 @@ struct EnvironmentalFactor: Codable { // MARKED: Codable
         case air_quality
     }
 
-    enum Impact: String, Codable { // MARKED: Codable, String RawValue
+    enum Impact: String, Codable {
         case positive
         case negative
         case neutral
     }
 }
 
-struct EmotionalState: Codable { // MARKED: Codable
+struct EmotionalState: Codable {
     var primaryEmotion: Emotion
     var intensity: Int // 1-10
-    var stress_level: Int // 1-10
+    var stressLevel: Int // 1-10
     var mood: Mood
 
-    enum Emotion: String, Codable { // MARKED: Codable, String RawValue
+    enum Emotion: String, Codable {
         case happy
         case sad
         case angry
@@ -175,39 +185,55 @@ struct EmotionalState: Codable { // MARKED: Codable
         case neutral
     }
 
-    enum Mood: String, Codable { // MARKED: Codable, String RawValue
+    enum Mood: String, Codable {
         case elevated
         case stable
         case depressed
         case mixed
     }
+
+    init() {
+        // Initialize with default values or logic
+        self.primaryEmotion = .neutral
+        self.intensity = 5
+        self.stressLevel = 5
+        self.mood = .stable
+    }
 }
 
-struct PhysicalState: Codable { // MARKED: Codable
-    var energy_level: Int // 1-10
-    var hunger_level: Int // 1-10
-    var sleep_quality: Int // 1-10
-    var physical_discomfort: [Discomfort]
+struct PhysicalState: Codable {
+    var energyLevel: Int // 1-10
+    var hungerLevel: Int // 1-10
+    var sleepQuality: Int // 1-10
+    var physicalDiscomfort: [Discomfort]
 
-    struct Discomfort: Codable { // MARKED: Codable
+    struct Discomfort: Codable {
         var type: DiscomfortType
         var intensity: Int // 1-10
 
-        enum DiscomfortType: String, Codable { // MARKED: Codable, String RawValue
+        enum DiscomfortType: String, Codable {
             case pain
             case fatigue
             case nausea
             case headache
         }
     }
+
+    init() {
+        // Initialize with default values or logic
+        self.energyLevel = 5
+        self.hungerLevel = 5
+        self.sleepQuality = 5
+        self.physicalDiscomfort = []
+    }
 }
 
-struct SocialContext: Codable { // MARKED: Codable
+struct SocialContext: Codable {
     var socialSetting: SocialSetting
     var companionship: [Companion]
     var socialPressure: Int // 1-10
 
-    enum SocialSetting: String, Codable { // MARKED: Codable, String RawValue
+    enum SocialSetting: String, Codable {
         case alone
         case family
         case friends
@@ -215,53 +241,68 @@ struct SocialContext: Codable { // MARKED: Codable
         case strangers
     }
 
-    struct Companion: Codable { // MARKED: Codable
+    struct Companion: Codable {
         var relationship: String
         var influence: Influence
 
-        enum Influence: String, Codable { // MARKED: Codable, String RawValue
+        enum Influence: String, Codable {
             case supportive
             case triggering
             case neutral
         }
     }
+
+    init() {
+        // Initialize with default values or logic
+        self.socialSetting = .alone
+        self.companionship = []
+        self.socialPressure = 5
+    }
 }
 
-struct ActivityContext: Codable { // MARKED: Codable
+struct ActivityContext: Codable {
     var currentActivity: String
     var activityType: ActivityType
-    var engagement_level: Int // 1-10
-    var is_routine: Bool
+    var engagementLevel: Int // 1-10
+    var isRoutine: Bool
 
-    enum ActivityType: String, Codable { // MARKED: Codable, String RawValue
+    enum ActivityType: String, Codable {
         case work
         case leisure
         case exercise
         case social
         case rest
     }
+
+    init() {
+        // Initialize with default values or logic
+        self.currentActivity = "Unknown"
+        self.activityType = .rest
+        self.engagementLevel = 5
+        self.isRoutine = false
+    }
 }
 
-struct EventContext: Codable { // MARKED: Codable
+struct EventContext: Codable {
     var eventType: String
     var timestamp: Date
     var duration: TimeInterval
     var impact: Impact
 
-    enum Impact: String, Codable { // MARKED: Codable, String RawValue
+    enum Impact: String, Codable {
         case trigger
         case neutral
         case protective
     }
 }
 
-struct TriggerPattern: Codable { // MARKED: Codable
-    var pattern_type: PatternType
+struct TriggerPattern: Codable {
+    var patternType: PatternType
     var frequency: Int
     var strength: Double // 0.0-1.0
-    var associated_contexts: [String]
+    var associatedContexts: [String]
 
-    enum PatternType: String, Codable { // MARKED: Codable, String RawValue
+    enum PatternType: String, Codable {
         case time_based
         case location_based
         case social_based
@@ -270,9 +311,10 @@ struct TriggerPattern: Codable { // MARKED: Codable
     }
 }
 
-struct CopingStrategy: Codable { // MARKED: Codable
+struct CopingStrategy: Codable {
     var strategy: String
     var effectiveness: Int // 1-10
-    var usage_count: Int
-    var success_rate: Double // 0.0-1.0
+    var usageCount: Int
+    var successRate: Double // 0.0-1.0
 }
+

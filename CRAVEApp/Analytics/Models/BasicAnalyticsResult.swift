@@ -1,5 +1,5 @@
 //
-//  BasicAnalyticsResult.swift
+//  CRAVEApp/Analytics/Models/BasicAnalyticsResult.swift
 //  CRAVE
 //
 
@@ -23,7 +23,11 @@ struct BasicAnalyticsResult {
     }
     
     var mostActiveTimeSlot: (slot: String, count: Int)? {
-        cravingsByTimeSlot.max(by: { $0.value < $1.value })
+        if let maxElement = cravingsByTimeSlot.max(by: { $0.value < $1.value }) {
+            return (slot: maxElement.key, count: maxElement.value)
+        } else {
+            return nil
+        }
     }
     
     var dateRange: ClosedRange<Date>? {
@@ -56,11 +60,9 @@ struct BasicAnalyticsResult {
     }
     
     func weeklyAverage() -> Double {
-        guard !cravingsByFrequency.isEmpty else { return 0 }
-        let weekCount = Double(Calendar.current.dateComponents([.weekOfYear],
-            from: dateRange?.lowerBound ?? Date(),
-            to: dateRange?.upperBound ?? Date()).weekOfYear ?? 1)
-        return Double(totalCravings) / max(weekCount, 1)
+        guard let dateRange = dateRange else { return 0 }
+        let weeks = Calendar.current.dateComponents([.weekOfYear], from: dateRange.lowerBound, to: dateRange.upperBound).weekOfYear ?? 1
+        return Double(totalCravings) / max(Double(weeks), 1)
     }
     
     func monthlyTrend() -> [(month: Date, count: Int)] {
@@ -81,44 +83,4 @@ struct BasicAnalyticsResult {
     }
 }
 
-// MARK: - Preview Helpers
-extension BasicAnalyticsResult {
-    static var preview: BasicAnalyticsResult {
-        BasicAnalyticsResult(
-            cravingsByFrequency: generatePreviewFrequencyData(),
-            cravingsPerDay: generatePreviewDailyData(),
-            cravingsByTimeSlot: [
-                "Morning": 3,
-                "Afternoon": 5,
-                "Evening": 4,
-                "Night": 2
-            ]
-        )
-    }
-    
-    private static func generatePreviewFrequencyData() -> [Date: Int] {
-        var data: [Date: Int] = [:]
-        let calendar = Calendar.current
-        let today = Date()
-        
-        for day in 0..<30 {
-            if let date = calendar.date(byAdding: .day, value: -day, to: today) {
-                data[date] = Int.random(in: 0...5)
-            }
-        }
-        return data
-    }
-    
-    private static func generatePreviewDailyData() -> [Date: Int] {
-        var data: [Date: Int] = [:]
-        let calendar = Calendar.current
-        let today = Date()
-        
-        for day in 0..<7 {
-            if let date = calendar.date(byAdding: .day, value: -day, to: today) {
-                data[date] = Int.random(in: 1...8)
-            }
-        }
-        return data
-    }
-}
+

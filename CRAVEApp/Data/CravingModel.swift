@@ -6,7 +6,6 @@
 //
 //
 
-
 import Foundation
 import SwiftData
 
@@ -16,27 +15,25 @@ final class CravingModel: Identifiable {
     var cravingText: String
     var timestamp: Date
     var isArchived: Bool
-
     var intensity: Int
     var category: CravingCategory? // Made optional
     var triggers: [String]
-
     var location: LocationData?
     var contextualFactors: [ContextualFactor]
-
     var createdAt: Date
     var modifiedAt: Date
     var analyticsProcessed: Bool
-
     @Relationship(deleteRule: .cascade, inverse: \AnalyticsMetadata.craving)
     var analyticsMetadata: AnalyticsMetadata?
 
-    init(cravingText: String,
-         timestamp: Date = Date(),
-         intensity: Int = 0,
-         category: CravingCategory? = .undefined, // Made optional
-         triggers: [String] = [],
-         location: LocationData? = nil) {
+    init(
+        cravingText: String,
+        timestamp: Date = Date(),
+        intensity: Int = 0,
+        category: CravingCategory? = .undefined, // Made optional
+        triggers: [String] = [],
+        location: LocationData? = nil
+    ) {
         self.id = UUID()
         self.cravingText = cravingText
         self.timestamp = timestamp
@@ -45,9 +42,11 @@ final class CravingModel: Identifiable {
         self.category = category
         self.triggers = triggers
         self.location = location
+        self.contextualFactors = [] // Initialized here
         self.createdAt = Date()
         self.modifiedAt = Date()
         self.analyticsProcessed = false
+        self.analyticsMetadata = nil // Initialized here
     }
 
     // Validation (Example)
@@ -61,7 +60,8 @@ final class CravingModel: Identifiable {
     }
 }
 
-enum CravingCategory: String, Codable, CaseIterable { // MARKED: Codable, CaseIterable, String Raw Value
+// Enums and Structs
+enum CravingCategory: String, Codable, CaseIterable {
     case food
     case drink
     case substance
@@ -69,17 +69,17 @@ enum CravingCategory: String, Codable, CaseIterable { // MARKED: Codable, CaseIt
     case undefined
 }
 
-struct LocationData: Codable { // MARKED: Codable
+struct LocationData: Codable {
     let latitude: Double
     let longitude: Double
     let locationName: String? // Optional
 }
 
-struct ContextualFactor: Codable { // MARKED: Codable
+struct ContextualFactor: Codable {
     let factor: String
     let impact: Impact
 
-    enum Impact: String, Codable { // MARKED: Codable, String RawValue
+    enum Impact: String, Codable {
         case positive
         case negative
         case neutral
@@ -89,8 +89,8 @@ struct ContextualFactor: Codable { // MARKED: Codable
 enum CravingModelError: Error {
     case emptyText
     case invalidIntensity
-    case invalidDuration // No longer used, but kept in case you add duration back
-    case invalidCategory // No longer used, but kept in case you add category back
+    case invalidDuration
+    case invalidCategory
     case invalidLocation
 
     var localizedDescription: String {
