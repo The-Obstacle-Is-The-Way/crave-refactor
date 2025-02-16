@@ -16,7 +16,13 @@ struct CRAVEApp: App {
         do {
             // Register Value Transformers *before* creating the ModelContainer
             ValueTransformer.registerTransformers()
-            container = try ModelContainer(for: CravingModel.self, AnalyticsMetadata.self, InteractionData.self, ContextualData.self, configurations: ModelConfiguration())
+            container = try ModelContainer(
+                for: CravingModel.self,
+                AnalyticsMetadata.self,
+                InteractionData.self,
+                ContextualData.self,
+                configurations: ModelConfiguration()
+            )
         } catch {
             fatalError("Failed to create model container: \(error)")
         }
@@ -25,8 +31,7 @@ struct CRAVEApp: App {
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
-                .modelContainer(container) // CRITICAL: Inject the container here.
+                .modelContainer(container) // Inject the container here
         }
     }
 }
-
