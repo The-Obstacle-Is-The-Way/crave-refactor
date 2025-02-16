@@ -20,7 +20,7 @@ class AnalyticsCoordinator: ObservableObject {
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
-    private let storage: AnalyticsStorage // Corrected type
+    private let storage: AnalyticsStorage
     private let aggregator: AnalyticsAggregator
     private let processor: AnalyticsProcessor
     private let reporter: AnalyticsReporter
@@ -31,18 +31,20 @@ class AnalyticsCoordinator: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
-    init(modelContext: ModelContext) { //Simplified init
+    init(modelContext: ModelContext) {
         self.configuration = .shared
         self.storage = AnalyticsStorage(modelContext: modelContext)
         self.aggregator = AnalyticsAggregator(storage: storage)
         self.processor = AnalyticsProcessor(configuration: .shared, storage: storage)
         self.reporter = AnalyticsReporter(analyticsStorage: storage)
-        self.eventTrackingService = EventTrackingService(storage: storage, configuration: configuration)
-        self.patternDetectionService = PatternDetectionService(storage: storage, configuration: configuration)
+        // Pass in the configuration
+        self.eventTrackingService = EventTrackingService(storage: storage, configuration: self.configuration)
+        self.patternDetectionService = PatternDetectionService(storage: storage, configuration: self.configuration)
         setupBindings()
         setupObservers()
         loadInitialState()
     }
+
 
     // MARK: - Setup Methods
     private func setupBindings() {
@@ -52,13 +54,12 @@ class AnalyticsCoordinator: ObservableObject {
     }
 
     private func setupObservers() {
-        // Store the cancellable returned by sink
          eventTrackingService.eventPublisher
             .sink { completion in
                 switch completion {
                 case .finished:
                     print("Event Publisher finished")
-                case .failure(let error): // Handle potential errors from eventPublisher
+                case .failure(let error):
                     print("Event Publisher error: \(error)")
                 }
             } receiveValue: { [weak self] event in
@@ -67,10 +68,10 @@ class AnalyticsCoordinator: ObservableObject {
                     await self?.handleEvent(event)
                 }
             }
-            .store(in: &cancellables) // Use .store(in:) - MUCH CLEANER
+            .store(in: &cancellables)
 
          patternDetectionService.$detectionState
-            .sink { [weak self] (state: DetectionState) in // Add type annotation here
+            .sink { [weak self] (state: DetectionState) in
                 switch state {
                 case .idle:
                     self?.detectionState = .idle
@@ -82,12 +83,12 @@ class AnalyticsCoordinator: ObservableObject {
                     self?.detectionState = .error(error)
                 }
             }
-            .store(in: &cancellables) // Use .store(in:) - MUCH CLEANER
+            .store(in: &cancellables)
 
         patternDetectionService.$detectedPatterns
-            .assign(to: &$detectedPatterns) // Directly assign, type is now correct
-            // Removed cancellables.insert. assign(to:) handles this.
+            .assign(to: &$detectedPatterns)
     }
+
 
     private func loadInitialState() {
         isAnalyticsEnabled = configuration.featureFlags.isAnalyticsEnabled
@@ -95,7 +96,7 @@ class AnalyticsCoordinator: ObservableObject {
 
     // MARK: - Event Processing
     func trackEvent(_ event: CravingModel) async throws {
-        try await eventTrackingService.trackCravingEvent(CravingEvent(cravingId: event.id, cravingText: event.cravingText)) // Simplified tracking
+        try await eventTrackingService.trackCravingEvent(CravingEvent(cravingId: event.id, cravingText: event.cravingText))
     }
 
     private func handleEvent(_ event: AnalyticsEvent) async {
@@ -123,3 +124,4 @@ class AnalyticsCoordinator: ObservableObject {
         case error(Error)
     }
 }
+

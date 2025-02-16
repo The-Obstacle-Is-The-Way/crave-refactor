@@ -1,14 +1,8 @@
 //
 //
 //  🍒
-//  CRAVEApp/AnalyticsTransformers.swift
+//  CRAVEApp/Analytics/Utilities/AnalyticsTransformers.swift
 //  Purpose:
-//
-//
-
-//
-//  AnalyticsTransformers.swift
-//  CRAVE
 //
 //
 
@@ -16,36 +10,19 @@ import Foundation
 import SwiftData
 
 // Transformer for [UserAction]
-final class UserActionsTransformer: ValueTransformer {
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let actions = value as? [AnalyticsMetadata.UserAction] else { return nil }
-        do {
-            let data = try JSONEncoder().encode(actions)
-            return data
-        } catch {
-            print("Failed to transform [UserAction] to Data: \(error)")
-            return nil
-        }
+final class UserActionsTransformer: NSSecureUnarchiveFromDataTransformer { // Inherit from NSSecureUnarchiveFromDataTransformer
+
+    // Define the allowed class for transformation
+    override class var allowedTopLevelClasses: [AnyClass] {
+        return [[AnalyticsMetadata.UserAction].self]
     }
 
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? Data else { return nil }
-        do {
-            let actions = try JSONDecoder().decode([AnalyticsMetadata.UserAction].self, from: data)
-            return actions
-        } catch {
-            print("Failed to transform Data to [UserAction]: \(error)")
-            return nil
-        }
-    }
-    
-    override class func allowsReverseTransformation() -> Bool {
-        return true
-    }
-    
+    // No need for transformedValue and reverseTransformedValue, NSSecureUnarchiveFromDataTransformer handles it
+
     static func register() {
+        let transformerName = NSValueTransformerName(String(describing: UserActionsTransformer.self))
         let transformer = UserActionsTransformer()
-        ValueTransformer.setValueTransformer(transformer, forName: NSValueTransformerName(rawValue: "UserActionsTransformer"))
+        ValueTransformer.setValueTransformer(transformer, forName: transformerName)
     }
 }
 

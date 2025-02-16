@@ -1,8 +1,7 @@
 //
-//  AnalyticsError.swift
+//  CRAVEApp/Analytics/Utilities/AnalyticsError.swift
 //  CRAVE
 //
-//  Created by Your Name on 2/12/25.
 //
 
 import UIKit
