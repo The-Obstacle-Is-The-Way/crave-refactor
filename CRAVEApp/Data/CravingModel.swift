@@ -24,7 +24,7 @@ final class CravingModel: Identifiable {
     var modifiedAt: Date
     var analyticsProcessed: Bool
 
-    // Remove the inverse parameter to avoid the circular macro error.
+    // Remove 'inverse:' here to avoid the circular macro error
     @Relationship(deleteRule: .cascade)
     var analyticsMetadata: AnalyticsMetadata?
 
@@ -54,7 +54,7 @@ final class CravingModel: Identifiable {
         self.analyticsProcessed = analyticsProcessed
     }
 
-    // Validation (Example)
+    // Validation
     func validate() throws {
         if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             throw CravingModelError.emptyText
