@@ -1,11 +1,10 @@
 //
 //
-//
+//  🍒
 //  CRAVEApp/Core/Extensions/Date+Extensions.swift
+//  Purpose: Date extensions for formatting and relative date strings.
 //
 //
-//
-
 
 import Foundation
 

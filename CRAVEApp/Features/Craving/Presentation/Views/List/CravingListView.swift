@@ -1,9 +1,9 @@
 //
 //  🍒
 //  CRAVEApp/Screens/CravingList/CravingListView.swift
+//  Purpose: A view that displays a list of cravings.
 //
 //
-
 
 import SwiftUI
 import SwiftData
@@ -19,7 +19,8 @@ struct CravingListView: View {
                     VStack(alignment: .leading) {
                         Text(craving.cravingText)
                             .font(.headline)
-                        Text(craving.timestamp, style: .date)
+                        //CHANGE HERE
+                        Text(craving.timestamp.toRelativeString()) // Use relative date formatting
                             .foregroundColor(.secondary)
                     }
                     .swipeActions {

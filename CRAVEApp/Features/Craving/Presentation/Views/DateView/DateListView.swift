@@ -1,6 +1,8 @@
 //
-// 🍒
-// CRAVEApp/Screens/DateList/DateListView.swift
+//
+//  🍒
+//  CRAVEApp/Features/Craving/Views/DateView/DateListView.swift
+//  Purpose: Displays a list of cravings grouped by date.
 //
 //
 
@@ -20,13 +22,14 @@ struct DateListView: View {
                         .foregroundColor(.gray)
                         .padding()
                 } else {
+                    //CHANGE HERE
                     ForEach(viewModel.groupedCravings.keys.sorted(), id: \.self) { date in
-                        Section(header: Text(date).font(.headline)) {
+                        Section(header: Text(date).font(.headline)) { // Keep the original date format for the section header
                             ForEach(viewModel.groupedCravings[date] ?? []) { craving in
                                 VStack(alignment: .leading) {
                                     Text(craving.cravingText)
                                         .font(.headline)
-                                    Text(craving.timestamp, style: .time)
+                                    Text(craving.timestamp.toRelativeString()) // Use toRelativeString here
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                 }
