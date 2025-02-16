@@ -5,34 +5,41 @@
 //
 //
 
+//
+//  🍒
+//  CRAVEApp/CRAVEApp.swift
+//  Purpose: Main entry point for the app.
+//
+//
+
 import SwiftUI
 import SwiftData
 
 @main
 struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer
+    let container: ModelContainer
 
     init() {
-        // *** Register the transformer BEFORE creating the container ***
-        ValueTransformer.setValueTransformer(UserActionsTransformer(), forName: NSValueTransformerName("UserActionsTransformer"))
-
         do {
-            sharedModelContainer = try ModelContainer(
+            // Register Value Transformers *before* creating the ModelContainer
+            ValueTransformer.registerTransformers()
+            container = try ModelContainer(
                 for: CravingModel.self,
                 AnalyticsMetadata.self,
                 InteractionData.self,
-                ContextualData.self
+                ContextualData.self,
+                configurations: ModelConfiguration()
             )
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Failed to create model container: \(error)")
         }
     }
-
 
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
+                .modelContainer(container) // Inject the container here
         }
-        .modelContainer(sharedModelContainer)
     }
+
 }

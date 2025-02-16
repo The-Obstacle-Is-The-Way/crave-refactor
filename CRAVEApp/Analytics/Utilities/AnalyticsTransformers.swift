@@ -6,6 +6,8 @@
 //
 //
 
+
+
 import Foundation
 import SwiftData
 
@@ -32,8 +34,21 @@ final class UserActionsTransformer: ValueTransformer {
             return nil
         }
     }
-
+    
     override class func allowsReverseTransformation() -> Bool {
         return true
     }
+    
+    static func register() {
+        let transformer = UserActionsTransformer()
+        ValueTransformer.setValueTransformer(transformer, forName: NSValueTransformerName(rawValue: "UserActionsTransformer"))
+    }
 }
+
+//Register the transformers
+extension ValueTransformer {
+    static func registerTransformers() {
+        UserActionsTransformer.register()
+    }
+}
+
