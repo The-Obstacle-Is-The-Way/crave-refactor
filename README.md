@@ -85,19 +85,19 @@ CRAVE
 
 ## Architecture
 
-<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-architecture.png" alt="CRAVE Architecture" width="800"/>
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-architecture.svg" alt="CRAVE Architecture" width="800"/>
 
 ---
 
 ## Logging Flow
 
-<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-logging-flow.png" alt="CRAVE Logging Flow" width="800"/>
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-logging-flow.svg" alt="CRAVE Logging Flow" width="800"/>
 
 ---
 
 ## Navigation States
 
-<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-navigation-states.png" alt="CRAVE Navigation States" width="800"/>
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Docs/Images/crave-navigation-states.svg" alt="CRAVE Navigation States" width="800"/>
 
 ---
 
