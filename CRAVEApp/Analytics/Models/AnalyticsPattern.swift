@@ -9,13 +9,12 @@ import SwiftData
 
 // MARK: - CravingAnalytics Struct (NEW)
 // Define this struct to represent the data used for pattern matching.
-struct CravingAnalytics {  // Create a struct to hold the data
+struct CravingAnalytics {
     let timestamp: Date
     let triggers: Set<String> // Assuming triggers are strings
     let intensity: Int        // Assuming intensity is available
     // Add other relevant properties as needed
 }
-
 
 // MARK: - Pattern Protocol
 protocol AnalyticsPattern: Codable, Identifiable {
@@ -55,11 +54,11 @@ class BasePattern: AnalyticsPattern {
         self.observations = []
     }
     
-    func matches(_ analytics: CravingAnalytics) -> Bool { // Use CravingAnalytics
+    func matches(_ analytics: CravingAnalytics) -> Bool {
         fatalError("Must be implemented by subclass")
     }
     
-    func updateWith(_ analytics: CravingAnalytics) { // Use CravingAnalytics
+    func updateWith(_ analytics: CravingAnalytics) {
         frequency += 1
         lastObserved = analytics.timestamp
         
@@ -69,21 +68,37 @@ class BasePattern: AnalyticsPattern {
         )
         observations.append(observation)
         
+        // Now we update confidence using the concrete implementation.
         confidence = calculateConfidence()
         updateMetadata(with: analytics)
     }
     
     // Changed from private to internal so it can be overridden
-    func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
-        // Default implementation - override in subclasses
+    func calculateStrength(for analytics: CravingAnalytics) -> Double {
+        // Default implementation - override in subclasses if needed
         return 1.0
     }
     
-    private func updateMetadata(with analytics: CravingAnalytics) { // Use CravingAnalytics
+    // **New Implementation:** Conforming to protocol requirement
+    func calculateConfidence() -> Double {
+        guard !observations.isEmpty else { return 0.0 }
+        
+        let totalStrength = observations.reduce(0.0) { $0 + $1.strength }
+        let averageStrength = totalStrength / Double(observations.count)
+        
+        // Factor in frequency and time span
+        let timeSpan = lastObserved.timeIntervalSince(firstObserved)
+        let frequencyFactor = min(Double(frequency) / 10.0, 1.0) // Cap at 10 observations
+        let timeFactor = min(timeSpan / (30 * 24 * 3600), 1.0)    // Cap at 30 days
+        
+        return averageStrength * frequencyFactor * timeFactor
+    }
+    
+    private func updateMetadata(with analytics: CravingAnalytics) {
         metadata.updateWith(analytics)
     }
     
-    // MARK: - Codable Conformance (Add this to BasePattern)
+    // MARK: - Codable Conformance
     enum CodingKeys: String, CodingKey {
         case id, patternType, confidence, frequency, firstObserved, lastObserved, metadata, observations
     }
@@ -99,7 +114,7 @@ class BasePattern: AnalyticsPattern {
         metadata = try container.decode(PatternMetadata.self, forKey: .metadata)
         observations = try container.decode([PatternObservation].self, forKey: .observations)
     }
-
+    
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -124,19 +139,19 @@ class TimeBasedPattern: BasePattern {
         super.init(type: .timeBased, metadata: PatternMetadata())
     }
     
-    override func matches(_ analytics: CravingAnalytics) -> Bool {  // Use CravingAnalytics
+    override func matches(_ analytics: CravingAnalytics) -> Bool {
         let hour = Calendar.current.component(.hour, from: analytics.timestamp)
         let minuteDifference = abs(Double(hour - targetHour) * 3600)
         return minuteDifference <= timeWindow
     }
     
-    override func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
+    override func calculateStrength(for analytics: CravingAnalytics) -> Double {
         let hour = Calendar.current.component(.hour, from: analytics.timestamp)
         let hourDifference = abs(Double(hour - targetHour))
         return max(1.0 - (hourDifference / 12.0), 0.0)
     }
     
-    // MARK: - Codable Conformance (Add to TimeBasedPattern)
+    // MARK: - Codable Conformance for TimeBasedPattern
     enum TimeBasedPatternCodingKeys: String, CodingKey {
         case timeWindow, targetHour
     }
@@ -164,16 +179,16 @@ class TriggerBasedPattern: BasePattern {
         super.init(type: .triggerBased, metadata: PatternMetadata())
     }
     
-    override func matches(_ analytics: CravingAnalytics) -> Bool { // Use CravingAnalytics
+    override func matches(_ analytics: CravingAnalytics) -> Bool {
         !triggerSet.isDisjoint(with: analytics.triggers)
     }
     
-    override func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
+    override func calculateStrength(for analytics: CravingAnalytics) -> Double {
         let commonTriggers = triggerSet.intersection(analytics.triggers)
         return Double(commonTriggers.count) / Double(triggerSet.count)
     }
     
-    // MARK: - Codable Conformance (Add to TriggerBasedPattern)
+    // MARK: - Codable Conformance for TriggerBasedPattern
     enum TriggerBasedPatternCodingKeys: String, CodingKey {
         case triggerSet
     }
@@ -206,10 +221,10 @@ struct PatternMetadata: Codable {
     var successRate: Double = 0.0
     var contextualFactors: [String: Int] = [:]
     
-    mutating func updateWith(_ analytics: CravingAnalytics) { // Use CravingAnalytics
+    mutating func updateWith(_ analytics: CravingAnalytics) {
         observations += 1
         averageIntensity = ((averageIntensity * Double(observations - 1)) + Double(analytics.intensity)) / Double(observations)
-        // Update other metadata...
+        // Update other metadata as needed...
     }
 }
 
@@ -218,7 +233,7 @@ struct PatternObservation: Codable {
     let strength: Double
 }
 
-// MARK: - Pattern Recognition Engine (Placeholder - will be implemented later)
+// MARK: - Pattern Recognition Engine (Placeholder)
 class PatternRecognitionEngine {
     private var patterns: [any AnalyticsPattern] = [] // Use 'any'
     private let configuration: PatternConfiguration
@@ -227,20 +242,15 @@ class PatternRecognitionEngine {
         self.configuration = configuration
     }
     
-    func processAnalytics(_ analytics: CravingAnalytics) { // Use CravingAnalytics
-        // Update existing patterns
+    func processAnalytics(_ analytics: CravingAnalytics) {
         updateExistingPatterns(with: analytics)
-        
-        // Detect new patterns
         if let newPattern = detectNewPattern(from: analytics) {
             patterns.append(newPattern)
         }
-        
-        // Prune low-confidence patterns
         prunePatterns()
     }
     
-    private func updateExistingPatterns(with analytics: CravingAnalytics) { // Use CravingAnalytics
+    private func updateExistingPatterns(with analytics: CravingAnalytics) {
         patterns.forEach { pattern in
             if pattern.matches(analytics) {
                 pattern.updateWith(analytics)
@@ -248,7 +258,7 @@ class PatternRecognitionEngine {
         }
     }
     
-    private func detectNewPattern(from analytics: CravingAnalytics) -> (any AnalyticsPattern)? { // Use 'any'
+    private func detectNewPattern(from analytics: CravingAnalytics) -> (any AnalyticsPattern)? {
         // Implement pattern detection logic
         return nil
     }

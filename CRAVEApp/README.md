@@ -8,80 +8,105 @@
 
 ```bash
 
-CRAVE
-├── CRAVE.xcodeproj
-├── CRAVEApp.swift
-├── CRAVE.entitlements
-├── CRAVE.xctestplan
-├── README.md
-├── CRAVEAPP
-│   ├── Analytics
-│   │   ├── Services
-│   │   │   ├── AnalyticsAggregator.swift
-│   │   │   ├── AnalyticsProcessor.swift
-│   │   │   ├── AnalyticsReporter.swift
-│   │   │   ├── AnalyticsStorage.swift
-│   │   │   └── PatternDetectionService.swift
-│   │   └── AnalyticsConfiguration.swift
+CRAVEApp
+├── Analytics
+│   ├── Configuration
+│   │   └── AnalyticsConfiguration
 │   ├── Coordination
-│   │   └── AnalyticsCoordinator.swift
-│   ├── Data
-│   │   ├── CravingManager.swift
-│   │   ├── CravingModel.swift
-│   │   └── CravingType.swift
-│   ├── Docs
-│   │   ├── Images
-│   │   │   ├── crave-architecture.png
-│   │   │   ├── log-craving-flow.png
-│   │   │   └── crave-navigation-states.png
-│   │   ├── AnalyticsAPIReference.md
-│   │   └── AnalyticsImplementationGuide.md
+│   │   └── AnalyticsCoordinator
 │   ├── Models
-│   │   ├── AnalyticsMetadata.swift
-│   │   ├── BasicAnalyticsResults.swift
-│   │   ├── ContextualData.swift
-│   │   └── TimeSeries.swift
-│   ├── Navigation
-│   │   └── CRAVETabView.swift
-│   ├── Preview Content
+│   │   ├── AnalyticsEvent
+│   │   ├── AnalyticsInsight
+│   │   ├── AnalyticsMetadata
+│   │   ├── AnalyticsPattern
+│   │   ├── AnalyticsPrediction
+│   │   ├── BasicAnalyticsResult
+│   │   └── ContextualData
 │   ├── Queries
-│   │   ├── CalendarViewQuery.swift
-│   │   ├── FrequencyQuery.swift
-│   │   ├── PatternQuery.swift
-│   │   └── TimeOfDayQuery.swift
-│   ├── Screens
-│   │   ├── AnalyticsDashboard
-│   │   │   ├── AnalyticsDashboardView.swift
-│   │   │   └── AnalyticsDashboardViewModel.swift
-│   │   ├── CravingList
-│   │   │   ├── CravingListView.swift
-│   │   │   └── CravingListViewModel.swift
-│   │   └── LogCraving
-│   │       ├── LogCravingView.swift
-│   │       └── LogCravingViewModel.swift
-│   └── UI
-│       ├── Components
-│       │   ├── AnalyticsFormatter.swift
-│       │   ├── CalendarHeatmapView.swift
-│       │   ├── CravingBarChart.swift
-│       │   ├── PatternVisualizationView.swift
-│       │   └── TimeOfDayPieChart.swift
-│       ├── AnalyticsView.swift
-│       ├── AnalyticsViewModel.swift
-│       └── CRAVEDesignSystem.swift
-└── Tests
-    ├── CRAVETests
-    │   ├── AnalyticsAggregatorTests.swift
-    │   ├── AnalyticsCoordinatorTests.swift
-    │   ├── AnalyticsManagerTests.swift
-    │   ├── AnalyticsPredictionTests.swift
-    │   ├── CravingAnalyticsIntegrationTests.swift
-    │   ├── CravingManagerTests.swift
-    │   ├── CravingModelTests.swift
-    │   └── InteractionDataTests.swift
-    └── CRAVEUITests
-        └── AnalyticsUITests.swift
-
+│   │   ├── CalendarViewQuery
+│   │   ├── FrequencyQuery
+│   │   ├── PatternQuery
+│   │   └── TimeOfDayQuery
+│   └── Services
+│       ├── AnalyticsAggregator
+│       ├── AnalyticsManager
+│       ├── AnalyticsProcessor
+│       ├── AnalyticsReporter
+│       ├── AnalyticsStorage
+│       └── PatternDetectionService
+├── UI
+│   ├── Components
+│   │   ├── AnalyticsInsightView
+│   │   ├── CalendarHeatmapView
+│   │   ├── CravingBarChart
+│   │   ├── PatternVisualizationView
+│   │   └── TimeOfDayPieChart
+│   ├── ViewModels
+│   │   └── AnalyticsViewModel
+│   └── Utilities
+│       ├── AnalyticsError
+│       ├── AnalyticsFormatter
+│       └── AnalyticsTransformers
+├── Core
+│   ├── Configuration
+│   ├── DesignSystem
+│   ├── Extensions
+│   └── Services
+│       └── AnalyticsTypes
+├── Data
+│   ├── CravingAnalyzer
+│   ├── CravingManager
+│   ├── CravingModel
+│   └── InteractionData
+├── Docs
+│   ├── Images
+│   │   ├── crave-architecture
+│   │   ├── crave-logging-flow
+│   │   └── crave-navigation-states
+│   ├── AnalyticsAPIReference
+│   ├── AnalyticsArchitecture
+│   └── AnalyticsImplementationGuide
+├── Navigation
+│   └── CRAVETabView
+├── Preview Content
+│   └── Preview Assets
+├── Screens
+│   ├── AnalyticsDashboard
+│   │   ├── AnalyticsDashboardView
+│   │   └── AnalyticsDashboardViewModel
+│   ├── CravingList
+│   │   ├── CravingListView
+│   │   └── CravingListViewModel
+│   ├── DateList
+│   │   ├── DateListView
+│   │   └── DateListViewModel
+│   └── LogCraving
+│       ├── LogCravingView
+│       └── LogCravingViewModel
+├── Tests
+│   ├── CRAVETests
+│   │   ├── AnalyticsAggregatorTests
+│   │   ├── AnalyticsConfigurationTests
+│   │   ├── AnalyticsCoordinatorTests
+│   │   ├── AnalyticsEventTests
+│   │   ├── AnalyticsInsightTests
+│   │   ├── AnalyticsManagerTests
+│   │   ├── AnalyticsModelTests
+│   │   ├── AnalyticsPatternTests
+│   │   ├── AnalyticsPredictionTests
+│   │   ├── AnalyticsProcessorTests
+│   │   ├── AnalyticsStorageTests
+│   │   ├── CravingAnalyticsIntegrationTests
+│   │   ├── CravingManagerTests
+│   │   ├── CravingModelTests
+│   │   └── InteractionDataTests
+│   └── CRAVEUITests
+│       └── CRAVEUITests
+├── Assets
+├── ContentView
+├── CRAVE
+├── CRAVEApp
+└── README
 
 ```
 ---
