@@ -1,7 +1,7 @@
 //
 //  🍒
 //  CRAVEApp/Navigation/CRAVETabView.swift
-//  Purpose: Main entry point for the app.
+//  Purpose: 
 //
 
 import SwiftUI
