@@ -84,6 +84,7 @@
 				Core/Services/EventTrackingService.swift = (ios, );
 				Data/CravingAnalyzer.swift = (ios, );
 				Data/CravingManager.swift = (ios, );
+				Data/CravingModel.swift = (ios, );
 				Data/InteractionData.swift = (ios, );
 				Navigation/CRAVETabView.swift = (ios, );
 				Screens/AnalyticsDashboard/AnalyticsDashboardView.swift = (ios, );

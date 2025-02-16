@@ -16,10 +16,10 @@ final class AnalyticsMetadata {
     var timestamp: Date
     var interactionCount: Int
     var lastProcessed: Date
-
     @Attribute(.externalStorage) var userActions: [UserAction]
 
-    @Relationship(deleteRule: .cascade)
+    // Define the inverse relationship so that SwiftData knows how AnalyticsMetadata relates to CravingModel.
+    @Relationship(deleteRule: .cascade, inverse: \CravingModel.analyticsMetadata)
     var craving: CravingModel?
 
     init(cravingId: UUID) {
@@ -28,9 +28,9 @@ final class AnalyticsMetadata {
         self.timestamp = Date()
         self.interactionCount = 0
         self.lastProcessed = Date()
-        self.userActions = [] // Initialize as an empty array
+        self.userActions = []
     }
-
+    
     struct UserAction: Codable {
         let timestamp: Date
         let actionType: String

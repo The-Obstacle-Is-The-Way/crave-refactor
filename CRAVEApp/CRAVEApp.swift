@@ -5,13 +5,6 @@
 //
 //
 
-//
-//  🍒
-//  CRAVEApp/CRAVEApp.swift
-//  Purpose: Main entry point for the app.
-//
-//
-
 import SwiftUI
 import SwiftData
 
@@ -21,14 +14,14 @@ struct CRAVEApp: App {
 
     init() {
         do {
-            // Register Value Transformers *before* creating the ModelContainer
+            // Register value transformers before creating the container.
             ValueTransformer.registerTransformers()
             container = try ModelContainer(
                 for: CravingModel.self,
                 AnalyticsMetadata.self,
                 InteractionData.self,
                 ContextualData.self,
-                configurations: ModelConfiguration()
+                configurations: ModelConfiguration() // Explicit configuration is required!
             )
         } catch {
             fatalError("Failed to create model container: \(error)")
@@ -38,8 +31,7 @@ struct CRAVEApp: App {
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
-                .modelContainer(container) // Inject the container here
+                .modelContainer(container) // Inject the container into the view hierarchy.
         }
     }
-
 }
