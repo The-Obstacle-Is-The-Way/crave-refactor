@@ -10,40 +10,26 @@ import SwiftData
 
 @main
 struct CRAVEApp: App {
-    let sharedModelContainer: ModelContainer
-
-    init() {
-        // 1. Register any value transformers BEFORE creating the container.
-        ValueTransformer.setValueTransformer(
-            UserActionsTransformer(),
-            forName: NSValueTransformerName("UserActionsTransformer")
-        )
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            CravingModel.self,
+            AnalyticsMetadata.self,
+            InteractionData.self,
+            ContextualData.self
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
-            // 2. Initialize the ModelContainer with your SwiftData models.
-            //    IMPORTANT: Include *all* your @Model classes here.
-            sharedModelContainer = try ModelContainer(
-                for: CravingModel.self,
-                AnalyticsMetadata.self,
-                InteractionData.self, // Assuming you have this
-                ContextualData.self  // Assuming you have this
-            )
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            fatalError("Could not create ModelContainer: \(error)")
         }
-    }
+    }()
 
     var body: some Scene {
         WindowGroup {
-            CRAVETabView() // Your main view
+            CRAVETabView()
         }
-        .modelContainer(sharedModelContainer) // Inject the container
+        .modelContainer(sharedModelContainer)
     }
 }
-
-/*
-  Additional Best Practices:
-  1.  For new properties, provide default values OR make them optional.
-  2.  Avoid naming properties "isDeleted" (SwiftData uses this internally).
-  3.  ALWAYS define BOTH sides of a two-way relationship with `inverse:`.
-*/

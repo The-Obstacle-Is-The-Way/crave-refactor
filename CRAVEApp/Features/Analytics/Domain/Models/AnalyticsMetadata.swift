@@ -1,9 +1,8 @@
 //
+//  AnalyticsMetadata.swift
+//  CRAVEApp
 //
-//  🍒
-//  CRAVEApp/Data/Entities/AnalyticsMetadata.swift
-//  Purpose:
-//
+//  Purpose: Stores craving analytics metadata.
 //
 
 import Foundation
@@ -12,17 +11,14 @@ import SwiftData
 @Model
 final class AnalyticsMetadata {
     @Attribute(.unique) var id: UUID
-    var cravingId: UUID
+    var cravingId: UUID // Foreign Key - Unidirectional Dependency
     var timestamp: Date
     var interactionCount: Int
     var lastProcessed: Date
-
     @Attribute(.externalStorage)
     var userActions: [UserAction]
 
-    // Must point back to CravingModel — not AnalyticsMetadata
-    @Relationship(deleteRule: .cascade, inverse: \CravingModel.analyticsMetadata)
-    var craving: CravingModel?
+    // NO RELATIONSHIP HERE - Unidirectional Dependency
 
     init(cravingId: UUID) {
         self.id = UUID()

@@ -21,16 +21,9 @@ final class CravingModel: Identifiable {
     var contextualFactors: [ContextualFactor]
     var createdAt: Date
     var modifiedAt: Date
-    var analyticsProcessed: Bool = false // ✅ Correct: Default value
+    var analyticsProcessed: Bool = false
 
-    // ✅ CORRECT RELATIONSHIP:  One-to-one (optional) with AnalyticsMetadata
-    //     - deleteRule: .cascade means if a CravingModel is deleted,
-    //       the associated AnalyticsMetadata is also deleted.
-    //     - inverse: \AnalyticsMetadata.craving  <-- This is the CRITICAL part.
-    //       It tells SwiftData that the OTHER side of this relationship
-    //       is the 'craving' property on the AnalyticsMetadata class.
-    @Relationship(deleteRule: .cascade, inverse: \AnalyticsMetadata.craving)
-    var analyticsMetadata: AnalyticsMetadata?
+    // NO RELATIONSHIP HERE - Unidirectional Data Flow
 
     init(
         cravingText: String,
@@ -42,7 +35,7 @@ final class CravingModel: Identifiable {
         contextualFactors: [ContextualFactor] = [],
         createdAt: Date = Date(),
         modifiedAt: Date = Date(),
-        analyticsProcessed: Bool = false // ✅ Default in initializer
+        analyticsProcessed: Bool = false
     ) {
         self.id = UUID()
         self.cravingText = cravingText
@@ -58,7 +51,6 @@ final class CravingModel: Identifiable {
         self.analyticsProcessed = analyticsProcessed
     }
 
-    // Validation (optional, but good practice)
     func validate() throws {
         if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             throw CravingModelError.emptyText
@@ -69,8 +61,6 @@ final class CravingModel: Identifiable {
     }
 }
 
-// MARK: - Supporting Types (Enums and Structs)
-
 enum CravingCategory: String, Codable, CaseIterable {
     case food, drink, substance, activity, undefined
 }
@@ -79,6 +69,32 @@ struct LocationData: Codable {
     let latitude: Double
     let longitude: Double
     let locationName: String?
+
+    enum CodingKeys: String, CodingKey {
+        case latitude
+        case longitude
+        case locationName
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        latitude = try container.decode(Double.self, forKey: .latitude)
+        longitude = try container.decode(Double.self, forKey: .longitude)
+        locationName = try container.decodeIfPresent(String.self, forKey: .locationName)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(latitude, forKey: .latitude)
+        try container.encode(longitude, forKey: .longitude)
+        try container.encode(locationName, forKey: .locationName)
+    }
+
+    init(latitude: Double, longitude: Double, locationName: String? = nil){
+        self.latitude = latitude
+        self.longitude = longitude
+        self.locationName = locationName
+    }
 }
 
 struct ContextualFactor: Codable {
@@ -108,4 +124,3 @@ enum CravingModelError: Error {
         }
     }
 }
-
