@@ -3,7 +3,6 @@
 //  CRAVEApp/Analytics/Models/AnalyticsPattern.swift
 //  Purpose: Defines pattern recognition and analysis for craving behaviors
 //
-//
 
 import Foundation
 import SwiftData
@@ -13,7 +12,7 @@ import SwiftData
 struct CravingAnalytics {  // Create a struct to hold the data
     let timestamp: Date
     let triggers: Set<String> // Assuming triggers are strings
-    let intensity: Int  // Assuming intensity is available
+    let intensity: Int        // Assuming intensity is available
     // Add other relevant properties as needed
 }
 
@@ -74,21 +73,8 @@ class BasePattern: AnalyticsPattern {
         updateMetadata(with: analytics)
     }
     
-    func calculateConfidence() -> Double {
-        guard !observations.isEmpty else { return 0.0 }
-        
-        let totalStrength = observations.reduce(0.0) { $0 + $1.strength }
-        let averageStrength = totalStrength / Double(observations.count)
-        
-        // Factor in frequency and time span
-        let timeSpan = lastObserved.timeIntervalSince(firstObserved)
-        let frequencyFactor = min(Double(frequency) / 10.0, 1.0) // Cap at 10 observations
-        let timeFactor = min(timeSpan / (30 * 24 * 3600), 1.0) // Cap at 30 days
-        
-        return averageStrength * frequencyFactor * timeFactor
-    }
-    
-    private func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
+    // Changed from private to internal so it can be overridden
+    func calculateStrength(for analytics: CravingAnalytics) -> Double { // Use CravingAnalytics
         // Default implementation - override in subclasses
         return 1.0
     }
@@ -162,7 +148,7 @@ class TimeBasedPattern: BasePattern {
         try super.init(from: decoder)
     }
     
-     override func encode(to encoder: Encoder) throws {
+    override func encode(to encoder: Encoder) throws {
          try super.encode(to: encoder)
          var container = encoder.container(keyedBy: TimeBasedPatternCodingKeys.self)
          try container.encode(timeWindow, forKey: .timeWindow)
@@ -196,7 +182,6 @@ class TriggerBasedPattern: BasePattern {
         let container = try decoder.container(keyedBy: TriggerBasedPatternCodingKeys.self)
         self.triggerSet = try container.decode(Set<String>.self, forKey: .triggerSet)
         try super.init(from: decoder)
-
     }
     
     override func encode(to encoder: Encoder) throws {
@@ -292,4 +277,3 @@ extension BasePattern {
         BasePattern(type: type, metadata: PatternMetadata())
     }
 }
-
