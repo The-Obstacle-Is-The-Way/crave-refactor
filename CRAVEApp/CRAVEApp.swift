@@ -1,10 +1,3 @@
-//
-//  🍒
-//  CRAVEApp/CRAVEApp.swift
-//  Purpose: Main entry point for the app.
-//
-//
-
 // File: CRAVEApp.swift
 // Title: CRAVEApp – SwiftData & SwiftUI Best Practices Entry Point
 // Description: Main entry point for the CRAVE application. This file sets up the ModelContainer for SwiftData,
