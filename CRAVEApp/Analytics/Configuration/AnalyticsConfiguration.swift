@@ -5,28 +5,23 @@
 //
 //
 
-
 import Foundation
 import Combine
 
-@MainActor
 final class AnalyticsConfiguration: ObservableObject {
-    // MARK: - Shared Instance
-    static let shared = AnalyticsConfiguration()
+    nonisolated static let shared = AnalyticsConfiguration()
     
-    // MARK: - Published Settings
     @Published private(set) var currentEnvironment: AppEnvironment = .development
-    @Published private(set) var featureFlags: FeatureFlags = .development // Initialize with default
-    @Published private(set) var processingRules: ProcessingRules = ProcessingRules() // Initialize
-    @Published private(set) var storagePolicy: StoragePolicy = StoragePolicy() // Initialize
-    @Published private(set) var privacySettings: PrivacySettings = PrivacySettings() // Initialize
+    @Published private(set) var featureFlags: FeatureFlags = .development
+    @Published private(set) var processingRules: ProcessingRules = ProcessingRules()
+    @Published private(set) var storagePolicy: StoragePolicy = StoragePolicy()
+    @Published private(set) var privacySettings: PrivacySettings = PrivacySettings()
     
-    // MARK: - Performance Settings
-    let performanceConfig: PerformanceConfiguration = PerformanceConfiguration() // Initialize
-    let networkConfig: NetworkConfiguration = NetworkConfiguration() // Initialize
-    let mlConfig: MLConfiguration = MLConfiguration() // Initialize
+    let performanceConfig: PerformanceConfiguration = PerformanceConfiguration()
+    let networkConfig: NetworkConfiguration = NetworkConfiguration()
+    let mlConfig: MLConfiguration = MLConfiguration()
     
-    private init() {} // Private initializer for singleton
+    private init() {}
     
     func updateEnvironment(_ environment: AppEnvironment) {
         currentEnvironment = environment
@@ -87,8 +82,8 @@ struct ProcessingRules: Codable {
 }
 
 struct StoragePolicy: Codable {
-    var retentionPeriod: TimeInterval = 30 * 24 * 3600 // 30 days
-    var maxStorageSize: Int64 = 100 * 1024 * 1024 // 100 MB
+    var retentionPeriod: TimeInterval = 30 * 24 * 3600
+    var maxStorageSize: Int64 = 100 * 1024 * 1024
     var compressionEnabled: Bool = true
     var encryptionEnabled: Bool = true
     var autoCleanupEnabled: Bool = true
@@ -101,13 +96,12 @@ struct PrivacySettings: Codable {
     var analyticsEnabled: Bool = true
     var dataSharingEnabled: Bool = false
     
-    func validate() -> Bool { return true }
+    func validate() -> Bool { true }
 }
 
-// Updated structs below: Removed Codable conformance
 struct PerformanceConfiguration {
     let maxConcurrentOperations: Int = 4
-    let maxMemoryUsage: Int64 = 50 * 1024 * 1024 // 50 MB
+    let maxMemoryUsage: Int64 = 50 * 1024 * 1024
     let backgroundTaskTimeout: TimeInterval = 180
     let minimumBatteryLevel: Float = 0.2
 }
@@ -116,17 +110,16 @@ struct NetworkConfiguration {
     let maxRetries: Int = 3
     let timeout: TimeInterval = 30
     let batchSize: Int = 50
-    let compressionThreshold: Int = 1024 * 10 // 10 KB
+    let compressionThreshold: Int = 1024 * 10
 }
 
 struct MLConfiguration {
-    let modelUpdateInterval: TimeInterval = 24 * 3600 // 24 hours
+    let modelUpdateInterval: TimeInterval = 24 * 3600
     let minimumConfidence: Double = 0.7
-    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600 // 7 days
+    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600
     let trainingDataLimit: Int = 1000
 }
 
-// MARK: - Supporting Types
 enum AppEnvironment: String, Codable {
     case development
     case staging
@@ -152,4 +145,3 @@ extension AnalyticsConfiguration {
         return config
     }
 }
-
