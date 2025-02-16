@@ -10,7 +10,8 @@
 
 CRAVE/
 │   ├── CRAVE.xcodeproj
-│   └── CRAVE.xctestplan
+│   ├── CRAVE.xctestplan
+│   └── README.md
 CRAVEApp/
 │   ├── CRAVEApp.swift
 │   ├── ContentView.swift
