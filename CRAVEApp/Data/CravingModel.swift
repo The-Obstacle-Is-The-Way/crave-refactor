@@ -1,7 +1,7 @@
 //
 //  🍒
 //  CRAVEApp/Data/Entities/CravingModel.swift
-//  Purpose:
+//  Purpose: Core SwiftData model for cravings.
 //
 //
 
@@ -21,9 +21,14 @@ final class CravingModel: Identifiable {
     var contextualFactors: [ContextualFactor]
     var createdAt: Date
     var modifiedAt: Date
-    var analyticsProcessed: Bool = false //  Provide a default value
+    var analyticsProcessed: Bool = false // ✅ Correct: Default value
 
-    //  inverse relationship, which is required by swiftdata
+    // ✅ CORRECT RELATIONSHIP:  One-to-one (optional) with AnalyticsMetadata
+    //     - deleteRule: .cascade means if a CravingModel is deleted,
+    //       the associated AnalyticsMetadata is also deleted.
+    //     - inverse: \AnalyticsMetadata.craving  <-- This is the CRITICAL part.
+    //       It tells SwiftData that the OTHER side of this relationship
+    //       is the 'craving' property on the AnalyticsMetadata class.
     @Relationship(deleteRule: .cascade, inverse: \AnalyticsMetadata.craving)
     var analyticsMetadata: AnalyticsMetadata?
 
@@ -37,7 +42,7 @@ final class CravingModel: Identifiable {
         contextualFactors: [ContextualFactor] = [],
         createdAt: Date = Date(),
         modifiedAt: Date = Date(),
-        analyticsProcessed: Bool = false // Provide default in initializer too
+        analyticsProcessed: Bool = false // ✅ Default in initializer
     ) {
         self.id = UUID()
         self.cravingText = cravingText
@@ -50,10 +55,10 @@ final class CravingModel: Identifiable {
         self.contextualFactors = contextualFactors
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
-        self.analyticsProcessed = analyticsProcessed // set in initializer
+        self.analyticsProcessed = analyticsProcessed
     }
 
-    // Validation
+    // Validation (optional, but good practice)
     func validate() throws {
         if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             throw CravingModelError.emptyText
@@ -63,6 +68,8 @@ final class CravingModel: Identifiable {
         }
     }
 }
+
+// MARK: - Supporting Types (Enums and Structs)
 
 enum CravingCategory: String, Codable, CaseIterable {
     case food, drink, substance, activity, undefined
