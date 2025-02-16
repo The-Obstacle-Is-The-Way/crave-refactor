@@ -10,28 +10,29 @@ import SwiftData
 
 @main
 struct CRAVEApp: App {
-    let container: ModelContainer
+    var sharedModelContainer: ModelContainer
 
     init() {
+        // *** Register the transformer BEFORE creating the container ***
+        ValueTransformer.setValueTransformer(UserActionsTransformer(), forName: NSValueTransformerName("UserActionsTransformer"))
+
         do {
-            // Register Value Transformers *before* creating the ModelContainer
-            ValueTransformer.registerTransformers()
-            container = try ModelContainer(
+            sharedModelContainer = try ModelContainer(
                 for: CravingModel.self,
                 AnalyticsMetadata.self,
                 InteractionData.self,
-                ContextualData.self,
-                configurations: ModelConfiguration()
+                ContextualData.self
             )
         } catch {
-            fatalError("Failed to create model container: \(error)")
+            fatalError("Could not create ModelContainer: \(error)")
         }
     }
+
 
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
-                .modelContainer(container) // Inject the container here
         }
+        .modelContainer(sharedModelContainer)
     }
 }

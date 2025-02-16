@@ -16,8 +16,9 @@ final class AnalyticsMetadata {
     var timestamp: Date
     var interactionCount: Int
     var lastProcessed: Date
-    var userActions: [UserAction]
-    
+
+    @Attribute(.externalStorage) var userActions: [UserAction]
+
     @Relationship(deleteRule: .cascade)
     var craving: CravingModel?
 
@@ -27,7 +28,7 @@ final class AnalyticsMetadata {
         self.timestamp = Date()
         self.interactionCount = 0
         self.lastProcessed = Date()
-        self.userActions = []
+        self.userActions = [] // Initialize as an empty array
     }
 
     struct UserAction: Codable {

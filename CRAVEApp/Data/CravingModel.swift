@@ -15,25 +15,32 @@ final class CravingModel: Identifiable {
     var cravingText: String
     var timestamp: Date
     var isArchived: Bool
+
     var intensity: Int
-    var category: CravingCategory? // Made optional
+    var category: CravingCategory?
     var triggers: [String]
+
     var location: LocationData?
     var contextualFactors: [ContextualFactor]
+
     var createdAt: Date
     var modifiedAt: Date
     var analyticsProcessed: Bool
+
     @Relationship(deleteRule: .cascade, inverse: \AnalyticsMetadata.craving)
     var analyticsMetadata: AnalyticsMetadata?
 
-    init(
-        cravingText: String,
-        timestamp: Date = Date(),
-        intensity: Int = 0,
-        category: CravingCategory? = .undefined, // Made optional
-        triggers: [String] = [],
-        location: LocationData? = nil
-    ) {
+    init(cravingText: String,
+         timestamp: Date = Date(),
+         intensity: Int = 0,
+         category: CravingCategory? = .undefined,
+         triggers: [String] = [],
+         location: LocationData? = nil,
+         contextualFactors: [ContextualFactor] = [], // Initialize here
+         createdAt: Date = Date(),
+         modifiedAt: Date = Date(),
+         analyticsProcessed: Bool = false) {
+        
         self.id = UUID()
         self.cravingText = cravingText
         self.timestamp = timestamp
@@ -42,11 +49,10 @@ final class CravingModel: Identifiable {
         self.category = category
         self.triggers = triggers
         self.location = location
-        self.contextualFactors = [] // Initialized here
-        self.createdAt = Date()
-        self.modifiedAt = Date()
-        self.analyticsProcessed = false
-        self.analyticsMetadata = nil // Initialized here
+        self.contextualFactors = contextualFactors // Assign to property
+        self.createdAt = createdAt
+        self.modifiedAt = modifiedAt
+        self.analyticsProcessed = analyticsProcessed
     }
 
     // Validation (Example)
@@ -60,7 +66,6 @@ final class CravingModel: Identifiable {
     }
 }
 
-// Enums and Structs
 enum CravingCategory: String, Codable, CaseIterable {
     case food
     case drink
@@ -89,8 +94,8 @@ struct ContextualFactor: Codable {
 enum CravingModelError: Error {
     case emptyText
     case invalidIntensity
-    case invalidDuration
-    case invalidCategory
+    case invalidDuration // No longer used, but kept in case you add duration back
+    case invalidCategory // No longer used, but kept in case you add category back
     case invalidLocation
 
     var localizedDescription: String {
