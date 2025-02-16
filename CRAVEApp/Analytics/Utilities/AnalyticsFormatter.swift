@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Charts
 
-@MainActor
+@MainActor // Add @MainActor
 final class AnalyticsFormatter {
     // MARK: - Shared Instance
     static let shared = AnalyticsFormatter()
@@ -29,8 +29,8 @@ final class AnalyticsFormatter {
     private let timeZone: TimeZone
 
     // MARK: - Initialization
-    init(
-        configuration: AnalyticsConfiguration = .shared,
+     init(
+        configuration: AnalyticsConfiguration = .shared, //Keep default
         locale: Locale = .current,
         calendar: Calendar = .current,
         timeZone: TimeZone = .current

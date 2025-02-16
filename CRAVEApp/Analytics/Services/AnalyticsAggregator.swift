@@ -85,7 +85,7 @@ final class AnalyticsAggregator {
             metadata.userActions.append(action)
 
             // Save changes
-            try await storage.saveContext()
+            try storage.modelContext.save() // Remove 'await'
 
         } catch {
             print("Error updating AnalyticsMetadata: \(error)")
@@ -119,4 +119,5 @@ extension AnalyticsAggregator {
         AnalyticsAggregator(storage: storage)
     }
 }
+
 

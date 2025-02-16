@@ -18,7 +18,7 @@ protocol AnalyticsInsight: Identifiable, Codable {
     var relevanceScore: Double { get }
     var metadata: InsightMetadata { get }
     var recommendations: [InsightRecommendation] { get }
-    
+
     func validate() -> Bool
     func calculateRelevance() -> Double
 }
@@ -30,7 +30,7 @@ enum InsightType: String, Codable {
     case behaviorChange
     case milestone
     case warning
-    
+
     var importanceWeight: Double {
         switch self {
         case .warning: return 1.0
@@ -47,7 +47,7 @@ struct InsightMetadata: Codable {
     var relatedInsights: [UUID] = []
     var tags: Set<String> = []
     var source: InsightSource = .analytics
-    
+
     enum InsightSource: String, Codable {
         case analytics
         case userFeedback
@@ -57,24 +57,24 @@ struct InsightMetadata: Codable {
 }
 
 struct InsightRecommendation: Codable {
-    let id: UUID = UUID()
+    let id: UUID = UUID()  //This one keeps a default, as it is internal to the recommendation
     let title: String
     let action: String
     let priority: Priority
     let difficulty: Difficulty
-    
+
     enum Priority: Int, Codable {
         case low = 1
         case medium = 2
         case high = 3
     }
-    
+
     enum Difficulty: Int, Codable {
         case easy = 1
         case moderate = 2
         case challenging = 3
     }
-    
+
     func validate() -> Bool {
         return !title.isEmpty && !action.isEmpty
     }

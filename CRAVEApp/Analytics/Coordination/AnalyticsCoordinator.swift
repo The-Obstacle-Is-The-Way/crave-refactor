@@ -107,7 +107,7 @@ class AnalyticsCoordinator: ObservableObject {
     func detectPatterns() async {
         detectionState = .processing // Indicate that detection is in progress
         do {
-            try await patternDetectionService.detectPatterns()  // No need to return, it updates the @Published property
+            _ = try await patternDetectionService.detectPatterns()  // Explicitly ignore the result
             detectionState = .completed
         } catch {
             print("Pattern detection failed: \(error)")

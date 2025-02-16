@@ -49,9 +49,20 @@ CRAVEApp
 │       └── AnalyticsTransformers
 ├── Core
 │   ├── Configuration
+│   │   └── AnalyticsConstants
 │   ├── DesignSystem
+│   │   └── Components
+│   │       ├── CraveButton
+│   │       ├── CraveTextEditor
+│   │       └── CRAVEDesignSystem
 │   ├── Extensions
+│   │   ├── Array+Analytics
+│   │   ├── Date+Analytics
+│   │   ├── Date+Extensions
+│   │   ├── Dictionary+Analytics
+│   │   └── View+Extensions
 │   └── Services
+│       ├── EventTrackingService
 │       └── AnalyticsTypes
 ├── Data
 │   ├── CravingAnalyzer

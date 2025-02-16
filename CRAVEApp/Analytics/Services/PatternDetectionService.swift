@@ -20,7 +20,7 @@ protocol PatternDetectionServiceProtocol {
 }
 
 // MARK: - Pattern Detection Service
-@MainActor
+@MainActor // Add @MainActor here
 final class PatternDetectionService: PatternDetectionServiceProtocol, ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var detectedPatterns: [DetectedPattern] = []
@@ -38,7 +38,7 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
     // MARK: - Initialization
     init(
         storage: AnalyticsStorage,
-        configuration: AnalyticsConfiguration = .shared
+        configuration: AnalyticsConfiguration = .shared //Keep Default
     ) {
         self.storage = storage
         self.configuration = configuration

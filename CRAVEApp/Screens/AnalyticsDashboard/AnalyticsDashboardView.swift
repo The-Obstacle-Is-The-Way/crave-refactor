@@ -4,42 +4,32 @@
 //  Purpose: Displays analytics data in a SwiftUI view.
 //
 
-
 import SwiftUI
-import SwiftData
 
 struct AnalyticsDashboardView: View {
-    @Environment(\.modelContext) var modelContext: ModelContext
-    @StateObject private var viewModel = AnalyticsDashboardViewModel()
+    @StateObject private var viewModel = AnalyticsViewModel()
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
-        VStack {
-            if let stats = viewModel.basicStats {
-                // ... your existing code ...
-            } else {
-                ProgressView("Loading Analytics...")
+        ScrollView {
+            VStack {
+                if let stats = viewModel.basicStats {
+                    // Use the stats here.  This is just an example.
+                    Text("Total Cravings: \(stats.totalCravings)")
+                        .font(.title)
+                    AnalyticsInsightView(calendarData: stats.cravingsByFrequency, timeOfDayData: stats.cravingsByTimeSlot)
+                    
+                } else {
+                    // Show a loading indicator or an error message
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                }
             }
+            .padding()
         }
-        .navigationTitle("Analytics")
+        .navigationTitle("Analytics Dashboard")
         .onAppear {
             viewModel.loadAnalytics(modelContext: modelContext)
         }
     }
 }
-
-#Preview {
-    do {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: CravingModel.self, configurations: config)
-
-        // Insert sample data
-        let sampleCraving = CravingModel(cravingText: "Preview Craving")
-        container.mainContext.insert(sampleCraving)
-
-        return AnalyticsDashboardView()
-            .environment(\.modelContext, container.mainContext)
-    } catch {
-        fatalError("Failed to create model container: \(error)")
-    }
-}
-

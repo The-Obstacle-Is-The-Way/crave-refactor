@@ -104,21 +104,22 @@ struct PrivacySettings: Codable {
     func validate() -> Bool { return true }
 }
 
-struct PerformanceConfiguration: Codable {
+// Updated structs below: Removed Codable conformance
+struct PerformanceConfiguration {
     let maxConcurrentOperations: Int = 4
     let maxMemoryUsage: Int64 = 50 * 1024 * 1024 // 50 MB
     let backgroundTaskTimeout: TimeInterval = 180
     let minimumBatteryLevel: Float = 0.2
 }
 
-struct NetworkConfiguration: Codable {
+struct NetworkConfiguration {
     let maxRetries: Int = 3
     let timeout: TimeInterval = 30
     let batchSize: Int = 50
     let compressionThreshold: Int = 1024 * 10 // 10 KB
 }
 
-struct MLConfiguration: Codable {
+struct MLConfiguration {
     let modelUpdateInterval: TimeInterval = 24 * 3600 // 24 hours
     let minimumConfidence: Double = 0.7
     let maxPredictionWindow: TimeInterval = 7 * 24 * 3600 // 7 days
@@ -151,3 +152,4 @@ extension AnalyticsConfiguration {
         return config
     }
 }
+
