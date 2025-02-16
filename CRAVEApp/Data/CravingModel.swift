@@ -1,5 +1,4 @@
 //
-//
 //  🍒
 //  CRAVEApp/Data/Entities/CravingModel.swift
 //  Purpose:
@@ -22,10 +21,10 @@ final class CravingModel: Identifiable {
     var contextualFactors: [ContextualFactor]
     var createdAt: Date
     var modifiedAt: Date
-    var analyticsProcessed: Bool
+    var analyticsProcessed: Bool = false //  Provide a default value
 
-    // Remove 'inverse:' here to avoid the circular macro error
-    @Relationship(deleteRule: .cascade)
+    //  inverse relationship, which is required by swiftdata
+    @Relationship(deleteRule: .cascade, inverse: \AnalyticsMetadata.craving)
     var analyticsMetadata: AnalyticsMetadata?
 
     init(
@@ -38,7 +37,7 @@ final class CravingModel: Identifiable {
         contextualFactors: [ContextualFactor] = [],
         createdAt: Date = Date(),
         modifiedAt: Date = Date(),
-        analyticsProcessed: Bool = false
+        analyticsProcessed: Bool = false // Provide default in initializer too
     ) {
         self.id = UUID()
         self.cravingText = cravingText
@@ -51,7 +50,7 @@ final class CravingModel: Identifiable {
         self.contextualFactors = contextualFactors
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
-        self.analyticsProcessed = analyticsProcessed
+        self.analyticsProcessed = analyticsProcessed // set in initializer
     }
 
     // Validation
@@ -102,3 +101,4 @@ enum CravingModelError: Error {
         }
     }
 }
+
