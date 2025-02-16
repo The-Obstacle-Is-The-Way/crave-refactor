@@ -61,12 +61,13 @@ final class CravingModel: Identifiable {
         }
     }
 }
-//supporting types
+
+// Supporting enums and structs - kept for completeness, made Codable
 enum CravingCategory: String, Codable, CaseIterable {
     case food, drink, substance, activity, undefined
 }
 
-struct LocationData: Codable { // MARKED: Codable
+struct LocationData: Codable {
     var latitude: Double
     var longitude: Double
     var locationName: String?
@@ -76,13 +77,15 @@ struct LocationData: Codable { // MARKED: Codable
         case latitude, longitude, locationName
     }
 
+     // Implement the required initializer for Decodable
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.latitude = try container.decode(Double.self, forKey: .latitude)
-        self.longitude = try container.decode(Double.self, forKey: .longitude)
-        self.locationName = try container.decodeIfPresent(String.self, forKey: .locationName)
+        latitude = try container.decode(Double.self, forKey: .latitude)
+        longitude = try container.decode(Double.self, forKey: .longitude)
+        locationName = try container.decodeIfPresent(String.self, forKey: .locationName)
     }
 
+    // Implement the required encode(to:) method for Encodable
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(latitude, forKey: .latitude)
@@ -90,7 +93,8 @@ struct LocationData: Codable { // MARKED: Codable
         try container.encode(locationName, forKey: .locationName)
     }
     
-    init(latitude: Double, longitude: Double, locationName: String? = nil){
+    //initializer to create location
+    init(latitude: Double, longitude: Double, locationName: String? = nil){ //provided reasonable defaults
         self.latitude = latitude
         self.longitude = longitude
         self.locationName = locationName
