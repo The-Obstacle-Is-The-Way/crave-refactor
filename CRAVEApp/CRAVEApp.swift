@@ -10,12 +10,12 @@ import SwiftData
 
 @main
 struct CRAVEApp: App {
-    var sharedModelContainer: ModelContainer = {
+     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             CravingModel.self,
             AnalyticsMetadata.self,
-            InteractionData.self,
-            ContextualData.self
+            InteractionData.self, // Keep these if you have them.
+            ContextualData.self   // Keep these if you have them.
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -28,7 +28,7 @@ struct CRAVEApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CRAVETabView()
+            CRAVETabView() // Your main view
         }
         .modelContainer(sharedModelContainer)
     }

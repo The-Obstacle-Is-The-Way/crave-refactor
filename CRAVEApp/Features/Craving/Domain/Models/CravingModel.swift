@@ -23,7 +23,7 @@ final class CravingModel: Identifiable {
     var modifiedAt: Date
     var analyticsProcessed: Bool = false
 
-    // NO RELATIONSHIP HERE - Unidirectional Data Flow
+    // NO relationship to AnalyticsMetadata here.
 
     init(
         cravingText: String,
@@ -51,6 +51,7 @@ final class CravingModel: Identifiable {
         self.analyticsProcessed = analyticsProcessed
     }
 
+    // Validation (optional, but good practice)
     func validate() throws {
         if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             throw CravingModelError.emptyText
@@ -60,27 +61,26 @@ final class CravingModel: Identifiable {
         }
     }
 }
-
+//supporting types
 enum CravingCategory: String, Codable, CaseIterable {
     case food, drink, substance, activity, undefined
 }
 
-struct LocationData: Codable {
-    let latitude: Double
-    let longitude: Double
-    let locationName: String?
+struct LocationData: Codable { // MARKED: Codable
+    var latitude: Double
+    var longitude: Double
+    var locationName: String?
 
+    // Custom CodingKeys and init(from:) for CLLocationCoordinate2D
     enum CodingKeys: String, CodingKey {
-        case latitude
-        case longitude
-        case locationName
+        case latitude, longitude, locationName
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        latitude = try container.decode(Double.self, forKey: .latitude)
-        longitude = try container.decode(Double.self, forKey: .longitude)
-        locationName = try container.decodeIfPresent(String.self, forKey: .locationName)
+        self.latitude = try container.decode(Double.self, forKey: .latitude)
+        self.longitude = try container.decode(Double.self, forKey: .longitude)
+        self.locationName = try container.decodeIfPresent(String.self, forKey: .locationName)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -89,7 +89,7 @@ struct LocationData: Codable {
         try container.encode(longitude, forKey: .longitude)
         try container.encode(locationName, forKey: .locationName)
     }
-
+    
     init(latitude: Double, longitude: Double, locationName: String? = nil){
         self.latitude = latitude
         self.longitude = longitude
