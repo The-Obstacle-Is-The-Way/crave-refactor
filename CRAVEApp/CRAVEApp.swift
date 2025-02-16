@@ -43,6 +43,10 @@ struct CRAVEApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    init() {
+        CRAVEDesignSystem.Haptics.prepareAll() // Prepare haptics at app launch!
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -51,3 +55,4 @@ struct CRAVEApp: App {
         .modelContainer(sharedModelContainer)
     }
 }
+
