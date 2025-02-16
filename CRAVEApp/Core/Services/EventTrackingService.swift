@@ -17,7 +17,7 @@ class EventTrackingService {
     
     private(set) var eventPublisher = PassthroughSubject<AnalyticsEvent, Error>()
     
-    init(storage: AnalyticsStorage, configuration: AnalyticsConfiguration = .shared) { // Keep default
+    init(storage: AnalyticsStorage, configuration: AnalyticsConfiguration) { // Remove Default
         self.storage = storage
         self.configuration = configuration
     }
