@@ -1,74 +1,34 @@
-// App/DI/DependencyContainer.swift
+// App/Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
 import Foundation
 import SwiftUI
 import SwiftData
 import Combine
 
-@MainActor
-public final class DependencyContainer: ObservableObject {
-    @Published private(set) var modelContainer: ModelContainer
-    
-    public init() {
-        let schema = Schema([
-            CravingEntity.self,
-            AnalyticsMetadata.self
-        ])
+
+@MainActor // Ensure UI updates happen on the main thread
+public final class AnalyticsDashboardViewModel: ObservableObject {
+    @Published public var basicStats: BasicAnalyticsResult?
+    @Published public var isLoading = false // Add loading state
+    private let manager: AnalyticsManager // Dependency
+    //private let modelContext: ModelContext // No need to pass this in.
+
+
+    init(manager: AnalyticsManager) { // Take AnalyticsManager as a dependency
+        self.manager = manager
+        //self.modelContext = modelContext // No need to pass this in.
+    }
+
+
+    func loadAnalytics() async {
+        isLoading = true // Set loading state
         do {
-            self.modelContainer = try ModelContainer(for: schema)
+            self.basicStats = try await manager.getBasicStats() // Use the manager to fetch data
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            // Handle errors
+            print("Error loading analytics: \(error)")
+            // Optionally set an error state
         }
-    }
-    
-    // MARK: - Analytics Dependencies
-    private func makeAnalyticsStorage() -> AnalyticsStorage {
-        AnalyticsStorage(modelContext: modelContainer.mainContext)
-    }
-    
-    private func makeAnalyticsManager() -> AnalyticsManager {
-        let storage = makeAnalyticsStorage()
-        let aggregator = AnalyticsAggregator(storage: storage)
-        let patternDetection = PatternDetectionService(
-            storage: storage,
-            configuration: AnalyticsConfiguration.shared
-        )
-        return AnalyticsManager(
-            storage: storage,
-            aggregator: aggregator,
-            patternDetection: patternDetection
-        )
-    }
-    
-    // MARK: - Craving Dependencies
-    private func makeCravingManager() -> CravingManager {
-        CravingManager(modelContext: modelContainer.mainContext)
-    }
-    
-    private func makeCravingRepository() -> CravingRepository {
-        CravingRepositoryImpl(cravingManager: makeCravingManager())
-    }
-    
-    private func makeAddCravingUseCase() -> AddCravingUseCaseProtocol {
-        AddCravingUseCase(cravingRepository: makeCravingRepository())
-    }
-    
-    private func makeFetchCravingsUseCase() -> FetchCravingsUseCaseProtocol {
-        FetchCravingsUseCase(cravingRepository: makeCravingRepository())
-    }
-    
-    private func makeArchiveCravingUseCase() -> ArchiveCravingUseCaseProtocol {
-        ArchiveCravingUseCase(cravingRepository: makeCravingRepository())
-    }
-    
-    // MARK: - View Models
-    public func makeCravingListViewModel() -> CravingListViewModel {
-        CravingListViewModel(
-            fetchCravingsUseCase: makeFetchCravingsUseCase(),
-            archiveCravingUseCase: makeArchiveCravingUseCase()
-        )
-    }
-    
-    public func makeLogCravingViewModel() -> LogCravingViewModel {
-        LogCravingViewModel(addCravingUseCase: makeAddCravingUseCase())
+        isLoading = false // Clear loading state
     }
 }
+
