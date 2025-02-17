@@ -21,19 +21,17 @@ struct CRAVETabView: View {
     var body: some View {
         // TabView is like a file folder with different tabs
         TabView(selection: $selection) {
-            // Each tab is a different main screen in our app
-            
-            // Tab 1: List of all cravings
-            CravingListView()
-                .tabItem {
-                    Label("Cravings", systemImage: "list.bullet")
-                }
-                .tag(0)  // Give it a number so we know which tab it is
-
-            // Tab 2: Screen to log a new craving
+            // Tab 1: Screen to log a new craving
             LogCravingView()
                 .tabItem {
                     Label("Log Craving", systemImage: "square.and.pencil")
+                }
+                .tag(0)
+            
+            // Tab 2: List of all cravings
+            CravingListView()
+                .tabItem {
+                    Label("Cravings", systemImage: "list.bullet")
                 }
                 .tag(1)
 
@@ -53,3 +51,4 @@ struct CRAVETabView: View {
         }
     }
 }
+
