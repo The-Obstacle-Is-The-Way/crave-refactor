@@ -1,3 +1,5 @@
+//AnalyticsMetadata.swift
+
 import SwiftData
 import Foundation
 

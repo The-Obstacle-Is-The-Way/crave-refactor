@@ -1,9 +1,25 @@
+
+// Update AnalyticsDashboardView.swift
 import SwiftUI
 
 public struct AnalyticsDashboardView: View {
-    public init() {} // Add an initializer
+    @StateObject private var viewModel: AnalyticsDashboardViewModel
+    
+    public init(viewModel: AnalyticsDashboardViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     public var body: some View {
-        Text("Analytics Dashboard") // Placeholder content
+        VStack {
+            if let stats = viewModel.basicStats {
+                // Your analytics dashboard UI
+                Text("Total Cravings: \(stats.totalCravings)")
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            await viewModel.loadAnalytics()
+        }
     }
 }
-

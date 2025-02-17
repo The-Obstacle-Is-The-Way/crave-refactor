@@ -1,61 +1,56 @@
+// Core/Domain/Interfaces/Repositories/AnalyticsRepository.swift
 import Foundation
-import SwiftData
 
-public struct DependencyContainer {
-    public let modelContext: ModelContext
-
-    // Craving services
-    public let cravingManager: CravingManager
-    public let cravingAnalyzer: CravingAnalyzer
-
-    // Analytics services
-    public let analyticsStorage: AnalyticsStorage
-    public let analyticsAggregator: AnalyticsAggregator
-    public let analyticsProcessor: AnalyticsProcessor
-    public let patternDetectionService: PatternDetectionService
-    public let analyticsReporter: AnalyticsReporter
-    public let eventTrackingService: EventTrackingService
-
-    // ViewModels
-    public let cravingListViewModel: CravingListViewModel
-    public let dateListViewModel: DateListViewModel
-    public let logCravingViewModel: LogCravingViewModel
-    public let analyticsDashboardViewModel: AnalyticsDashboardViewModel
-    public let analyticsViewModel: AnalyticsViewModel
-
-    // Analytics Coordinator
-    public let analyticsCoordinator: AnalyticsCoordinator
-
-    public init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-
-        // Create services
-        analyticsStorage = AnalyticsStorage(modelContext: modelContext)
-        cravingManager = CravingManager(modelContext: modelContext)
-        cravingAnalyzer = CravingAnalyzer()
-
-        analyticsAggregator = AnalyticsAggregator(storage: analyticsStorage)
-        analyticsProcessor = AnalyticsProcessor(configuration: AnalyticsConfiguration.shared, storage: analyticsStorage)
-        patternDetectionService = PatternDetectionService(storage: analyticsStorage, configuration: AnalyticsConfiguration.shared)
-        analyticsReporter = AnalyticsReporter(analyticsStorage: analyticsStorage)
-        eventTrackingService = EventTrackingService(storage: analyticsStorage, configuration: AnalyticsConfiguration.shared)
-
-        analyticsCoordinator = AnalyticsCoordinator(
-            eventTrackingService: eventTrackingService,
-            patternDetectionService: patternDetectionService,
-            configuration: AnalyticsConfiguration.shared,
-            storage: analyticsStorage,
-            aggregator: analyticsAggregator,
-            processor: analyticsProcessor,
-            reporter: analyticsReporter
-        )
-
-        let cravingRepo = CravingRepositoryImpl(cravingManager: cravingManager, mapper: CravingMapper())
-        cravingListViewModel = CravingListViewModel(cravingRepository: cravingRepo)
-        dateListViewModel = DateListViewModel(cravingRepository: cravingRepo)
-        logCravingViewModel = LogCravingViewModel(addCravingUseCase: AddCravingUseCase(cravingRepository: cravingRepo))
-        analyticsDashboardViewModel = AnalyticsDashboardViewModel(analyticsManager: AnalyticsManager(modelContext: modelContext))
-        analyticsViewModel = AnalyticsViewModel(analyticsManager: AnalyticsManager(modelContext: modelContext))
-    }
+public protocol AnalyticsRepository {
+    // MARK: - Event Operations
+    func storeEvent(_ event: AnalyticsEvent) async throws
+    func fetchEvents(from startDate: Date, to endDate: Date) async throws -> [AnalyticsEvent]
+    func fetchEvents(ofType eventType: EventType) async throws -> [AnalyticsEvent]
+    
+    // MARK: - Metadata Operations
+    func fetchMetadata(forCravingId cravingId: UUID) async throws -> AnalyticsMetadata?
+    func updateMetadata(_ metadata: AnalyticsMetadata) async throws
+    
+    // MARK: - Analytics Results
+    func fetchAnalytics(from startDate: Date, to endDate: Date) async throws -> BasicAnalyticsResult
+    func fetchPatterns() async throws -> [BasicAnalyticsResult.DetectedPattern]
+    
+    // MARK: - Batch Operations
+    func storeBatch(_ events: [AnalyticsEvent]) async throws
+    func cleanupOldData(before date: Date) async throws
 }
 
+public enum AnalyticsRepositoryError: Error {
+    case storageError(String)
+    case fetchError(String)
+    case invalidData(String)
+    case noDataAvailable
+    case batchProcessingFailed
+}
+
+public extension AnalyticsRepository {
+    struct QueryOptions {
+        public let limit: Int?
+        public let sortOrder: SortOrder
+        public let includeMetadata: Bool
+        
+        public static let `default` = QueryOptions(limit: nil, sortOrder: .descending, includeMetadata: true)
+        
+        public init(limit: Int? = nil, sortOrder: SortOrder = .descending, includeMetadata: Bool = true) {
+            self.limit = limit
+            self.sortOrder = sortOrder
+            self.includeMetadata = includeMetadata
+        }
+    }
+    
+    enum SortOrder {
+        case ascending
+        case descending
+    }
+    
+    func fetchTodayAnalytics() async throws -> BasicAnalyticsResult {
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        return try await fetchAnalytics(from: startOfDay, to: now)
+    }
+}
