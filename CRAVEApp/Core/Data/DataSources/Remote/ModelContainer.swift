@@ -1,19 +1,23 @@
-// ModelContainer.swift
-
 import SwiftData
+import Foundation
 
 @MainActor
-class ModelContainer {
-    static let shared = ModelContainer()
-    private var context: ModelContext
-    
-    private init() {
-        let schema = Schema([CravingEntity.self])
-        let configuration = ModelConfiguration(schema: schema)
-        self.context = ModelContext(configuration: configuration)
-    }
+let modelConfiguration: ModelConfiguration = {
+    let config = ModelConfiguration()
 
-    func fetchCravings() async throws -> [CravingEntity] {
-        return try await context.fetch(FetchRequest<CravingEntity>())
+    return config
+}()
+
+let sharedModelContainer: ModelContainer = {
+    let schema = Schema([
+        CravingEntity.self, AnalyticsMetadata.self // Add other entities here if you have more
+    ])
+    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+    do {
+        return try ModelContainer(for: schema, configurations: [modelConfiguration])
+    } catch {
+        fatalError("Could not create ModelContainer: \(error)")
     }
-}
+}()
+

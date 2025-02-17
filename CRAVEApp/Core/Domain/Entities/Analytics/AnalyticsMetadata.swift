@@ -1,29 +1,28 @@
-// Core/Domain/Entities/Analytics/AnalyticsMetadata.swift
-import Foundation
 import SwiftData
+import Foundation
 
 @Model
 public final class AnalyticsMetadata {
-    public var id: UUID
-    public var eventType: String
-    public var timestamp: Date
-    public var interactionCount: Int
-    public var lastProcessed: Date?
-    public var userActions: [String]
-    
-    public init(
-        id: UUID = UUID(),
-        eventType: String,
-        timestamp: Date = Date(),
-        interactionCount: Int = 0,
-        lastProcessed: Date? = nil,
-        userActions: [String] = []
-    ) {
+    @Attribute(.unique) public var id: UUID
+    // Add other properties as needed, ensuring they have appropriate types and attributes
+    public var userActions: [UserAction]?  // Use the correct type
+
+    public init(id: UUID, userActions: [UserAction]? = nil) {
         self.id = id
-        self.eventType = eventType
-        self.timestamp = timestamp
-        self.interactionCount = interactionCount
-        self.lastProcessed = lastProcessed
         self.userActions = userActions
     }
+
+    // Define the UserAction struct *within* the AnalyticsMetadata file
+    public struct UserAction: Codable {
+        public var actionType: String
+        public var timestamp: Date
+        public var details: String?
+
+        public init(actionType: String, timestamp: Date, details: String? = nil) {
+            self.actionType = actionType
+            self.timestamp = timestamp
+            self.details = details
+        }
+    }
 }
+

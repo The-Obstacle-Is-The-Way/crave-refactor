@@ -2,21 +2,8 @@
 
 import SwiftUI
 
-struct AnalyticsInsights: View {
-    var insights: [String]
-
+struct AnalyticsInsight: View {
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Insights")
-                .font(.title2)
-                .padding(.bottom, 5)
-
-            ForEach(insights, id: \.self) { insight in
-                Text("• \(insight)")
-                    .font(.body)
-                    .padding(.vertical, 2)
-            }
-        }
-        .padding()
+        Text("Analytics Insight Here")
     }
 }

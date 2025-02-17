@@ -1,16 +1,23 @@
-// Core/Domain/Entities/Craving/CravingEntity.swift
+import SwiftData
 import Foundation
 
-public struct CravingEntity: Identifiable {
-    public let id: UUID
-    public let text: String
-    public let timestamp: Date
-    public let isArchived: Bool
-    
-    public init(id: UUID = UUID(), text: String, timestamp: Date = Date(), isArchived: Bool = false) {
-        self.id = id
-        self.text = text
-        self.timestamp = timestamp
-        self.isArchived = isArchived
-    }
+@Model
+public final class CravingEntity {
+    @Attribute(.unique) public var id: UUID
+    public var text: String
+    public var timestamp: Date
+    public var isArchived: Bool
+
+     public init(
+         id: UUID,
+         text: String,
+         timestamp: Date,
+         isArchived: Bool
+     ) {
+         self.id = id
+         self.text = text
+         self.timestamp = timestamp
+         self.isArchived = isArchived
+     }
 }
+
