@@ -40,3 +40,9 @@ final class CravingListViewModel: ObservableObject {
         do {
             let fetchedCravings = try await cravingRepository.fetchAllActiveCravings()
             self.cravings = fetchedCravings
+        } catch {
+            print("Error fetching cravings: \(error)")
+            // Handle error appropriately in production
+        }
+    }
+}
