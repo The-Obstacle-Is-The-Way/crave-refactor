@@ -2,10 +2,10 @@
 
 import Foundation
 import SwiftData
+import Combine // Import Combine
 
 // This is a container for all the services our app uses
-// Think of it like a toolbox where we keep all the essential tools
-struct DependencyContainer {
+class DependencyContainer: ObservableObject { // Changed to class and added ObservableObject
 
     // Our database context, which lets us talk to our database
     let modelContext: ModelContext

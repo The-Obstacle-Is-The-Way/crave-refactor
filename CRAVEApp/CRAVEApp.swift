@@ -5,60 +5,59 @@ import SwiftData
 
 @main
 struct CRAVEApp: App {
-    // This creates our app's database system (like setting up filing cabinets)
-    // ModelContainer is like a big filing cabinet that holds all our app's data
     var sharedModelContainer: ModelContainer = {
-        // Tell SwiftData what kind of data we want to store
-        // Think of Schema like a blueprint for our filing cabinet
-        let initialSchema = Schema([CravingModel.self])
-
-        // Configure how we want to store data
-        // isStoredInMemoryOnly: false means "save it permanently, not just in temporary memory"
+        let initialSchema = Schema([CravingModel.self]) // Make sure CravingModel exists
         let config = ModelConfiguration(schema: initialSchema, isStoredInMemoryOnly: false)
 
         do {
-            // Try to create our database container
             let container = try ModelContainer(for: initialSchema, configurations: [config])
-
-            // Check if we need to update our database structure
-            // (like checking if we need to add new drawers to our filing cabinet)
-            let needsMigration; =!UserDefaults.standard.bool(forKey: "hasMigratedToV2")
-
-            if needsMigration {
-                // If we need to update, do it here
-                // This adds all the different "drawers" to our filing cabinet
-                let finalSchema = Schema([
-                    CravingModel.self,
-                    AnalyticsMetadata.self,
-                    InteractionData.self,
-                    ContextualData.self
-                ])
-
-                // Create the final container with everything we need
-                return try ModelContainer(for: finalSchema, configurations: [config])
-            } else {
-                return container
+            // Check if this is the first launch and create historical data if needed
+            if UserDefaults.standard.bool(forKey: "FirstLaunch") == false {
+                Task {
+                    await createHistoricalData(in: container.mainContext)
+                    UserDefaults.standard.set(true, forKey: "FirstLaunch")
+                }
             }
+            return container
         } catch {
-            // If something goes wrong setting up our database, crash the app
-            // (in real apps, we'd handle this more gracefully)
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
 
-    // This runs when the app first starts
+    // Create the DependencyContainer here, ONCE.
+    var dependencyContainer: DependencyContainer
+
     init() {
         // Set up haptic feedback (the little vibrations when you tap things)
         CRAVEDesignSystem.Haptics.prepareAll()
+        // Initialize dependency container with the main context
+        dependencyContainer = DependencyContainer(modelContext: sharedModelContainer.mainContext)
+        ValueTransformer.registerTransformers()
     }
 
-    // This creates the main window of our app
     var body: some Scene {
         WindowGroup {
             CRAVETabView()
-              .environment(DependencyContainer(modelContext: sharedModelContainer.mainContext))
+                .environment(dependencyContainer) // Pass the container down
         }
-        // Connect our database to our app's interface
-      .modelContainer(sharedModelContainer)
+        .modelContainer(sharedModelContainer)
+    }
+
+    // Function to create some initial data
+    func createHistoricalData(in context: ModelContext) async {
+        let historicalCravings = [
+            "Chocolate Cake", "Pizza", "Ice Cream", "French Fries", "Potato Chips"
+        ]
+
+        for cravingText in historicalCravings {
+            let newCraving = CravingModel(cravingText: cravingText)
+            context.insert(newCraving)
+        }
+
+        do {
+            try context.save()
+        } catch {
+            print("Error saving historical data: \(error)")
+        }
     }
 }
