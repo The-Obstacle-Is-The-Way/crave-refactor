@@ -1,5 +1,0 @@
-//
-//  FrequencyQuery.swift
-//  CRAVE
-//
-

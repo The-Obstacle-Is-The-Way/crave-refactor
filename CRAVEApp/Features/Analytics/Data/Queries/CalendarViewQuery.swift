@@ -1,5 +1,0 @@
-//
-//  CalendarViewQuery.swift
-//  CRAVE
-//
-
