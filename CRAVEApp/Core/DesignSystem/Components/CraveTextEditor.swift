@@ -18,47 +18,37 @@ struct CraveTextEditor: View {
             // Placeholder Text (only visible when text is empty)
             if text.isEmpty {
                 Text(placeholder)
-                    .foregroundColor(CRAVEDesignSystem.Colors.textSecondary) // Use custom system color
-                    .font(CRAVEDesignSystem.Typography.body) // Use system body font
+                    .foregroundColor(.secondary)  // System secondary color
+                    .font(.body)                  // System body font
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 12) // Vertical padding for alignment
+                    .padding(.vertical, 12)
             }
 
             // The actual TextEditor
             TextEditor(text: $text)
                 .frame(minHeight: 120)
                 .padding(4)
-                .background(CRAVEDesignSystem.Colors.tertiaryBackground) // Use system background
-                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
-                .font(CRAVEDesignSystem.Typography.body) // Use system body font
-                .foregroundColor(CRAVEDesignSystem.Colors.textPrimary) // Use system primary color
-                .scrollContentBackground(.hidden) // Hide default opaque background
+                .background(Color(UIColor.tertiarySystemBackground))
+                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius) // This is fine
+                .font(.body)                  // System body font
+                .foregroundColor(.primary)     // System primary color
+                .scrollContentBackground(.hidden)
                 .accessibilityIdentifier("CravingTextEditor")
-                .overlay( // Display character count, if a limit is set
-                    characterLimit.map { limit in
-                        HStack {
-                            Spacer()
-                            Text("\(text.count) / \(limit)")
-                                .font(CRAVEDesignSystem.Typography.caption2)
-                                .foregroundColor(text.count > limit ? CRAVEDesignSystem.Colors.danger : CRAVEDesignSystem.Colors.textSecondary)
-                                .padding(.trailing, 8)
-                                .padding(.bottom, 8)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .background(Color.clear)
-                    },
-                    alignment: .bottomTrailing // Align to bottom-trailing corner
-                )
-                .onChange(of: text) { oldValue, newValue in
-                    if let limit = characterLimit, newValue.count > limit {
-                        text = String(newValue.prefix(limit))
-                        CRAVEDesignSystem.Haptics.notification(type: .error) // Fixed: warning → error
+                .overlay(alignment: .bottomTrailing) {
+                    if let limit = characterLimit {
+                        Text("\(text.count) / \(limit)")
+                            .font(.caption2)
+                            .foregroundColor(text.count > limit ? .red : .secondary)
+                            .padding(.trailing, 8)
+                            .padding(.bottom, 8)
                     }
                 }
         }
+        .onChange(of: text) { oldValue, newValue in
+            if let limit = characterLimit, newValue.count > limit {
+                text = String(newValue.prefix(limit))
+                CRAVEDesignSystem.Haptics.notification(type: .warning) // Use .warning
+            }
+        }
     }
-}
-
-#Preview {
-    CraveTextEditor(text: .constant("Type Something"))
 }

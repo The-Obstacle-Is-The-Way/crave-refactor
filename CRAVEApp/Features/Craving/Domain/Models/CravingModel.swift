@@ -1,30 +1,36 @@
 //
 //  🍒
 //  CRAVEApp/Data/Entities/CravingModel.swift
-//  Purpose: Core SwiftData model for cravings.
-//
+//  Purpose: Defines what a craving is and how it's stored in our database
 //
 
 import Foundation
 import SwiftData
 
-@Model // Add @Model here.  CravingModel MUST be a class.
-final class CravingModel: Identifiable { // Conforms to Identifiable
+// @Model tells SwiftData "this is something we want to save in our database"
+// Think of this like designing a form that collects specific information
+@Model
+final class CravingModel: Identifiable {
+    // Every craving has a unique ID (like a social security number)
+    // @Attribute(.unique) means "make sure no two cravings have the same ID"
     @Attribute(.unique) var id: UUID
-    var cravingText: String
-    var timestamp: Date
-    var isArchived: Bool
-    var intensity: Int
-    var category: CravingCategory? // Optional, as it might not always be set.
-    var triggers: [String]
-    var location: LocationData?    // Optional
-    var contextualFactors: [ContextualFactor]
-    var createdAt: Date
-    var modifiedAt: Date
-    var analyticsProcessed: Bool = false
+    
+    // Basic information about the craving
+    var cravingText: String      // What the craving was for
+    var timestamp: Date          // When it happened
+    var isArchived: Bool         // Whether it's archived or not
+    var intensity: Int           // How strong the craving was (1-10)
+    var category: CravingCategory?  // What kind of craving (food, drink, etc.)
+    var triggers: [String]       // What caused the craving
+    var location: LocationData?  // Where you were
+    var contextualFactors: [ContextualFactor]  // What was happening when you had the craving
+    
+    // Timestamps for tracking
+    var createdAt: Date        // When the craving was first created
+    var modifiedAt: Date       // When it was last changed
+    var analyticsProcessed: Bool = false  // Whether we've analyzed this craving yet
 
-    // NO relationship to AnalyticsMetadata here.
-
+    // This is how we create a new craving
     init(
         cravingText: String,
         timestamp: Date = Date(),
@@ -37,7 +43,7 @@ final class CravingModel: Identifiable { // Conforms to Identifiable
         modifiedAt: Date = Date(),
         analyticsProcessed: Bool = false
     ) {
-        self.id = UUID()
+        self.id = UUID()  // Create a new unique ID
         self.cravingText = cravingText
         self.timestamp = timestamp
         self.isArchived = false
@@ -50,24 +56,37 @@ final class CravingModel: Identifiable { // Conforms to Identifiable
         self.modifiedAt = modifiedAt
         self.analyticsProcessed = analyticsProcessed
     }
+
+    // Make sure the craving data is valid
+    func validate() throws {
+        // Make sure the craving text isn't empty
+        if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            throw CravingModelError.emptyText
+        }
+        // Make sure intensity is between 0 and 10
+        if intensity < 0 || intensity > 10 {
+            throw CravingModelError.invalidIntensity
+        }
+    }
 }
 
-// Supporting enums and structs - kept for completeness, made Codable
+// Different types of cravings we can track
 enum CravingCategory: String, Codable, CaseIterable {
     case food, drink, substance, activity, undefined
 }
 
+// Information about where a craving happened
 struct LocationData: Codable {
     var latitude: Double
     var longitude: Double
     var locationName: String?
 
-    // Custom CodingKeys and init(from:) for CLLocationCoordinate2D
+    // Special keys for saving/loading location data
     enum CodingKeys: String, CodingKey {
         case latitude, longitude, locationName
     }
 
-     // Implement the required initializer for Decodable
+    // Create location data from saved information
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         latitude = try container.decode(Double.self, forKey: .latitude)
@@ -75,7 +94,7 @@ struct LocationData: Codable {
         locationName = try container.decodeIfPresent(String.self, forKey: .locationName)
     }
 
-    // Implement the required encode(to:) method for Encodable
+    // Save location data
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(latitude, forKey: .latitude)
@@ -83,14 +102,15 @@ struct LocationData: Codable {
         try container.encode(locationName, forKey: .locationName)
     }
     
-    //initializer to create location
-    init(latitude: Double, longitude: Double, locationName: String? = nil){ //provided reasonable defaults
+    // Create a new location
+    init(latitude: Double, longitude: Double, locationName: String? = nil) {
         self.latitude = latitude
         self.longitude = longitude
         self.locationName = locationName
     }
 }
 
+// Information about what was happening during a craving
 struct ContextualFactor: Codable {
     let factor: String
     let impact: Impact
@@ -100,6 +120,7 @@ struct ContextualFactor: Codable {
     }
 }
 
+// Possible errors when creating or modifying a craving
 enum CravingModelError: Error {
     case emptyText, invalidIntensity, invalidDuration, invalidCategory, invalidLocation
 
