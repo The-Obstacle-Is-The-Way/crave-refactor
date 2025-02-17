@@ -1,58 +1,48 @@
-//  CRAVEApp/Core/Presentation/Views/Craving/List/CravingListView.swift
+// Core/Presentation/ViewModels/Craving/CravingListViewModel.swift
 
 import SwiftUI
 import SwiftData
 
-struct CravingListView: View {
-    @Environment(DependencyContainer.self) private var container
-    @StateObject private var viewModel: CravingListViewModel
+@MainActor
+final class CravingListViewModel: ObservableObject {
+    @Published var cravings: [CravingEntity] =
+    private let cravingRepository: CravingRepository
 
-    init(viewModel: CravingListViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    init(cravingRepository: CravingRepository) {
+        self.cravingRepository = cravingRepository
     }
 
-    var body: some View {
-        NavigationView {
-            List {
-                ForEach(viewModel.cravings) { craving in
-                    VStack(alignment:.leading) {
-                        Text(craving.text)
-                          .font(.body)
-                        Text(craving.timestamp, style:.relative)
-                          .foregroundColor(.secondary)
-                          .font(.caption)
-                    }
-                  .swipeActions {
-                        Button(role:.destructive) {
-                            Task {
-                                await viewModel.archiveCraving(craving)
-                            }
-                        } label: {
-                            Label("Archive", systemImage: "archivebox")
-                        }
+    func loadData() async {
+        await fetchCravings()
+    }
 
-                        Button(role:.destructive) {
-                            Task {
-                                await viewModel.deleteCraving(craving)
-                            }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                }
-            }
-          .navigationTitle("Cravings")
-          .navigationBarTitleDisplayMode(.inline)
-          .toolbar {
-                ToolbarItem(placement:.principal) {
-                    Text("Cravings")
-                      .font(.headline)
-                      .foregroundColor(.primary)
-                }
-            }
-          .task {
-                await viewModel.loadData()
-            }
+    func archiveCraving(_ craving: CravingEntity) async {
+        do {
+            try await cravingRepository.archiveCraving(craving)
+        } catch {
+            print("Error archiving craving: \(error)")
+            // Handle error appropriately in production
+        }
+        await fetchCravings()
+    }
+
+    func deleteCraving(_ craving: CravingEntity) async {
+        do {
+            try await cravingRepository.deleteCraving(craving)
+        } catch {
+            print("Error deleting craving: \(error)")
+            // Handle error appropriately in production
+        }
+        await fetchCravings()
+    }
+
+    private func fetchCravings() async {
+        do {
+            let fetchedCravings = try await cravingRepository.fetchAllActiveCravings()
+            self.cravings = fetchedCravings
+        } catch {
+            print("Error fetching cravings: \(error)")
+            // Handle error appropriately in production
         }
     }
 }

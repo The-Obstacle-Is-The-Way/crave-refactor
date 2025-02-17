@@ -7,8 +7,8 @@ struct AnalyticsDashboardView: View {
     @Environment(DependencyContainer.self) private var container
     @StateObject private var viewModel: AnalyticsDashboardViewModel
 
-    init(viewModel: AnalyticsDashboardViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    init() {
+        _viewModel = StateObject(wrappedValue: AnalyticsDashboardViewModel(analyticsManager: AnalyticsManager(analyticsCoordinator: container.analyticsCoordinator)))
     }
 
     var body: some View {
@@ -16,26 +16,26 @@ struct AnalyticsDashboardView: View {
             VStack {
                 if let stats = viewModel.basicStats {
                     Text("Total Cravings: \(stats.totalCravings)")
-                    .font(CRAVEDesignSystem.Typography.title1)
+                      .font(CRAVEDesignSystem.Typography.title1)
                     AnalyticsInsightView(calendarData: stats.cravingsByFrequency, timeOfDayData: stats.cravingsByTimeSlot)
                 } else {
                     ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
+                      .progressViewStyle(CircularProgressViewStyle())
                 }
             }
-        .padding()
+          .padding()
         }
-    .navigationTitle("Analytics Dashboard")
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
+      .navigationTitle("Analytics Dashboard")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
             ToolbarItem(placement:.principal) {
                 Text("Analytics Dashboard")
-                .font(CRAVEDesignSystem.Typography.headline)
-                .foregroundColor(CRAVEDesignSystem.Colors.textPrimary)
+                  .font(CRAVEDesignSystem.Typography.headline)
+                  .foregroundColor(CRAVEDesignSystem.Colors.textPrimary)
             }
         }
-    .onAppear {
-            viewModel.loadAnalytics()
+      .task {
+            await viewModel.loadAnalytics()
         }
     }
 }

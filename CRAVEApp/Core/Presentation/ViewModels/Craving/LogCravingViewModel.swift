@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Presentation/ViewModels/Craving/LogCravingViewModel.swift
+// Core/Presentation/ViewModels/Craving/LogCravingViewModel.swift
 
 import Foundation
 import SwiftData
@@ -26,7 +26,14 @@ final class LogCravingViewModel: ObservableObject {
             return
         }
 
-        // TODO: Implement addCraving logic using the repository
+        let newCraving = CravingEntity(
+            id: UUID(),
+            text: trimmedText,
+            timestamp: Date(),
+            isArchived: false
+        )
+
+        cravingRepository.addCraving(newCraving)
         completion(true)
         cravingText = ""
     }

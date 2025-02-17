@@ -13,9 +13,13 @@ class AnalyticsViewModel: ObservableObject {
         self.analyticsManager = analyticsManager
     }
 
-    func loadAnalytics() {
-        Task {
-            self.basicStats = await analyticsManager.getBasicStats()
+    func loadAnalytics() async {
+        do {
+            self.basicStats = try await analyticsManager.getBasicStats()
+        } catch {
+            print("Error loading analytics: \(error)")
+            // Handle the error appropriately (e.g., display an error message)
         }
     }
 }
+
