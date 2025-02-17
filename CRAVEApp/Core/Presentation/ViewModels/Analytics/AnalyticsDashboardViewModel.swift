@@ -1,18 +1,16 @@
-// Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
-
 import SwiftUI
 import SwiftData
 
 @MainActor
-final class AnalyticsDashboardViewModel: ObservableObject {
-    @Published var basicStats: BasicAnalyticsResult?
-    private let analyticsManager: AnalyticsManager
+public final class AnalyticsDashboardViewModel: ObservableObject {
+    @Published public var basicStats: BasicAnalyticsResult?
+    private let analyticsManager: AnalyticsManager  // Ensure AnalyticsManager is public
 
-    init(analyticsManager: AnalyticsManager) {
+    public init(analyticsManager: AnalyticsManager) {
         self.analyticsManager = analyticsManager
     }
 
-    func loadAnalytics() async {
+    public func loadAnalytics() async {
         do {
             self.basicStats = try await analyticsManager.getBasicStats()
         } catch {

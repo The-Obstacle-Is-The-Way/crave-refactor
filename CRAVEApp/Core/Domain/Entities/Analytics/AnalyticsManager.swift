@@ -1,22 +1,21 @@
-// Core/Domain/Entities/Analytics/AnalyticsManager.swift
 import Foundation
 
-final class AnalyticsManager {
+public final class AnalyticsManager {
     private let analyticsCoordinator: AnalyticsCoordinator
 
-    init(analyticsCoordinator: AnalyticsCoordinator) {
+    public init(analyticsCoordinator: AnalyticsCoordinator) {
         self.analyticsCoordinator = analyticsCoordinator
     }
 
-    func getBasicStats() async throws -> BasicAnalyticsResult {
-        // Helper function to create Date objects from strings (for this example)
+    public func getBasicStats() async throws -> BasicAnalyticsResult {
+        // Helper function to create Date objects from strings.
         func dateFromString(_ dateString: String) -> Date {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
-            return dateFormatter.date(from: dateString) ?? Date() // Return 'today' if parsing fails
+            return dateFormatter.date(from: dateString) ?? Date()
         }
-
-        // Replace with your real logic; provide values for ALL parameters.
+        
+        // Replace with your real aggregation logic; this is a stub.
         return BasicAnalyticsResult(
             totalCravings: 42,
             totalResisted: 10,
@@ -33,3 +32,4 @@ final class AnalyticsManager {
         )
     }
 }
+

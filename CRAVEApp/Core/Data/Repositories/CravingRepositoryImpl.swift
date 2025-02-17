@@ -1,31 +1,28 @@
-//  CRAVEApp/Core/Data/Repositories/CravingRepositoryImpl.swift
-
 import Foundation
-import SwiftData
 
-class CravingRepositoryImpl: CravingRepository {
+public final class CravingRepositoryImpl: CravingRepository {
     private let cravingManager: CravingManager
     private let mapper: CravingMapper
 
-    init(cravingManager: CravingManager, mapper: CravingMapper) {
+    public init(cravingManager: CravingManager, mapper: CravingMapper) {
         self.cravingManager = cravingManager
         self.mapper = mapper
     }
 
-    func fetchAllActiveCravings() async throws -> [CravingEntity] {
-        let activeCravings = await cravingManager.fetchAllActiveCravings()
-        return activeCravings.map { mapper.mapToEntity(from: $0) }
+    public func fetchAllActiveCravings() async throws -> [CravingEntity] {
+        return try await cravingManager.fetchActiveCravings()
     }
 
-    func addCraving(_ craving: CravingEntity) {
-        cravingManager.insert(craving)
+    public func addCraving(_ craving: CravingEntity) {
+        cravingManager.add(craving: craving)
     }
 
-    func archiveCraving(_ craving: CravingEntity) {
-        cravingManager.archiveCraving(craving)
+    public func archiveCraving(_ craving: CravingEntity) {
+        cravingManager.archive(craving: craving)
     }
 
-    func deleteCraving(_ craving: CravingEntity) {
-        cravingManager.deleteCraving(craving)
+    public func deleteCraving(_ craving: CravingEntity) {
+        cravingManager.delete(craving: craving)
     }
 }
+

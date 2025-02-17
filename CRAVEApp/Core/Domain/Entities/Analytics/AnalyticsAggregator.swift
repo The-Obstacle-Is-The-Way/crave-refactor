@@ -1,33 +1,31 @@
-// Core/Domain/Interactors/Analytics/AnalyticsAggregator.swift
-
 import Foundation
 import SwiftData
 
 @MainActor
-final class AnalyticsAggregator {
+public final class AnalyticsAggregator {
     private let storage: AnalyticsStorage
 
-    init(storage: AnalyticsStorage) {
+    public init(storage: AnalyticsStorage) {
         self.storage = storage
     }
 
-    func aggregateEvent(_ event: AnalyticsEvent) async {
+    public func aggregateEvent(_ event: AnalyticsEvent) async {
         switch event.eventType {
-        case.cravingLogged:
+        case .cravingLogged:
             await aggregateCravingEvent(event)
-        case.interaction:
+        case .interaction:
             if let interactionEvent = event as? InteractionEvent {
                 await aggregateInteractionEvent(interactionEvent)
             }
-        case.system:
+        case .system:
             if let systemEvent = event as? SystemEvent {
                 await aggregateSystemEvent(systemEvent)
             }
-        case.user:
+        case .user:
             if let userEvent = event as? UserEvent {
                 await aggregateUserEvent(userEvent)
             }
-        case.unknown:
+        case .unknown:
             print("Unknown event type received")
         }
 
@@ -38,51 +36,41 @@ final class AnalyticsAggregator {
 
     private func aggregateCravingEvent(_ event: AnalyticsEvent) async {
         guard let cravingEvent = event as? CravingEvent else {
-            print("Incorrect event type passed to aggregateCravingEvent")
+            print("Incorrect event type")
             return
         }
         print("Aggregating craving event: \(cravingEvent.eventType)")
     }
 
     private func aggregateInteractionEvent(_ event: InteractionEvent) async {
-        // Implementation for aggregating interaction events
         print("Aggregating interaction event: \(event.eventType)")
     }
 
     private func aggregateSystemEvent(_ event: SystemEvent) async {
-        // Implementation for aggregating system events
         print("Aggregating system event: \(event.eventType)")
     }
 
     private func aggregateUserEvent(_ event: UserEvent) async {
-        // Implementation for aggregating user events
         print("Aggregating user event: \(event.eventType)")
     }
 
     private func updateCravingAnalytics(_ cravingEvent: CravingEvent) async {
         let cravingId = cravingEvent.cravingId
-
         do {
-            // Fetch or create metadata for the craving
-            var metadata = try storage.fetchMetadata(forCravingId: cravingId)?? createNewMetadata(for: cravingId)
-
-            // Update metadata
+            var metadata = try storage.fetchMetadata(forCravingId: cravingId) ?? createNewMetadata(for: cravingId)
             metadata.interactionCount += 1
             metadata.lastProcessed = Date()
             
-            // Add user action
             let action = AnalyticsMetadata.UserAction(
                 timestamp: Date(),
-                actionType: "craving_logged",
+                actionType: .cravingLogged,
                 metadata: ["text": cravingEvent.cravingText]
             )
             metadata.userActions.append(action)
-
-            // Save changes
+            
             try storage.modelContext.save()
-
         } catch {
-            print("Error updating AnalyticsMetadata: \(error)")
+            print("Error updating metadata: \(error)")
         }
     }
 
@@ -93,8 +81,7 @@ final class AnalyticsAggregator {
     }
 }
 
-// MARK: - Analytics Event Processing Extensions
-extension AnalyticsAggregator {
+public extension AnalyticsAggregator {
     func processEventBatch(_ events: [AnalyticsEvent]) async {
         for event in events {
             await aggregateEvent(event)
@@ -102,14 +89,11 @@ extension AnalyticsAggregator {
     }
     
     func processHistoricalData(_ startDate: Date, _ endDate: Date) async {
-        // Implementation for processing historical data
         print("Processing historical data from \(startDate) to \(endDate)")
+    }
+    
+    static func preview(storage: AnalyticsStorage) -> AnalyticsAggregator {
+        return AnalyticsAggregator(storage: storage)
     }
 }
 
-// MARK: - Testing Support
-extension AnalyticsAggregator {
-    static func preview(storage: AnalyticsStorage) -> AnalyticsAggregator {
-        AnalyticsAggregator(storage: storage)
-    }
-}

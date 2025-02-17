@@ -1,68 +1,96 @@
-// CRAVEApp/App/DependencyInjection.swift
-
 import Foundation
+import Combine
 import SwiftData
+import SwiftUI
 
-// This is a container for all the services our app uses
-// Think of it like a toolbox where we keep all the essential tools
-struct DependencyContainer {
+@MainActor
+public final class AnalyticsCoordinator: ObservableObject {
+    @Published public private(set) var isAnalyticsEnabled: Bool = false
+    @Published public private(set) var lastEvent: (any AnalyticsEvent)?
+    @Published public private(set) var detectionState: DetectionState = .idle
+    @Published public private(set) var detectedPatterns: [BasicAnalyticsResult.DetectedPattern] = []
 
-    // Our database context, which lets us talk to our database
-    let modelContext: ModelContext
+    private let configuration: AnalyticsConfiguration
+    private let storage: AnalyticsStorage
+    private let aggregator: AnalyticsAggregator
+    private let processor: AnalyticsProcessor
+    private let reporter: AnalyticsReporter
+    private let eventTrackingService: EventTrackingService
+    private let patternDetectionService: PatternDetectionService
 
-    // Services related to cravings
-    let cravingManager: CravingManager
-    let cravingAnalyzer: CravingAnalyzer
+    private var cancellables = Set<AnyCancellable>()
 
-    // Services related to analytics
-    let analyticsStorage: AnalyticsStorage
-    let analyticsAggregator: AnalyticsAggregator
-    let analyticsProcessor: AnalyticsProcessor
-    let patternDetectionService: PatternDetectionService
-    let analyticsReporter: AnalyticsReporter
-    let eventTrackingService: EventTrackingService
+    public enum DetectionState {
+        case idle, processing, completed, error(Error)
+    }
 
-    // ViewModels for our UI
-    let cravingListViewModel: CravingListViewModel
-    let dateListViewModel: DateListViewModel
-    let logCravingViewModel: LogCravingViewModel
-    let analyticsDashboardViewModel: AnalyticsDashboardViewModel
-    let analyticsViewModel: AnalyticsViewModel
+    public init(
+        eventTrackingService: EventTrackingService,
+        patternDetectionService: PatternDetectionService,
+        configuration: AnalyticsConfiguration,
+        storage: AnalyticsStorage,
+        aggregator: AnalyticsAggregator,
+        processor: AnalyticsProcessor,
+        reporter: AnalyticsReporter
+    ) {
+        self.configuration = configuration
+        self.storage = storage
+        self.aggregator = aggregator
+        self.processor = processor
+        self.reporter = reporter
+        self.eventTrackingService = eventTrackingService
+        self.patternDetectionService = patternDetectionService
 
-    // The single AnalyticsCoordinator instance
-    let analyticsCoordinator: AnalyticsCoordinator
+        setupObservers()
+        loadInitialState()
+    }
 
-    // This is how we create our toolbox - we need the database context to start
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    private func setupObservers() {
+        eventTrackingService.eventPublisher
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.detectionState = .error(error)
+                }
+            } receiveValue: { [weak self] event in
+                self?.lastEvent = event
+                Task { await self?.handleEvent(event) }
+            }
+            .store(in: &cancellables)
 
-        // Create instances of all our services, passing in any dependencies they need
-        analyticsStorage = AnalyticsStorage(modelContext: modelContext)
-        cravingManager = CravingManager(modelContext: modelContext)
-        cravingAnalyzer = CravingAnalyzer()
+        patternDetectionService.$detectionState
+            .sink { [weak self] state in
+                self?.detectionState = state
+            }
+            .store(in: &cancellables)
 
-        // Initialize AnalyticsAggregator with the AnalyticsStorage dependency
-        analyticsAggregator = AnalyticsAggregator(storage: analyticsStorage)
-        analyticsProcessor = AnalyticsProcessor(configuration:.shared, storage: analyticsStorage)
-        patternDetectionService = PatternDetectionService(storage: analyticsStorage, configuration:.shared)
-        analyticsReporter = AnalyticsReporter(analyticsStorage: analyticsStorage)
-        eventTrackingService = EventTrackingService(storage: analyticsStorage, configuration:.shared)
+        patternDetectionService.$detectedPatterns
+            .assign(to: &$detectedPatterns)
+    }
 
-        // Initialize the single AnalyticsCoordinator instance
-        analyticsCoordinator = AnalyticsCoordinator(
-            eventTrackingService: eventTrackingService,
-            patternDetectionService: patternDetectionService,
-            configuration:.shared,
-            storage: analyticsStorage,
-            aggregator: analyticsAggregator,
-            processor: analyticsProcessor,
-            reporter: analyticsReporter
+    private func loadInitialState() {
+        isAnalyticsEnabled = configuration.featureFlags.isAnalyticsEnabled
+    }
+
+    public func trackEvent(_ event: CravingEntity) async throws {
+        try await eventTrackingService.trackCravingEvent(
+            CravingEvent(cravingId: event.id, cravingText: event.text)
         )
+    }
 
-        cravingListViewModel = CravingListViewModel(cravingRepository: CravingRepositoryImpl(cravingManager: cravingManager, mapper: CravingMapper()))
-        dateListViewModel = DateListViewModel(cravingRepository: CravingRepositoryImpl(cravingManager: cravingManager, mapper: CravingMapper()))
-        logCravingViewModel = LogCravingViewModel(cravingRepository: CravingRepositoryImpl(cravingManager: cravingManager, mapper: CravingMapper()))
-        analyticsDashboardViewModel = AnalyticsDashboardViewModel(analyticsManager: AnalyticsManager(analyticsCoordinator: analyticsCoordinator))
-        analyticsViewModel = AnalyticsViewModel(analyticsManager: AnalyticsManager(analyticsCoordinator: analyticsCoordinator))
+    private func handleEvent(_ event: AnalyticsEvent) async {
+        await aggregator.aggregateEvent(event)
+        await processor.processEvent(event)
+    }
+
+    public func detectPatterns() async {
+        detectionState = .processing
+        do {
+            _ = try await patternDetectionService.detectPatterns()
+            detectionState = .completed
+        } catch {
+            print("Pattern detection failed: \(error)")
+            detectionState = .error(error)
+        }
     }
 }
+

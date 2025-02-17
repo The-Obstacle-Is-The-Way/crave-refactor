@@ -1,19 +1,16 @@
-// Core/Presentation/ViewModels/Analytics/AnalyticsViewModel.swift
-
 import Foundation
 import SwiftData
-import Combine
 
 @MainActor
-class AnalyticsViewModel: ObservableObject {
-    @Published var basicStats: BasicAnalyticsResult?
+public final class AnalyticsViewModel: ObservableObject {
+    @Published public var basicStats: BasicAnalyticsResult?
     private let analyticsManager: AnalyticsManager
 
-    init(analyticsManager: AnalyticsManager) {
+    public init(analyticsManager: AnalyticsManager) {
         self.analyticsManager = analyticsManager
     }
 
-    func loadAnalytics() async {
+    public func loadAnalytics() async {
         do {
             self.basicStats = try await analyticsManager.getBasicStats()
         } catch {

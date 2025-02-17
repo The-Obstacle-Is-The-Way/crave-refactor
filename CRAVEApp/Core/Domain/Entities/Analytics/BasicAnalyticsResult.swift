@@ -1,25 +1,18 @@
-// Core/Domain/Entities/Analytics/BasicAnalyticsResult.swift
-
 import Foundation
 
-/// Represents aggregated analytics data derived from logged cravings.
 public struct BasicAnalyticsResult {
-    // MARK: - Core Metrics
     public let totalCravings: Int
     public let totalResisted: Int
     public let averageIntensity: Double?
     
-    // MARK: - Time-Based Analytics
     public let cravingsByDate: [Date: Int]
     public let cravingsByHour: [Int: Int]
     public let cravingsByWeekday: [Int: Int]
     
-    // MARK: - Pattern Analysis
     public let commonTriggers: [String: Int]
     public let timePatterns: [TimePattern]
     public let detectedPatterns: [DetectedPattern]
     
-    // MARK: - Computed Properties
     public var successRate: Double {
         guard totalCravings > 0 else { return 0.0 }
         return Double(totalResisted) / Double(totalCravings)
@@ -52,9 +45,8 @@ public struct BasicAnalyticsResult {
     }
 }
 
-// MARK: - Supporting Types
-extension BasicAnalyticsResult {
-    public struct TimePattern: Equatable {
+public extension BasicAnalyticsResult {
+    struct TimePattern: Equatable {
         public let hour: Int
         public let frequency: Int
         public let confidence: Double
@@ -64,7 +56,7 @@ extension BasicAnalyticsResult {
         }
     }
     
-    public struct DetectedPattern: Equatable {
+    struct DetectedPattern: Equatable {
         public let type: PatternType
         public let description: String
         public let confidence: Double
@@ -78,7 +70,7 @@ extension BasicAnalyticsResult {
         }
     }
     
-    public enum PatternType: String {
+    enum PatternType: String {
         case timeOfDay = "time_of_day"
         case dayOfWeek = "day_of_week"
         case trigger = "trigger"
@@ -87,9 +79,8 @@ extension BasicAnalyticsResult {
     }
 }
 
-// MARK: - Factory Methods
-extension BasicAnalyticsResult {
-    public static var empty: BasicAnalyticsResult {
+public extension BasicAnalyticsResult {
+    static var empty: BasicAnalyticsResult {
         BasicAnalyticsResult(
             totalCravings: 0,
             totalResisted: 0,
@@ -103,7 +94,7 @@ extension BasicAnalyticsResult {
         )
     }
     
-    public static func mock(forTesting: Bool = false) -> BasicAnalyticsResult {
+    static func mock(forTesting: Bool = false) -> BasicAnalyticsResult {
         BasicAnalyticsResult(
             totalCravings: 42,
             totalResisted: 28,

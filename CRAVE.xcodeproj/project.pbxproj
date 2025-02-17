@@ -72,7 +72,6 @@
 				Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift = (ios, );
 				Core/Utilities/AnalyticsError.swift = (ios, );
 				Core/Utilities/AnalyticsFormatter.swift = (ios, );
-				Core/Utilities/AnalyticsTypes.swift = (ios, );
 				Navigation/CRAVETabView.swift = (ios, );
 			};
 			target = 28B8D8DE2D5CD84000FA0F1E /* CRAVE */;

@@ -1,18 +1,18 @@
-// Core/Presentation/Views/Craving/CravingListView.swift
-
 import SwiftUI
 
-struct CravingListView: View {
-    @StateObject private var viewModel: CravingListViewModel
+public struct CravingListView: View {
+    @ObservedObject public var viewModel: CravingListViewModel
 
-    // Initialize via dependency injection
-    init(viewModel: CravingListViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    public init(viewModel: CravingListViewModel) {
+        self.viewModel = viewModel
     }
 
-    var body: some View {
+    public var body: some View {
         List(viewModel.cravings) { craving in
             Text(craving.text)
+        }
+        .task {
+            await viewModel.loadCravings()
         }
     }
 }

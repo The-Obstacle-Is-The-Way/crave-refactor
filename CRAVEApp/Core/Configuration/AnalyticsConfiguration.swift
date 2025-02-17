@@ -1,40 +1,33 @@
-//
-//  🍒
-//  AnalyticsConfiguration.swift
-//  Purpose: Centralized configuration management for analytics system
-//
-//
-
 import Foundation
 import Combine
 
-final class AnalyticsConfiguration: ObservableObject {
-    nonisolated static let shared = AnalyticsConfiguration()
+public final class AnalyticsConfiguration: ObservableObject {
+    public static let shared = AnalyticsConfiguration()
     
-    @Published private(set) var currentEnvironment: AppEnvironment = .development
-    @Published private(set) var featureFlags: FeatureFlags = .development
-    @Published private(set) var processingRules: ProcessingRules = ProcessingRules()
-    @Published private(set) var storagePolicy: StoragePolicy = StoragePolicy()
-    @Published private(set) var privacySettings: PrivacySettings = PrivacySettings()
+    @Published public private(set) var currentEnvironment: AppEnvironment = .development
+    @Published public private(set) var featureFlags: FeatureFlags = .development
+    @Published public private(set) var processingRules: ProcessingRules = ProcessingRules()
+    @Published public private(set) var storagePolicy: StoragePolicy = StoragePolicy()
+    @Published public private(set) var privacySettings: PrivacySettings = PrivacySettings()
     
-    let performanceConfig: PerformanceConfiguration = PerformanceConfiguration()
-    let networkConfig: NetworkConfiguration = NetworkConfiguration()
-    let mlConfig: MLConfiguration = MLConfiguration()
+    public let performanceConfig: PerformanceConfiguration = PerformanceConfiguration()
+    public let networkConfig: NetworkConfiguration = NetworkConfiguration()
+    public let mlConfig: MLConfiguration = MLConfiguration()
     
     private init() {}
     
-    func updateEnvironment(_ environment: AppEnvironment) {
+    public func updateEnvironment(_ environment: AppEnvironment) {
         currentEnvironment = environment
-        featureFlags = environment == .production ? .production : .development
+        featureFlags = (environment == .production) ? .production : .development
         NotificationCenter.default.post(name: .analyticsConfigurationUpdated, object: nil)
     }
     
-    func updateFeatureFlags(_ flags: FeatureFlags) {
+    public func updateFeatureFlags(_ flags: FeatureFlags) {
         featureFlags = flags
         NotificationCenter.default.post(name: .analyticsConfigurationUpdated, object: nil)
     }
     
-    func updatePrivacySettings(_ settings: PrivacySettings) async throws {
+    public func updatePrivacySettings(_ settings: PrivacySettings) async throws {
         guard settings.validate() else {
             throw ConfigurationError.invalidPrivacySettings
         }
@@ -42,17 +35,16 @@ final class AnalyticsConfiguration: ObservableObject {
     }
 }
 
-// MARK: - Configuration Types
-struct FeatureFlags: Codable {
-    var isMLEnabled: Bool
-    var isRealtimeProcessingEnabled: Bool
-    var isBackgroundProcessingEnabled: Bool
-    var isCloudSyncEnabled: Bool
-    var isDebugLoggingEnabled: Bool
-    var isAnalyticsEnabled: Bool
-    var isAutoProcessingEnabled: Bool
+public struct FeatureFlags: Codable {
+    public var isMLEnabled: Bool
+    public var isRealtimeProcessingEnabled: Bool
+    public var isBackgroundProcessingEnabled: Bool
+    public var isCloudSyncEnabled: Bool
+    public var isDebugLoggingEnabled: Bool
+    public var isAnalyticsEnabled: Bool
+    public var isAutoProcessingEnabled: Bool
     
-    static let development = FeatureFlags(
+    public static let development = FeatureFlags(
         isMLEnabled: true,
         isRealtimeProcessingEnabled: true,
         isBackgroundProcessingEnabled: true,
@@ -62,7 +54,7 @@ struct FeatureFlags: Codable {
         isAutoProcessingEnabled: true
     )
     
-    static let production = FeatureFlags(
+    public static let production = FeatureFlags(
         isMLEnabled: true,
         isRealtimeProcessingEnabled: true,
         isBackgroundProcessingEnabled: true,
@@ -73,75 +65,78 @@ struct FeatureFlags: Codable {
     )
 }
 
-struct ProcessingRules: Codable {
-    var batchSize: Int = 100
-    var processingInterval: TimeInterval = 300
-    var maxRetryAttempts: Int = 3
-    var timeoutInterval: TimeInterval = 30
-    var priorityThreshold: Double = 0.7
-}
-
-struct StoragePolicy: Codable {
-    var retentionPeriod: TimeInterval = 30 * 24 * 3600
-    var maxStorageSize: Int64 = 100 * 1024 * 1024
-    var compressionEnabled: Bool = true
-    var encryptionEnabled: Bool = true
-    var autoCleanupEnabled: Bool = true
-}
-
-struct PrivacySettings: Codable {
-    var dataCollectionEnabled: Bool = true
-    var locationTrackingEnabled: Bool = false
-    var healthKitEnabled: Bool = false
-    var analyticsEnabled: Bool = true
-    var dataSharingEnabled: Bool = false
+public struct ProcessingRules: Codable {
+    public var batchSize: Int = 100
+    public var processingInterval: TimeInterval = 300
+    public var maxRetryAttempts: Int = 3
+    public var timeoutInterval: TimeInterval = 30
+    public var priorityThreshold: Double = 0.7
     
-    func validate() -> Bool { true }
+    public func validate() -> Bool {
+        return batchSize > 0
+    }
 }
 
-struct PerformanceConfiguration {
-    let maxConcurrentOperations: Int = 4
-    let maxMemoryUsage: Int64 = 50 * 1024 * 1024
-    let backgroundTaskTimeout: TimeInterval = 180
-    let minimumBatteryLevel: Float = 0.2
+public struct StoragePolicy: Codable {
+    public var retentionPeriod: TimeInterval = 30 * 24 * 3600
+    public var maxStorageSize: Int64 = 100 * 1024 * 1024
+    public var compressionEnabled: Bool = true
+    public var encryptionEnabled: Bool = true
+    public var autoCleanupEnabled: Bool = true
+    
+    public func validate() -> Bool {
+        return retentionPeriod > 0
+    }
 }
 
-struct NetworkConfiguration {
-    let maxRetries: Int = 3
-    let timeout: TimeInterval = 30
-    let batchSize: Int = 50
-    let compressionThreshold: Int = 1024 * 10
+public struct PrivacySettings: Codable {
+    public var dataCollectionEnabled: Bool = true
+    public var locationTrackingEnabled: Bool = false
+    public var healthKitEnabled: Bool = false
+    public var analyticsEnabled: Bool = true
+    public var dataSharingEnabled: Bool = false
+    
+    public func validate() -> Bool { true }
 }
 
-struct MLConfiguration {
-    let modelUpdateInterval: TimeInterval = 24 * 3600
-    let minimumConfidence: Double = 0.7
-    let maxPredictionWindow: TimeInterval = 7 * 24 * 3600
-    let trainingDataLimit: Int = 1000
+public struct PerformanceConfiguration {
+    public let maxConcurrentOperations: Int = 4
+    public let maxMemoryUsage: Int64 = 50 * 1024 * 1024
+    public let backgroundTaskTimeout: TimeInterval = 180
+    public let minimumBatteryLevel: Float = 0.2
 }
 
-enum AppEnvironment: String, Codable {
-    case development
-    case staging
-    case production
+public struct NetworkConfiguration {
+    public let maxRetries: Int = 3
+    public let timeout: TimeInterval = 30
+    public let batchSize: Int = 50
+    public let compressionThreshold: Int = 1024 * 10
 }
 
-enum ConfigurationError: Error {
-    case invalidConfiguration
-    case invalidPrivacySettings
-    case invalidProcessingRules
-    case invalidStoragePolicy
+public struct MLConfiguration {
+    public let modelUpdateInterval: TimeInterval = 24 * 3600
+    public let minimumConfidence: Double = 0.7
+    public let maxPredictionWindow: TimeInterval = 7 * 24 * 3600
+    public let trainingDataLimit: Int = 1000
+}
+
+public enum AppEnvironment: String, Codable {
+    case development, staging, production
+}
+
+public enum ConfigurationError: Error {
+    case invalidConfiguration, invalidPrivacySettings, invalidProcessingRules, invalidStoragePolicy
 }
 
 extension Notification.Name {
-    static let analyticsConfigurationUpdated = Notification.Name("analyticsConfigurationUpdated")
+    public static let analyticsConfigurationUpdated = Notification.Name("analyticsConfigurationUpdated")
 }
 
-// MARK: - Preview Support
-extension AnalyticsConfiguration {
+public extension AnalyticsConfiguration {
     static var preview: AnalyticsConfiguration {
-        let config = AnalyticsConfiguration()
+        let config = AnalyticsConfiguration.shared
         config.updateFeatureFlags(.development)
         return config
     }
 }
+

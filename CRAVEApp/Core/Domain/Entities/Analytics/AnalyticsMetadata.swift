@@ -1,20 +1,15 @@
-// Core/Domain/Entities/Analytics/AnalyticsMetadata.swift
-
 import Foundation
 
-// MARK: - Analytics Metadata Entity
-struct AnalyticsMetadata {
-    // MARK: - Properties
-    let id: UUID
-    let cravingId: UUID
-    let createdAt: Date
+public struct AnalyticsMetadata {
+    public let id: UUID
+    public let cravingId: UUID
+    public let createdAt: Date
 
-    private(set) var interactionCount: Int
-    private(set) var lastProcessed: Date
-    private(set) var userActions: [UserAction]
+    public private(set) var interactionCount: Int
+    public private(set) var lastProcessed: Date
+    public private(set) var userActions: [UserAction]
 
-    // MARK: - Initialization
-    init(cravingId: UUID) {
+    public init(cravingId: UUID) {
         self.id = UUID()
         self.cravingId = cravingId
         self.createdAt = Date()
@@ -23,27 +18,25 @@ struct AnalyticsMetadata {
         self.userActions = []
     }
 
-    // MARK: - Mutating Methods
-    mutating func incrementInteractions() {
+    public mutating func incrementInteractions() {
         interactionCount += 1
         lastProcessed = Date()
     }
 
-    mutating func addUserAction(_ action: UserAction) {
+    public mutating func addUserAction(_ action: UserAction) {
         userActions.append(action)
         incrementInteractions()
     }
 }
 
-// MARK: - Supporting Types
-extension AnalyticsMetadata {
-    struct UserAction: Codable, Equatable { // Add Codable and Equatable
-        let id: UUID
-        let timestamp: Date
-        let actionType: ActionType
-        let metadata: [String: String]
+public extension AnalyticsMetadata {
+    struct UserAction: Codable, Equatable {
+        public let id: UUID
+        public let timestamp: Date
+        public let actionType: ActionType
+        public let metadata: [String: String]
 
-        init(timestamp: Date = .now, actionType: ActionType, metadata: [String : String] = [:]) { //Add timestamp
+        public init(timestamp: Date = .now, actionType: ActionType, metadata: [String: String] = [:]) {
             self.id = UUID()
             self.timestamp = timestamp
             self.actionType = actionType
@@ -51,7 +44,7 @@ extension AnalyticsMetadata {
         }
     }
 
-    enum ActionType: String, Codable { // Add Codable
+    enum ActionType: String, Codable {
         case cravingLogged = "craving_logged"
         case cravingResisted = "craving_resisted"
         case cravingUpdated = "craving_updated"
@@ -60,18 +53,3 @@ extension AnalyticsMetadata {
     }
 }
 
-// MARK: - Business Rules
-extension AnalyticsMetadata {
-    var isActive: Bool {
-        Date().timeIntervalSince(lastProcessed ?? Date.distantPast) < 24 * 3600 // 24 hours, handle nil
-    }
-
-    var hasSignificantInteraction: Bool {
-        interactionCount >= 5
-    }
-
-    func validateAction(_ action: UserAction) -> Bool {
-        // Add business validation rules here
-        return true
-    }
-}

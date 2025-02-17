@@ -1,22 +1,19 @@
-// Core/Presentation/ViewModels/Craving/CravingListViewModel.swift
 import Foundation
-import SwiftData
 
-@MainActor
-final class CravingListViewModel: ObservableObject {
-    @Published var cravings: [CravingEntity] = []
+public final class CravingListViewModel: ObservableObject {
+    @Published public var cravings: [CravingEntity] = []
     private let cravingRepository: CravingRepository
 
-    init(cravingRepository: CravingRepository) {
+    public init(cravingRepository: CravingRepository) {
         self.cravingRepository = cravingRepository
     }
 
-    func loadCravings() async {
+    public func loadCravings() async {
         do {
             cravings = try await cravingRepository.fetchAllActiveCravings()
         } catch {
-            print("Error fetching cravings: \(error)")
+            print("Error loading cravings: \(error)")
         }
     }
 }
- 
+

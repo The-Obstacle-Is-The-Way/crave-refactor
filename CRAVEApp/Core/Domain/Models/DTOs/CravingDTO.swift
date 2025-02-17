@@ -1,11 +1,14 @@
-
-//  CRAVEApp/Core/Domain/Models/DTOs/CravingDTO.swift
-
 import Foundation
 
-struct CravingDTO {
-    let id: UUID
-    let text: String
-    let timestamp: Date
-    let isArchived: Bool
+public struct CravingDTO {
+    public let id: UUID
+    public let text: String
+    public let timestamp: Date
+
+    public init(id: UUID, text: String, timestamp: Date) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+    }
 }
+

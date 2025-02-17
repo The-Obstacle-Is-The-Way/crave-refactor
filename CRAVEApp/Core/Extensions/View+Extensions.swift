@@ -1,6 +1,8 @@
-//
-//  View+Extensions.swift
-//  CRAVE
-//
-//  Created by John H Jung on 2/12/25.
-//
+import SwiftUI
+
+public extension View {
+    func roundedBorder() -> some View {
+        self.overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+    }
+}
+

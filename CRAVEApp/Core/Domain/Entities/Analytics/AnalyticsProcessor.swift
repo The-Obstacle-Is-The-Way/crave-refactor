@@ -1,21 +1,19 @@
-// Core/Domain/Interactors/Analytics/AnalyticsProcessor.swift
-
 import Foundation
 import SwiftData
 
 @MainActor
-final class AnalyticsProcessor {
+public final class AnalyticsProcessor {
     private let configuration: AnalyticsConfiguration
     private let storage: AnalyticsStorage
-    private var processingQueue: [AnalyticsEvent] = []  // Initialize to empty array
+    private var processingQueue: [AnalyticsEvent] = []
     private var isProcessing: Bool = false
 
-    init(configuration: AnalyticsConfiguration, storage: AnalyticsStorage) {
+    public init(configuration: AnalyticsConfiguration, storage: AnalyticsStorage) {
         self.configuration = configuration
         self.storage = storage
     }
 
-    func processEvent(_ event: AnalyticsEvent) async {
+    public func processEvent(_ event: AnalyticsEvent) async {
         await queueEvent(event)
         await processQueueIfNeeded()
     }
@@ -25,11 +23,8 @@ final class AnalyticsProcessor {
     }
 
     private func processQueueIfNeeded() async {
-        // Note the spaces between '!' and the identifiers.
         guard !isProcessing && !processingQueue.isEmpty else { return }
-
         isProcessing = true
-
         do {
             let batchSize = configuration.processingRules.batchSize
             while !processingQueue.isEmpty {
@@ -38,9 +33,8 @@ final class AnalyticsProcessor {
                 processingQueue.removeFirst(min(batchSize, processingQueue.count))
             }
         } catch {
-            print("Error processing events: \(error)")
+            print("Error processing batch: \(error)")
         }
-
         isProcessing = false
     }
 
@@ -56,18 +50,17 @@ final class AnalyticsProcessor {
             case .user:
                 await processUserEvent(event)
             case .unknown:
-                print("Unknown event type encountered")
+                print("Unknown event type")
             }
         }
     }
 
     private func processCravingEvent(_ event: AnalyticsEvent) async {
         guard let cravingEvent = event as? CravingEvent else {
-            print("Incorrect event type passed to processCravingEvent")
+            print("Invalid craving event")
             return
         }
         print("Processing craving event: \(cravingEvent.cravingText)")
-        // … additional logic here …
     }
 
     private func processInteractionEvent(_ event: AnalyticsEvent) async {

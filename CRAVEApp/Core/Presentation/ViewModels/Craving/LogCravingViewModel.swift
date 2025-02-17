@@ -1,40 +1,22 @@
-// Core/Presentation/ViewModels/Craving/LogCravingViewModel.swift
-
 import Foundation
-import SwiftData
-import SwiftUI
 
-@MainActor
-final class LogCravingViewModel: ObservableObject {
-    @Published var cravingText: String = ""
-    private let cravingRepository: CravingRepository
+public final class LogCravingViewModel: ObservableObject {
+    @Published public var cravingText: String = ""
+    private let addCravingUseCase: AddCravingUseCaseProtocol
 
-    init(cravingRepository: CravingRepository) {
-        self.cravingRepository = cravingRepository
+    public init(addCravingUseCase: AddCravingUseCaseProtocol) {
+        self.addCravingUseCase = addCravingUseCase
     }
 
-    // MARK: - Add New Craving
-    func addCraving(completion: @escaping (Bool) -> Void) {
-        let trimmedText = cravingText.trimmingCharacters(in:.whitespacesAndNewlines)
-        guard!trimmedText.isEmpty else {
-            completion(false)
-            return
+    public func addCraving() {
+        Task {
+            do {
+                _ = try await addCravingUseCase.execute(cravingText: cravingText)
+                cravingText = ""
+            } catch {
+                print("Error adding craving: \(error)")
+            }
         }
-
-        guard trimmedText.count >= 3 else {
-            completion(false)
-            return
-        }
-
-        let newCraving = CravingEntity(
-            id: UUID(),
-            text: trimmedText,
-            timestamp: Date(),
-            isArchived: false
-        )
-
-        cravingRepository.addCraving(newCraving)
-        completion(true)
-        cravingText = ""
     }
 }
+

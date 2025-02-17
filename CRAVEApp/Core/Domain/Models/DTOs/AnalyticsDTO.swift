@@ -1,4 +1,3 @@
-// Core/Domain/Models/DTOs/AnalyticsDTO.swift
 import Foundation
 
 public struct AnalyticsDTO {
