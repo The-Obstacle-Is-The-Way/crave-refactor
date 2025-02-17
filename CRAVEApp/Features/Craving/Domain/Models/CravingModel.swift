@@ -8,16 +8,16 @@
 import Foundation
 import SwiftData
 
-@Model
-final class CravingModel: Identifiable {
+@Model // Add @Model here.  CravingModel MUST be a class.
+final class CravingModel: Identifiable { // Conforms to Identifiable
     @Attribute(.unique) var id: UUID
     var cravingText: String
     var timestamp: Date
     var isArchived: Bool
     var intensity: Int
-    var category: CravingCategory?
+    var category: CravingCategory? // Optional, as it might not always be set.
     var triggers: [String]
-    var location: LocationData?
+    var location: LocationData?    // Optional
     var contextualFactors: [ContextualFactor]
     var createdAt: Date
     var modifiedAt: Date
@@ -49,16 +49,6 @@ final class CravingModel: Identifiable {
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
         self.analyticsProcessed = analyticsProcessed
-    }
-
-    // Validation (optional, but good practice)
-    func validate() throws {
-        if cravingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            throw CravingModelError.emptyText
-        }
-        if intensity < 0 || intensity > 10 {
-            throw CravingModelError.invalidIntensity
-        }
     }
 }
 

@@ -1,8 +1,9 @@
 //
-//  AnalyticsMetadata.swift
-//  CRAVEApp
 //
+//  🍒
+//  AnalyticsMetadata.swift
 //  Purpose: Stores craving analytics metadata.
+//
 //
 
 import Foundation
