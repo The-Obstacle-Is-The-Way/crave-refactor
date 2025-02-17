@@ -11,15 +11,15 @@ import SwiftUI
 struct CraveTextEditor: View {
     @Binding var text: String
     var placeholder: String = "Enter craving..."
-    var characterLimit: Int? = 280 // Add an optional character limit
+    var characterLimit: Int? = 280 // Optional character limit
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             // Placeholder Text (only visible when text is empty)
             if text.isEmpty {
                 Text(placeholder)
-                    .foregroundColor(CRAVEDesignSystem.Colors.textSecondary)
-                    .font(CRAVEDesignSystem.Typography.body) // Use Design System
+                    .foregroundColor(CRAVEDesignSystem.Colors.textSecondary) // Use custom system color
+                    .font(CRAVEDesignSystem.Typography.body) // Use system body font
                     .padding(.horizontal, 8)
                     .padding(.vertical, 12) // Vertical padding for alignment
             }
@@ -28,11 +28,11 @@ struct CraveTextEditor: View {
             TextEditor(text: $text)
                 .frame(minHeight: 120)
                 .padding(4)
-                .background(CRAVEDesignSystem.Colors.tertiaryBackground) // Use Design System
-                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)      // Use Design System
-                .font(CRAVEDesignSystem.Typography.body)             // Use Design System
-                .foregroundColor(CRAVEDesignSystem.Colors.textPrimary)    // Use Design System
-                .scrollContentBackground(.hidden) // Hides the default opaque background on newer iOS versions
+                .background(CRAVEDesignSystem.Colors.tertiaryBackground) // Use system background
+                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
+                .font(CRAVEDesignSystem.Typography.body) // Use system body font
+                .foregroundColor(CRAVEDesignSystem.Colors.textPrimary) // Use system primary color
+                .scrollContentBackground(.hidden) // Hide default opaque background
                 .accessibilityIdentifier("CravingTextEditor")
                 .overlay( // Display character count, if a limit is set
                     characterLimit.map { limit in
@@ -45,17 +45,20 @@ struct CraveTextEditor: View {
                                 .padding(.bottom, 8)
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
-                        .background(Color.clear) // Important: make the overlay background clear
+                        .background(Color.clear)
                     },
                     alignment: .bottomTrailing // Align to bottom-trailing corner
                 )
-        }
-        //FIXED onChange
-        .onChange(of: text) { oldValue, newValue in
-            if let limit = characterLimit, newValue.count > limit {
-                text = String(newValue.prefix(limit))
-                CRAVEDesignSystem.Haptics.notification(type: .warning)
-            }
+                .onChange(of: text) { oldValue, newValue in
+                    if let limit = characterLimit, newValue.count > limit {
+                        text = String(newValue.prefix(limit))
+                        CRAVEDesignSystem.Haptics.notification(type: .error) // Fixed: warning → error
+                    }
+                }
         }
     }
+}
+
+#Preview {
+    CraveTextEditor(text: .constant("Type Something"))
 }
