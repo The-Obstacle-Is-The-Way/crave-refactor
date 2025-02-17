@@ -8,16 +8,15 @@ public final class CravingEntity {
     public var timestamp: Date
     public var isArchived: Bool
 
-     public init(
-         id: UUID,
-         text: String,
-         timestamp: Date,
-         isArchived: Bool
-     ) {
-         self.id = id
-         self.text = text
-         self.timestamp = timestamp
-         self.isArchived = isArchived
-     }
+    public init(
+        id: UUID = UUID(),
+        text: String,
+        timestamp: Date = Date(),
+        isArchived: Bool = false
+    ) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+        self.isArchived = isArchived
+    }
 }
-

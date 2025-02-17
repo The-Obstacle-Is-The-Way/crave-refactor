@@ -1,66 +1,28 @@
 // Core/Data/Repositories/CravingRepositoryImpl.swift
 import Foundation
+import SwiftData
 
+@MainActor
 internal final class CravingRepositoryImpl: CravingRepository {
     private let cravingManager: CravingManager
-    private let mapper: CravingMapper
-
-    internal init(cravingManager: CravingManager, mapper: CravingMapper) {
+    
+    internal init(cravingManager: CravingManager) {
         self.cravingManager = cravingManager
-        self.mapper = mapper
     }
-
+    
     public func fetchAllActiveCravings() async throws -> [CravingEntity] {
-        let dtos = try await cravingManager.fetchActiveCravings()
-        return dtos.map(mapper.mapToEntity)
+        try await cravingManager.fetchActiveCravings()
     }
-
-    public func addCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.insert(dto)
+    
+    public func addCraving(_ craving: CravingEntity) async throws {
+        try await cravingManager.insert(craving)
     }
-
-    public func archiveCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.archive(dto)
+    
+    public func archiveCraving(_ craving: CravingEntity) async throws {
+        try await cravingManager.archive(craving)
     }
-
-    public func deleteCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.delete(dto)
+    
+    public func deleteCraving(_ craving: CravingEntity) async throws {
+        try await cravingManager.delete(craving)
     }
 }
-
-// Core/Data/Repositories/CravingRepositoryImpl.swift
-import Foundation
-
-internal final class CravingRepositoryImpl: CravingRepository {
-    private let cravingManager: CravingManager
-    private let mapper: CravingMapper
-
-    internal init(cravingManager: CravingManager, mapper: CravingMapper) {
-        self.cravingManager = cravingManager
-        self.mapper = mapper
-    }
-
-    public func fetchAllActiveCravings() async throws -> [CravingEntity] {
-        let dtos = try await cravingManager.fetchActiveCravings()
-        return dtos.map(mapper.mapToEntity)
-    }
-
-    public func addCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.insert(dto)
-    }
-
-    public func archiveCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.archive(dto)
-    }
-
-    public func deleteCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.delete(dto)
-    }
-}
-

@@ -5,111 +5,45 @@ import SwiftData
 @MainActor
 final class CravingManager {
     private let modelContext: ModelContext
-
+    
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
-
-    func fetchActiveCravings() async throws -> [CravingDTO] {
-        let descriptor = FetchDescriptor<CravingDTO>(
-            predicate: #Predicate<CravingDTO> { !$0.isArchived },
+    
+    func fetchActiveCravings() async throws -> [CravingEntity] {
+        let descriptor = FetchDescriptor<CravingEntity>(
+            predicate: #Predicate<CravingEntity> { !$0.isArchived },
             sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
         )
         return try modelContext.fetch(descriptor)
     }
-
-    func insert(_ dto: CravingDTO) throws {
-        modelContext.insert(dto)
-        try save()
-    }
-
-    func archive(_ dto: CravingDTO) throws {
-        let descriptor = FetchDescriptor<CravingDTO>(
-            predicate: #Predicate<CravingDTO> { $0.id == dto.id }
-        )
-        if let model = try modelContext.fetch(descriptor).first {
-            model.isArchived = true
-            try save()
-        }
-    }
-
-    func delete(_ dto: CravingDTO) throws {
-        let descriptor = FetchDescriptor<CravingDTO>(
-            predicate: #Predicate<CravingDTO> { $0.id == dto.id }
-        )
-        if let model = try modelContext.fetch(descriptor).first {
-            modelContext.delete(model)
-            try save()
-        }
-    }
-
-    private func save() throws {
-        try modelContext.save()
-    }
-}
-
-// Core/Data/Mappers/CravingMapper.swift
-import Foundation
-
-struct CravingMapper {
-    func mapToEntity(_ dto: CravingDTO) -> CravingEntity {
-        CravingEntity(
-            id: dto.id,
-            text: dto.text,
-            timestamp: dto.timestamp,
-            isArchived: dto.isArchived
-        )
+    
+    func insert(_ entity: CravingEntity) async throws {
+        modelContext.insert(entity)
+        try await save()
     }
     
-    func mapToDTO(_ entity: CravingEntity) -> CravingDTO {
-        CravingDTO(
-            id: entity.id,
-            text: entity.text,
-            timestamp: entity.timestamp,
-            isArchived: entity.isArchived
+    func archive(_ entity: CravingEntity) async throws {
+        let descriptor = FetchDescriptor<CravingEntity>(
+            predicate: #Predicate<CravingEntity> { $0.id == entity.id }
         )
+        if let existing = try modelContext.fetch(descriptor).first {
+            existing.isArchived = true
+            try await save()
+        }
     }
-}
-
-// Core/Domain/Interfaces/Repositories/CravingRepository.swift
-import Foundation
-
-public protocol CravingRepository {
-    func fetchAllActiveCravings() async throws -> [CravingEntity]
-    func addCraving(_ craving: CravingEntity)
-    func archiveCraving(_ craving: CravingEntity)
-    func deleteCraving(_ craving: CravingEntity)
-}
-
-// Core/Data/Repositories/CravingRepositoryImpl.swift
-import Foundation
-
-final class CravingRepositoryImpl: CravingRepository {
-    private let cravingManager: CravingManager
-    private let mapper: CravingMapper
-
-    init(cravingManager: CravingManager, mapper: CravingMapper) {
-        self.cravingManager = cravingManager
-        self.mapper = mapper
+    
+    func delete(_ entity: CravingEntity) async throws {
+        let descriptor = FetchDescriptor<CravingEntity>(
+            predicate: #Predicate<CravingEntity> { $0.id == entity.id }
+        )
+        if let existing = try modelContext.fetch(descriptor).first {
+            modelContext.delete(existing)
+            try await save()
+        }
     }
-
-    func fetchAllActiveCravings() async throws -> [CravingEntity] {
-        let dtos = try await cravingManager.fetchActiveCravings()
-        return dtos.map(mapper.mapToEntity)
-    }
-
-    func addCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.insert(dto)
-    }
-
-    func archiveCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.archive(dto)
-    }
-
-    func deleteCraving(_ craving: CravingEntity) {
-        let dto = mapper.mapToDTO(craving)
-        try? cravingManager.delete(dto)
+    
+    private func save() async throws {
+        try modelContext.save()
     }
 }
