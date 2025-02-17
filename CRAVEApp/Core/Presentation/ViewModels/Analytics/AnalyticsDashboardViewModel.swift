@@ -17,7 +17,7 @@ final class AnalyticsDashboardViewModel: ObservableObject {
             self.basicStats = try await analyticsManager.getBasicStats()
         } catch {
             print("Error loading analytics: \(error)")
-            // Handle the error appropriately (e.g., display an error message)
         }
     }
 }
+
