@@ -1,28 +1,32 @@
+// Core/Domain/Interfaces/Repositories/CravingRepository.swift
 import Foundation
 
-public final class CravingRepositoryImpl: CravingRepository {
-    private let cravingManager: CravingManager
-    private let mapper: CravingMapper
-
-    public init(cravingManager: CravingManager, mapper: CravingMapper) {
-        self.cravingManager = cravingManager
-        self.mapper = mapper
-    }
-
-    public func fetchAllActiveCravings() async throws -> [CravingEntity] {
-        return try await cravingManager.fetchActiveCravings()
-    }
-
-    public func addCraving(_ craving: CravingEntity) {
-        cravingManager.add(craving: craving)
-    }
-
-    public func archiveCraving(_ craving: CravingEntity) {
-        cravingManager.archive(craving: craving)
-    }
-
-    public func deleteCraving(_ craving: CravingEntity) {
-        cravingManager.delete(craving: craving)
-    }
+public protocol CravingRepository {
+    func fetchAllActiveCravings() async throws -> [CravingEntity]
+    func addCraving(_ craving: CravingEntity)
+    func archiveCraving(_ craving: CravingEntity)
+    func deleteCraving(_ craving: CravingEntity)
 }
 
+// Core/Data/Mappers/CravingMapper.swift
+import Foundation
+
+internal struct CravingMapper {
+    func mapToEntity(_ dto: CravingDTO) -> CravingEntity {
+        CravingEntity(
+            id: dto.id,
+            text: dto.text,
+            timestamp: dto.timestamp,
+            isArchived: dto.isArchived
+        )
+    }
+    
+    func mapToDTO(_ entity: CravingEntity) -> CravingDTO {
+        CravingDTO(
+            id: entity.id,
+            text: entity.text,
+            timestamp: entity.timestamp,
+            isArchived: entity.isArchived
+        )
+    }
+}

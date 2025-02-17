@@ -1,5 +1,7 @@
 import Foundation
+import SwiftUI
 
+@MainActor
 public final class CravingListViewModel: ObservableObject {
     @Published public var cravings: [CravingEntity] = []
     private let cravingRepository: CravingRepository
@@ -13,7 +15,7 @@ public final class CravingListViewModel: ObservableObject {
             cravings = try await cravingRepository.fetchAllActiveCravings()
         } catch {
             print("Error loading cravings: \(error)")
+            // TODO: Proper error handling
         }
     }
 }
-

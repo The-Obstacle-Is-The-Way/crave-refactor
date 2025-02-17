@@ -13,10 +13,9 @@ public struct CraveButton: View {
         Button(action: action) {
             Text(title)
                 .padding()
-                .background(Theme.primaryColor)
+                .background(CRAVEDesignSystem.Colors.primary)
                 .foregroundColor(.white)
-                .cornerRadius(8)
+                .cornerRadius(CRAVEDesignSystem.Layout.cornerRadius)
         }
     }
 }
-

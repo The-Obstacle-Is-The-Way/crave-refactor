@@ -1,24 +1,18 @@
+// Core/Data/DTOs/AnalyticsDTO.swift
 import Foundation
+import SwiftData
 
-public struct AnalyticsDTO {
-    public let id: UUID
-    public let cravingId: UUID
-    public let timestamp: Date
-    public let interactionCount: Int
-    public let userActions: [AnalyticsMetadata.UserAction]
-
-    public init(
-        id: UUID,
-        cravingId: UUID,
-        timestamp: Date,
-        interactionCount: Int,
-        userActions: [AnalyticsMetadata.UserAction]
-    ) {
+@Model
+final class AnalyticsDTO {
+    var id: UUID
+    var eventType: String
+    var timestamp: Date
+    var metadata: [String: String] // Note: SwiftData can't store [String: Any] directly
+    
+    init(id: UUID = UUID(), eventType: String, timestamp: Date = Date(), metadata: [String: String] = [:]) {
         self.id = id
-        self.cravingId = cravingId
+        self.eventType = eventType
         self.timestamp = timestamp
-        self.interactionCount = interactionCount
-        self.userActions = userActions
+        self.metadata = metadata
     }
 }
-

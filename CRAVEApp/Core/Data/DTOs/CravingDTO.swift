@@ -1,14 +1,18 @@
+// Core/Data/DTOs/CravingDTO.swift
 import Foundation
+import SwiftData
 
-public struct CravingDTO {
-    public let id: UUID
-    public let text: String
-    public let timestamp: Date
-
-    public init(id: UUID, text: String, timestamp: Date) {
+@Model
+final class CravingDTO {
+    var id: UUID
+    var text: String
+    var timestamp: Date
+    var isArchived: Bool
+    
+    init(id: UUID = UUID(), text: String, timestamp: Date = Date(), isArchived: Bool = false) {
         self.id = id
         self.text = text
         self.timestamp = timestamp
+        self.isArchived = isArchived
     }
 }
-

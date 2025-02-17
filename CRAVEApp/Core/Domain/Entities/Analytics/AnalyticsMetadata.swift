@@ -1,55 +1,29 @@
+// Core/Domain/Entities/Analytics/AnalyticsMetadata.swift
 import Foundation
+import SwiftData
 
-public struct AnalyticsMetadata {
-    public let id: UUID
-    public let cravingId: UUID
-    public let createdAt: Date
-
-    public private(set) var interactionCount: Int
-    public private(set) var lastProcessed: Date
-    public private(set) var userActions: [UserAction]
-
-    public init(cravingId: UUID) {
-        self.id = UUID()
-        self.cravingId = cravingId
-        self.createdAt = Date()
-        self.interactionCount = 0
-        self.lastProcessed = Date()
-        self.userActions = []
-    }
-
-    public mutating func incrementInteractions() {
-        interactionCount += 1
-        lastProcessed = Date()
-    }
-
-    public mutating func addUserAction(_ action: UserAction) {
-        userActions.append(action)
-        incrementInteractions()
+@Model
+public final class AnalyticsMetadata {
+    public var id: UUID
+    public var eventType: String
+    public var timestamp: Date
+    public var interactionCount: Int
+    public var lastProcessed: Date?
+    public var userActions: [String]
+    
+    public init(
+        id: UUID = UUID(),
+        eventType: String,
+        timestamp: Date = Date(),
+        interactionCount: Int = 0,
+        lastProcessed: Date? = nil,
+        userActions: [String] = []
+    ) {
+        self.id = id
+        self.eventType = eventType
+        self.timestamp = timestamp
+        self.interactionCount = interactionCount
+        self.lastProcessed = lastProcessed
+        self.userActions = userActions
     }
 }
-
-public extension AnalyticsMetadata {
-    struct UserAction: Codable, Equatable {
-        public let id: UUID
-        public let timestamp: Date
-        public let actionType: ActionType
-        public let metadata: [String: String]
-
-        public init(timestamp: Date = .now, actionType: ActionType, metadata: [String: String] = [:]) {
-            self.id = UUID()
-            self.timestamp = timestamp
-            self.actionType = actionType
-            self.metadata = metadata
-        }
-    }
-
-    enum ActionType: String, Codable {
-        case cravingLogged = "craving_logged"
-        case cravingResisted = "craving_resisted"
-        case cravingUpdated = "craving_updated"
-        case insightViewed = "insight_viewed"
-        case patternIdentified = "pattern_identified"
-    }
-}
-

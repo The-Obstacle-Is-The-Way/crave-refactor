@@ -1,3 +1,4 @@
+// Core/Domain/Entities/Craving/CravingEntity.swift
 import Foundation
 
 public struct CravingEntity: Identifiable {
@@ -13,4 +14,3 @@ public struct CravingEntity: Identifiable {
         self.isArchived = isArchived
     }
 }
-
