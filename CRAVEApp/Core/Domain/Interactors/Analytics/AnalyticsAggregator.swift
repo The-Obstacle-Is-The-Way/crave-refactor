@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Domain/Interactors/Analytics/AnalyticsAggregator.swift
+// Core/Domain/Interactors/Analytics/AnalyticsAggregator.swift
 
 import Foundation
 import SwiftData
@@ -45,32 +45,31 @@ final class AnalyticsAggregator {
     }
 
     private func aggregateInteractionEvent(_ event: InteractionEvent) async {
+        // Implementation for aggregating interaction events
         print("Aggregating interaction event: \(event.eventType)")
     }
 
     private func aggregateSystemEvent(_ event: SystemEvent) async {
+        // Implementation for aggregating system events
         print("Aggregating system event: \(event.eventType)")
     }
 
     private func aggregateUserEvent(_ event: UserEvent) async {
+        // Implementation for aggregating user events
         print("Aggregating user event: \(event.eventType)")
     }
 
     private func updateCravingAnalytics(_ cravingEvent: CravingEvent) async {
-        // Only proceed if we have a valid cravingId
-        guard let cravingId = cravingEvent.cravingId else {
-            print("No craving ID available for analytics update")
-            return
-        }
+        let cravingId = cravingEvent.cravingId
 
         do {
-            // Fetch existing metadata or create new if none exists
-            let metadata = try await storage.fetchMetadata(forCravingId: cravingId)?? createNewMetadata(for: cravingId)
+            // Fetch or create metadata for the craving
+            var metadata = try storage.fetchMetadata(forCravingId: cravingId)?? createNewMetadata(for: cravingId)
 
             // Update metadata
             metadata.interactionCount += 1
             metadata.lastProcessed = Date()
-            
+            
             // Add user action
             let action = AnalyticsMetadata.UserAction(
                 timestamp: Date(),
@@ -101,7 +100,7 @@ extension AnalyticsAggregator {
             await aggregateEvent(event)
         }
     }
-    
+    
     func processHistoricalData(_ startDate: Date, _ endDate: Date) async {
         // Implementation for processing historical data
         print("Processing historical data from \(startDate) to \(endDate)")

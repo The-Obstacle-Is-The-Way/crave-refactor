@@ -6,7 +6,6 @@ import SwiftData
 @MainActor
 final class AnalyticsDashboardViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
-
     private let analyticsManager: AnalyticsManager
 
     init(analyticsManager: AnalyticsManager) {

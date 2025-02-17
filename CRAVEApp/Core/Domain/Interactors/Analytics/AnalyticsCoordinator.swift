@@ -47,15 +47,17 @@ class AnalyticsCoordinator: ObservableObject {
         loadInitialState()
     }
 
-    // MARK: - Observers
     private func setupObservers() {
         eventTrackingService.eventPublisher
           .sink { [weak self] completion in
-                if case.failure(let error) = completion {
-                    print("Error in event tracking: \(error)")
+                if case let.failure(error) = completion {
+                    self?.detectionState = .error(error)
                 }
             } receiveValue: { [weak self] event in
                 self?.lastEvent = event
+                Task {
+                    await self?.handleEvent(event)
+                }
             }
           .store(in: &cancellables)
 
@@ -72,10 +74,10 @@ class AnalyticsCoordinator: ObservableObject {
                     self?.detectionState = .error(error)
                 }
             }
-        .store(in: &cancellables)
+          .store(in: &cancellables)
 
         patternDetectionService.$detectedPatterns
-        .assign(to: &$detectedPatterns)
+          .assign(to: &$detectedPatterns)
     }
 
 

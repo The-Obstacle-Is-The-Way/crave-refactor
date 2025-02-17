@@ -1,47 +1,117 @@
-// Core/Domain/Interactors/Analytics/AnalyticsReporter.swift
+// Core/Domain/Interactors/Analytics/AnalyticsCoordinator.swift
 
 import Foundation
 import Combine
+import SwiftData
+import SwiftUI
 
 @MainActor
-final class AnalyticsReporter: ObservableObject {
-    @Published private(set) var reportGenerationState: ReportGenerationState = .idle
-    @Published private(set) var lastReport: Report?
+class AnalyticsCoordinator: ObservableObject {
+    // MARK: - Published Properties
+    @Published private(set) var isAnalyticsEnabled: Bool = false
+    @Published private(set) var lastEvent: (any AnalyticsEvent)?
+    @Published private(set) var detectionState: DetectionState = .idle
+    @Published private(set) var detectedPatterns: [DetectedPattern] =
 
-    private let analyticsStorage: AnalyticsStorage
+    // MARK: - Dependencies
+    private let configuration: AnalyticsConfiguration
+    private let storage: AnalyticsStorage
+    private let aggregator: AnalyticsAggregator
+    private let processor: AnalyticsProcessor
+    private let reporter: AnalyticsReporter
+    private let eventTrackingService: EventTrackingService
+    private let patternDetectionService: PatternDetectionService
+
+    // MARK: - Internal State
     private var cancellables = Set<AnyCancellable>()
 
-    init(analyticsStorage: AnalyticsStorage) {
-        self.analyticsStorage = analyticsStorage
+    // MARK: - Initialization
+    init(
+        eventTrackingService: EventTrackingService,
+        patternDetectionService: PatternDetectionService,
+        configuration: AnalyticsConfiguration,
+        storage: AnalyticsStorage,
+        aggregator: AnalyticsAggregator,
+        processor: AnalyticsProcessor,
+        reporter: AnalyticsReporter
+    ) {
+        self.configuration = configuration
+        self.storage = storage
+        self.aggregator = aggregator
+        self.processor = processor
+        self.reporter = reporter
+        self.eventTrackingService = eventTrackingService
+        self.patternDetectionService = patternDetectionService
+
+        setupObservers()
+        loadInitialState()
     }
 
-    func generateReport(for type: ReportType, format: ReportFormat) async throws -> Report {
-        reportGenerationState = .generating
+    private func setupObservers() {
+        eventTrackingService.eventPublisher
+          .sink { [weak self] completion in
+                if case let.failure(error) = completion {
+                    self?.detectionState = .error(error)
+                }
+            } receiveValue: { [weak self] event in
+                self?.lastEvent = event
+                Task {
+                    await self?.handleEvent(event)
+                }
+            }
+          .store(in: &cancellables)
 
-        let reportData = ReportData(
-            title: "Analytics Report",
-            content: "Generated report for \(type.rawValue)"
-        )
+        patternDetectionService.$detectionState
+          .sink { [weak self] state in
+                switch state {
+                case.idle:
+                    self?.detectionState = .idle
+                case.processing:
+                    self?.detectionState = .processing
+                case.completed:
+                    self?.detectionState = .completed
+                case.error(let error):
+                    self?.detectionState = .error(error)
+                }
+            }
+          .store(in: &cancellables)
 
-        let report = Report(
-            metadata: ReportMetadata(
-                reportType: type,
-                format: format,
-                creationDate: Date()
-            ),
-            data: reportData,
-            format: format,
-            generationDate: Date(),
-            state:.completed
-        )
-
-        lastReport = report
-        reportGenerationState = .completed
-        return report
+        patternDetectionService.$detectedPatterns
+          .assign(to: &$detectedPatterns)
     }
 
-    func handleReport(_ report: Report) async {
-        // TODO: Implement report storage/delivery.
-        print("Handling report: \(report.metadata.reportType)")
+
+    private func loadInitialState() {
+        isAnalyticsEnabled = configuration.featureFlags.isAnalyticsEnabled
+    }
+
+    // MARK: - Event Processing
+    func trackEvent(_ event: CravingEntity) async throws {
+        try await eventTrackingService.trackCravingEvent(CravingEvent(cravingId: event.id, cravingText: event.text))
+    }
+
+    private func handleEvent(_ event: AnalyticsEvent) async {
+        await aggregator.aggregateEvent(event)
+        await processor.processEvent(event)
+    }
+
+    // MARK: - Pattern Detection
+    func detectPatterns() async {
+        detectionState = .processing
+        do {
+            _ = try await patternDetectionService.detectPatterns()
+            detectionState = .completed
+        } catch {
+            print("Pattern detection failed: \(error)")
+            detectionState = .error(error)
+        }
+    }
+
+    // Enum for the detectionState
+    enum DetectionState {
+        case idle
+        case processing
+        case completed
+        case error(Error)
     }
 }

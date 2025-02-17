@@ -5,7 +5,7 @@ import SwiftData
 
 @MainActor
 final class CravingListViewModel: ObservableObject {
-    @Published var cravings: [CravingEntity] =
+    @Published var cravings: [CravingEntity] = // Initialize as empty array
     private let cravingRepository: CravingRepository
 
     init(cravingRepository: CravingRepository) {

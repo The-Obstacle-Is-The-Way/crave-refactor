@@ -16,25 +16,25 @@ struct AnalyticsDashboardView: View {
             VStack {
                 if let stats = viewModel.basicStats {
                     Text("Total Cravings: \(stats.totalCravings)")
-                      .font(CRAVEDesignSystem.Typography.title1)
+                    .font(CRAVEDesignSystem.Typography.title1)
                     AnalyticsInsightView(calendarData: stats.cravingsByFrequency, timeOfDayData: stats.cravingsByTimeSlot)
                 } else {
                     ProgressView()
-                      .progressViewStyle(CircularProgressViewStyle())
+                    .progressViewStyle(CircularProgressViewStyle())
                 }
             }
-          .padding()
+        .padding()
         }
-      .navigationTitle("Analytics Dashboard")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
+    .navigationTitle("Analytics Dashboard")
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
             ToolbarItem(placement:.principal) {
                 Text("Analytics Dashboard")
-                  .font(CRAVEDesignSystem.Typography.headline)
-                  .foregroundColor(CRAVEDesignSystem.Colors.textPrimary)
+                .font(CRAVEDesignSystem.Typography.headline)
+                .foregroundColor(CRAVEDesignSystem.Colors.textPrimary)
             }
         }
-      .onAppear {
+    .onAppear {
             viewModel.loadAnalytics()
         }
     }

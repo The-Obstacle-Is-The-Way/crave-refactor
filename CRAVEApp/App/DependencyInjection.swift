@@ -38,6 +38,8 @@ struct DependencyContainer {
         analyticsStorage = AnalyticsStorage(modelContext: modelContext)
         cravingManager = CravingManager(modelContext: modelContext)
         cravingAnalyzer = CravingAnalyzer()
+
+        // Initialize AnalyticsAggregator with the AnalyticsStorage dependency
         analyticsAggregator = AnalyticsAggregator(storage: analyticsStorage)
         analyticsProcessor = AnalyticsProcessor(configuration:.shared, storage: analyticsStorage)
         patternDetectionService = PatternDetectionService(storage: analyticsStorage, configuration:.shared)

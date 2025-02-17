@@ -1,7 +1,11 @@
-//  CRAVEApp/Core/Data/Repositories/AnalyticsRepositoryImpl.swift
+// Core/Data/Repositories/AnalyticsRepositoryImpl.swift
 
 import Foundation
 import SwiftData
+
+protocol AnalyticsRepository {
+    func fetchAnalytics() async throws -> [AnalyticsEntity]
+}
 
 class AnalyticsRepositoryImpl: AnalyticsRepository {
     private let storage: AnalyticsStorage

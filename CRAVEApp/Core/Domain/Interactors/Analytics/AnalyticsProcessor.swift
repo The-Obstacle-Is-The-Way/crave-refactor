@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Domain/Interactors/Analytics/AnalyticsProcessor.swift
+// Core/Domain/Interactors/Analytics/AnalyticsProcessor.swift
 
 import Foundation
 import SwiftData
