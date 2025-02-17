@@ -1,3 +1,5 @@
+//CravingRepository.swift
+
 import Foundation
 public protocol CravingRepository {
     func fetchAllActiveCravings() async throws -> [CravingEntity]

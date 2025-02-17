@@ -55,6 +55,7 @@
 				App/CRAVEApp.swift = (ios, );
 				App/DI/DependencyContainer.swift = (ios, );
 				App/Navigation/AppCoordinator.swift = (ios, );
+				App/Navigation/CRAVETabView.swift = (ios, );
 				Core/Data/DTOs/AnalyticsDTO.swift = (ios, );
 				Core/Data/DTOs/CravingDTO.swift = (ios, );
 				Core/Data/DataSources/Local/AnalyticsStorage.swift = (ios, );
@@ -67,7 +68,6 @@
 				Core/Data/Repositories/CravingRepositoryImpl.swift = (ios, );
 				Core/Data/Services/AnalyticsService.swift = (ios, );
 				Core/Data/Services/EventTrackingService.swift = (ios, );
-				Core/DesignSystem/CRAVEDesignSystem.swift = (ios, );
 				Core/Domain/Entities/Analytics/AnalyticsEntity.swift = (ios, );
 				Core/Domain/Entities/Analytics/AnalyticsEvent.swift = (ios, );
 				Core/Domain/Entities/Analytics/AnalyticsManager.swift = (ios, );
@@ -83,6 +83,7 @@
 				Core/Domain/UseCases/Analytics/AnalyticsProcessor.swift = (ios, );
 				Core/Domain/UseCases/Analytics/PatternDetectionService.swift = (ios, );
 				Core/Domain/UseCases/Craving/CravingAnalyzer.swift = (ios, );
+				Core/Presentation/Common/DesignSystem/CRAVEDesignSystem.swift = (ios, );
 				Core/Presentation/Common/DesignSystem/Components/CraveButton.swift = (ios, );
 				Core/Presentation/Common/DesignSystem/Components/CraveTextEditor.swift = (ios, );
 				Core/Presentation/Common/DesignSystem/Theme.swift = (ios, );
@@ -98,7 +99,6 @@
 				Core/Presentation/Views/Analytics/Components/AnalyticsInsight.swift = (ios, );
 				Core/Presentation/Views/Craving/Components/CravingCard.swift = (ios, );
 				Core/Presentation/Views/Craving/CravingListView.swift = (ios, );
-				Navigation/CRAVETabView.swift = (ios, );
 			};
 			target = 28B8D8DE2D5CD84000FA0F1E /* CRAVE */;
 		};

@@ -1,7 +1,6 @@
 // Core/Domain/UseCases/Analytics/AnalyticsAggregator.swift
 import Foundation
 import SwiftData
-
 @MainActor
 public final class AnalyticsAggregator {
     private let storage: AnalyticsStorage
@@ -53,3 +52,4 @@ public final class AnalyticsAggregator {
         try? await storage.store(metadata)
     }
 }
+
