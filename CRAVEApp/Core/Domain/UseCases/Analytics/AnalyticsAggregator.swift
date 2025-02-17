@@ -1,6 +1,7 @@
 // Core/Domain/UseCases/Analytics/AnalyticsAggregator.swift
 import Foundation
 import SwiftData
+
 @MainActor
 public final class AnalyticsAggregator {
     private let storage: AnalyticsStorage
@@ -28,28 +29,43 @@ public final class AnalyticsAggregator {
     
     private func processInteractionEvent(_ event: InteractionEvent) async {
         let metadata = AnalyticsMetadata(
-            eventType: event.type.rawValue,
-            timestamp: event.timestamp,
-            interactionCount: 1
+            id: UUID(),
+            userActions: [
+                AnalyticsMetadata.UserAction(
+                    actionType: event.action,
+                    timestamp: event.timestamp,
+                    details: event.context
+                )
+            ]
         )
-        try? await storage.store(metadata)
+        try? await storage.store(event)
     }
     
     private func processSystemEvent(_ event: SystemEvent) async {
         let metadata = AnalyticsMetadata(
-            eventType: event.type.rawValue,
-            timestamp: event.timestamp
+            id: UUID(),
+            userActions: [
+                AnalyticsMetadata.UserAction(
+                    actionType: "system_\(event.category)",
+                    timestamp: event.timestamp,
+                    details: event.detail
+                )
+            ]
         )
-        try? await storage.store(metadata)
+        try? await storage.store(event)
     }
     
     private func processUserEvent(_ event: UserEvent) async {
         let metadata = AnalyticsMetadata(
-            eventType: event.type.rawValue,
-            timestamp: event.timestamp,
-            userActions: [event.behavior]
+            id: UUID(),
+            userActions: [
+                AnalyticsMetadata.UserAction(
+                    actionType: event.behavior,
+                    timestamp: event.timestamp,
+                    details: event.metadata.description
+                )
+            ]
         )
-        try? await storage.store(metadata)
+        try? await storage.store(event)
     }
 }
-

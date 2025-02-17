@@ -2,10 +2,11 @@
 import SwiftUI
 
 public struct CRAVETabView: View {
-    private let container: DependencyContainer
+    @StateObject private var container: DependencyContainer
     
-    public init(container: DependencyContainer = DependencyContainer()) {
-        self.container = container
+    public init() async {
+        let container = await DependencyContainer()
+        _container = StateObject(wrappedValue: container)
     }
     
     public var body: some View {
@@ -14,9 +15,6 @@ public struct CRAVETabView: View {
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                 }
-            
-            // Other tabs can be added here
-            // Each using container.makeXXXView()
         }
     }
 }

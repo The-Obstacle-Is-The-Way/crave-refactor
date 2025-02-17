@@ -1,15 +1,14 @@
-
-// Update CRAVEApp.swift
+// App/CRAVEApp.swift
 import SwiftUI
 
 @main
 struct CRAVEApp: App {
-    let container = DependencyContainer()
+    @StateObject private var container = DependencyContainer()
     
     var body: some Scene {
         WindowGroup {
-            CRAVETabView(container: container)
+            CRAVETabView()
+                .environmentObject(container)
         }
     }
 }
-

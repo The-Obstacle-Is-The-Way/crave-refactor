@@ -1,28 +1,24 @@
-// AnalyticsDashboardView.swift
-
+// Core/Presentation/ViewModels/Analytics/AnalyticsViewModel.swift
 import SwiftUI
+import SwiftData
 
-struct AnalyticsDashboardView: View {
-    @StateObject var viewModel = AnalyticsDashboardViewModel()
-
-    var body: some View {
-        VStack {
-            Text("Analytics Dashboard")
-                .font(.largeTitle)
-                .padding()
-
-            List(viewModel.analyticsData) { data in
-                HStack {
-                    Text(data.title)
-                        .font(.headline)
-                    Spacer()
-                    Text(data.value)
-                        .font(.subheadline)
-                }
-            }
-        }
-        .onAppear {
-            viewModel.loadAnalytics()
-        }
+@MainActor
+public final class AnalyticsViewModel: ObservableObject {
+    @Published public var isLoading = false
+    private let manager: AnalyticsManager
+    private let modelContext: ModelContext
+    
+    public init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+        self.manager = AnalyticsManager(
+            storage: AnalyticsStorage(modelContext: modelContext),
+            aggregator: AnalyticsAggregator(storage: AnalyticsStorage(modelContext: modelContext)),
+            patternDetection: PatternDetectionService(
+                storage: AnalyticsStorage(modelContext: modelContext),
+                configuration: AnalyticsConfiguration.shared
+            )
+        )
     }
+    
+    // Add your analytics methods here
 }

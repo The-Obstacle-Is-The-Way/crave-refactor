@@ -1,56 +1,49 @@
-// Core/Domain/Interfaces/Repositories/AnalyticsRepository.swift
+// App/DI/DependencyContainer.swift
 import Foundation
+import SwiftUI
+import SwiftData
+import Combine
 
-public protocol AnalyticsRepository {
-    // MARK: - Event Operations
-    func storeEvent(_ event: AnalyticsEvent) async throws
-    func fetchEvents(from startDate: Date, to endDate: Date) async throws -> [AnalyticsEvent]
-    func fetchEvents(ofType eventType: EventType) async throws -> [AnalyticsEvent]
+@MainActor
+public final class DependencyContainer: ObservableObject {
+    @Published private(set) var modelContainer: ModelContainer
+    @Published private(set) var isLoading = false
     
-    // MARK: - Metadata Operations
-    func fetchMetadata(forCravingId cravingId: UUID) async throws -> AnalyticsMetadata?
-    func updateMetadata(_ metadata: AnalyticsMetadata) async throws
-    
-    // MARK: - Analytics Results
-    func fetchAnalytics(from startDate: Date, to endDate: Date) async throws -> BasicAnalyticsResult
-    func fetchPatterns() async throws -> [BasicAnalyticsResult.DetectedPattern]
-    
-    // MARK: - Batch Operations
-    func storeBatch(_ events: [AnalyticsEvent]) async throws
-    func cleanupOldData(before date: Date) async throws
-}
-
-public enum AnalyticsRepositoryError: Error {
-    case storageError(String)
-    case fetchError(String)
-    case invalidData(String)
-    case noDataAvailable
-    case batchProcessingFailed
-}
-
-public extension AnalyticsRepository {
-    struct QueryOptions {
-        public let limit: Int?
-        public let sortOrder: SortOrder
-        public let includeMetadata: Bool
-        
-        public static let `default` = QueryOptions(limit: nil, sortOrder: .descending, includeMetadata: true)
-        
-        public init(limit: Int? = nil, sortOrder: SortOrder = .descending, includeMetadata: Bool = true) {
-            self.limit = limit
-            self.sortOrder = sortOrder
-            self.includeMetadata = includeMetadata
+    public init() async {
+        let schema = Schema([
+            AnalyticsMetadata.self
+        ])
+        do {
+            self.modelContainer = try ModelContainer(for: schema)
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
         }
     }
     
-    enum SortOrder {
-        case ascending
-        case descending
+    // MARK: - View Factories
+    @ViewBuilder
+    public func makeAnalyticsDashboardView() -> some View {
+        let viewModel = AnalyticsDashboardViewModel(modelContext: modelContainer.mainContext)
+        AnalyticsDashboardView(viewModel: viewModel)
     }
     
-    func fetchTodayAnalytics() async throws -> BasicAnalyticsResult {
-        let now = Date()
-        let startOfDay = Calendar.current.startOfDay(for: now)
-        return try await fetchAnalytics(from: startOfDay, to: now)
+    // MARK: - Dependencies
+    private func makeAnalyticsStorage() -> AnalyticsStorage {
+        AnalyticsStorage(modelContext: modelContainer.mainContext)
+    }
+    
+    private func makeAnalyticsManager() -> AnalyticsManager {
+        let storage = makeAnalyticsStorage()
+        let aggregator = AnalyticsAggregator(storage: storage)
+        let patternDetection = PatternDetectionService(
+            storage: storage,
+            configuration: AnalyticsConfiguration.shared
+        )
+        
+        return AnalyticsManager(
+            storage: storage,
+            aggregator: aggregator,
+            patternDetection: patternDetection
+        )
     }
 }
