@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Presentation/Views/Analytics/CalendarHeatmapView.swift
+// Core/Presentation/Views/Analytics/CalendarHeatmapView.swift
 
 import SwiftUI
 import Charts
@@ -44,7 +44,7 @@ struct CalendarHeatmapView: View {
 
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle =.medium
+        formatter.dateStyle = .medium
         return formatter.string(from: date)
     }
 }

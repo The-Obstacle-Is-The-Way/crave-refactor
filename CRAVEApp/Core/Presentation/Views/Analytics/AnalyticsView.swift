@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Presentation/Views/Analytics/AnalyticsDashboardView.swift
+// Core/Presentation/Views/Analytics/AnalyticsView.swift
 
 import SwiftUI
 import SwiftData

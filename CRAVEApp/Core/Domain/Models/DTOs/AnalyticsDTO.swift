@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Domain/Models/DTOs/AnalyticsDTO.swift
+// Core/Domain/Models/DTOs/AnalyticsDTO.swift
 
 import Foundation
 

@@ -9,7 +9,7 @@ import SwiftUI
 class AnalyticsCoordinator: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var isAnalyticsEnabled: Bool = false
-    @Published private(set) var lastEvent: AnalyticsEvent?
+    @Published private(set) var lastEvent: (any AnalyticsEvent)?
     @Published private(set) var detectionState: DetectionState = .idle
     @Published private(set) var detectedPatterns: [DetectedPattern] =
 
@@ -52,8 +52,7 @@ class AnalyticsCoordinator: ObservableObject {
         eventTrackingService.eventPublisher
           .sink { [weak self] completion in
                 if case.failure(let error) = completion {
-                    print("Error tracking event: \(error)")
-                    // Handle the error appropriately in a real app
+                    print("Error in event tracking: \(error)")
                 }
             } receiveValue: { [weak self] event in
                 self?.lastEvent = event
@@ -73,10 +72,10 @@ class AnalyticsCoordinator: ObservableObject {
                     self?.detectionState = .error(error)
                 }
             }
-          .store(in: &cancellables)
+        .store(in: &cancellables)
 
         patternDetectionService.$detectedPatterns
-          .assign(to: &$detectedPatterns)
+        .assign(to: &$detectedPatterns)
     }
 
 

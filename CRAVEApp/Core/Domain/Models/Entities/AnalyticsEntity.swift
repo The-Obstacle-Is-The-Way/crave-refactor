@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Domain/Models/Entities/AnalyticsEntity.swift
+// Core/Domain/Models/Entities/AnalyticsEntity.swift
 
 import Foundation
 

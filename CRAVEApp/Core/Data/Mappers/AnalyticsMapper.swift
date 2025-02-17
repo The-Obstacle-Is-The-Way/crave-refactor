@@ -1,4 +1,4 @@
-//  CRAVEApp/Core/Data/Mappers/AnalyticsMapper.swift
+// Core/Data/Mappers/AnalyticsMapper.swift
 
 import Foundation
 

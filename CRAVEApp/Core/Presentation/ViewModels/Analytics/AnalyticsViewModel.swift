@@ -4,7 +4,7 @@ import Foundation
 import SwiftData
 import Combine
 
-@MainActorB
+@MainActor
 class AnalyticsViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
     private let analyticsManager: AnalyticsManager
