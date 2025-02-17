@@ -1,21 +1,28 @@
-import Foundation
-import SwiftData
+// AnalyticsDashboardView.swift
 
-@MainActor
-public final class AnalyticsViewModel: ObservableObject {
-    @Published public var basicStats: BasicAnalyticsResult?
-    private let analyticsManager: AnalyticsManager
+import SwiftUI
 
-    public init(analyticsManager: AnalyticsManager) {
-        self.analyticsManager = analyticsManager
-    }
+struct AnalyticsDashboardView: View {
+    @StateObject var viewModel = AnalyticsDashboardViewModel()
 
-    public func loadAnalytics() async {
-        do {
-            self.basicStats = try await analyticsManager.getBasicStats()
-        } catch {
-            print("Error loading analytics: \(error)")
+    var body: some View {
+        VStack {
+            Text("Analytics Dashboard")
+                .font(.largeTitle)
+                .padding()
+
+            List(viewModel.analyticsData) { data in
+                HStack {
+                    Text(data.title)
+                        .font(.headline)
+                    Spacer()
+                    Text(data.value)
+                        .font(.subheadline)
+                }
+            }
+        }
+        .onAppear {
+            viewModel.loadAnalytics()
         }
     }
 }
-

@@ -60,6 +60,7 @@
 				Core/Data/DataSources/Local/AnalyticsStorage.swift = (ios, );
 				Core/Data/DataSources/Local/CravingManager.swift = (ios, );
 				Core/Data/DataSources/Remote/APIClient.swift = (ios, );
+				Core/Data/DataSources/Remote/ModelContainer.swift = (ios, );
 				Core/Data/Mappers/AnalyticsMapper.swift = (ios, );
 				Core/Data/Mappers/CravingMapper.swift = (ios, );
 				Core/Data/Repositories/AnalyticsRepositoryImpl.swift = (ios, );

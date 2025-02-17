@@ -1,18 +1,22 @@
+// AnalyticsInsights.swift
+
 import SwiftUI
 
-public struct AnalyticsInsights: View {
-    public let data: [String: Int]
+struct AnalyticsInsights: View {
+    var insights: [String]
 
-    public init(data: [String: Int]) {
-        self.data = data
-    }
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Insights")
+                .font(.title2)
+                .padding(.bottom, 5)
 
-    public var body: some View {
-        VStack {
-            ForEach(data.keys.sorted(), id: \.self) { key in
-                Text("\(key): \(data[key] ?? 0)")
-                    .font(.caption)
+            ForEach(insights, id: \.self) { insight in
+                Text("• \(insight)")
+                    .font(.body)
+                    .padding(.vertical, 2)
             }
         }
+        .padding()
     }
 }
