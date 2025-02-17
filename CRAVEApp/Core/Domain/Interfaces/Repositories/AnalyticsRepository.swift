@@ -2,8 +2,7 @@
 
 import Foundation
 
-/// Protocol defining the analytics data access contract
-protocol AnalyticsRepository {
+public protocol AnalyticsRepository {
     // MARK: - Event Operations
     /// Store a new analytics event
     func storeEvent(_ event: AnalyticsEvent) async throws
@@ -37,7 +36,8 @@ protocol AnalyticsRepository {
 }
 
 // MARK: - Repository Errors
-enum AnalyticsRepositoryError: Error {
+
+public enum AnalyticsRepositoryError: Error {
     case storageError(String)
     case fetchError(String)
     case invalidData(String)
@@ -46,17 +46,24 @@ enum AnalyticsRepositoryError: Error {
 }
 
 // MARK: - Query Options
-extension AnalyticsRepository {
+
+public extension AnalyticsRepository {
     struct QueryOptions {
-        let limit: Int?
-        let sortOrder: SortOrder
-        let includeMetadata: Bool
+        public let limit: Int?
+        public let sortOrder: SortOrder
+        public let includeMetadata: Bool
         
-        static let `default` = QueryOptions(
+        public static let `default` = QueryOptions(
             limit: nil,
             sortOrder: .descending,
             includeMetadata: true
         )
+        
+        public init(limit: Int? = nil, sortOrder: SortOrder = .descending, includeMetadata: Bool = true) {
+            self.limit = limit
+            self.sortOrder = sortOrder
+            self.includeMetadata = includeMetadata
+        }
     }
     
     enum SortOrder {
@@ -66,7 +73,8 @@ extension AnalyticsRepository {
 }
 
 // MARK: - Convenience Methods
-extension AnalyticsRepository {
+
+public extension AnalyticsRepository {
     /// Fetch analytics for today
     func fetchTodayAnalytics() async throws -> BasicAnalyticsResult {
         let now = Date()
@@ -89,7 +97,8 @@ extension AnalyticsRepository {
 }
 
 // MARK: - Validation
-extension AnalyticsRepository {
+
+public extension AnalyticsRepository {
     func validateTimeRange(from startDate: Date, to endDate: Date) -> Bool {
         guard startDate <= endDate else { return false }
         guard startDate <= Date() else { return false }

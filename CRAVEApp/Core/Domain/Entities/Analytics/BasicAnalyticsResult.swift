@@ -69,6 +69,13 @@ extension BasicAnalyticsResult {
         public let description: String
         public let confidence: Double
         public let supportingData: [String: Any]
+        
+        public static func == (lhs: DetectedPattern, rhs: DetectedPattern) -> Bool {
+            return lhs.type == rhs.type &&
+                lhs.description == rhs.description &&
+                lhs.confidence == rhs.confidence &&
+                NSDictionary(dictionary: lhs.supportingData).isEqual(to: rhs.supportingData)
+        }
     }
     
     public enum PatternType: String {

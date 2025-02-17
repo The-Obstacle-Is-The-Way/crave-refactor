@@ -1,4 +1,3 @@
-
 // Core/Domain/UseCases/CravingUseCases.swift
 
 import Foundation
