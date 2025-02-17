@@ -11,7 +11,7 @@ class AnalyticsCoordinator: ObservableObject {
     @Published private(set) var isAnalyticsEnabled: Bool = false
     @Published private(set) var lastEvent: (any AnalyticsEvent)?
     @Published private(set) var detectionState: DetectionState = .idle
-    @Published private(set) var detectedPatterns: [DetectedPattern] =
+    @Published private(set) var detectedPatterns: [DetectedPattern] = []
 
     // MARK: - Dependencies
     private let configuration: AnalyticsConfiguration
