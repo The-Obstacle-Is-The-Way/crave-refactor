@@ -34,23 +34,24 @@ struct AnalyticsMetadata {
         incrementInteractions()
     }
 }
+
 // MARK: - Supporting Types
 extension AnalyticsMetadata {
-    struct UserAction: Equatable {
+    struct UserAction: Codable, Equatable { // Add Codable and Equatable
         let id: UUID
         let timestamp: Date
         let actionType: ActionType
         let metadata: [String: String]
 
-        init(actionType: ActionType, metadata: [String: String] = [:]) {
+        init(timestamp: Date = .now, actionType: ActionType, metadata: [String : String] = [:]) { //Add timestamp
             self.id = UUID()
-            self.timestamp = Date()
+            self.timestamp = timestamp
             self.actionType = actionType
             self.metadata = metadata
         }
     }
 
-    enum ActionType: String, Codable {
+    enum ActionType: String, Codable { // Add Codable
         case cravingLogged = "craving_logged"
         case cravingResisted = "craving_resisted"
         case cravingUpdated = "craving_updated"
@@ -58,10 +59,11 @@ extension AnalyticsMetadata {
         case patternIdentified = "pattern_identified"
     }
 }
+
 // MARK: - Business Rules
 extension AnalyticsMetadata {
     var isActive: Bool {
-        Date().timeIntervalSince(lastProcessed) < 24 * 3600 // 24 hours
+        Date().timeIntervalSince(lastProcessed ?? Date.distantPast) < 24 * 3600 // 24 hours, handle nil
     }
 
     var hasSignificantInteraction: Bool {
@@ -73,4 +75,3 @@ extension AnalyticsMetadata {
         return true
     }
 }
-

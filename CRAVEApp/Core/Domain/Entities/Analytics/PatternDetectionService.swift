@@ -1,4 +1,4 @@
-// Core/Domain/Interactors/Analytics/PatternDetectionService.swift
+// Core/Domain/Entities/Analytics/PatternDetectionService.swift
 
 import Foundation
 import SwiftData
@@ -17,12 +17,12 @@ protocol PatternDetectionServiceProtocol {
 @MainActor
 final class PatternDetectionService: PatternDetectionServiceProtocol, ObservableObject {
     // MARK: - Published Properties
-    @Published private(set) var detectedPatterns: [DetectedPattern] =
+    @Published private(set) var detectedPatterns: [DetectedPattern] = [] // Initialize
     @Published private(set) var detectionState: AnalyticsCoordinator.DetectionState = .idle
     @Published private(set) var lastDetectionTime: Date?
 
     // MARK: - Dependencies
-    private let storage: AnalyticsStorage
+    private let storage: AnalyticsStorage // Use the protocol
     private let configuration: AnalyticsConfiguration
     private let mlModel: MLModel?
 
@@ -43,7 +43,7 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
 
     // MARK: - Public Methods
     func detectPatterns() async throws -> [DetectedPattern] {
-       return //TODO: Implement
+       return [] //TODO: Implement
     }
 
     func validatePattern(_ pattern: DetectedPattern) async throws -> PatternValidation {
@@ -51,11 +51,10 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
     }
 
     func rankPatterns(_ patterns: [DetectedPattern]) async -> [RankedPattern] {
-        return //TODO: Implement
+        return []//TODO: Implement
     }
-
     func getPatternInsights(_ pattern: DetectedPattern) async throws -> [PatternInsight] {
-       return //TODO: Implement
+       return []//TODO: Implement
     }
 
     // MARK: - Private Methods
@@ -67,7 +66,7 @@ final class PatternDetectionService: PatternDetectionServiceProtocol, Observable
 
 // MARK: Placeholders, to be implemented later
 // MARK: - Supporting Types
-struct DetectedPattern: Identifiable { // Placeholder
+struct DetectedPattern: Identifiable, Equatable { // Placeholder // Add Equatable
     let id: UUID = UUID()
     let type: String  // Use String for now
     let description: String
