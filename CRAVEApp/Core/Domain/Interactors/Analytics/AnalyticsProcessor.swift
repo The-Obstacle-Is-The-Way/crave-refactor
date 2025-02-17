@@ -72,7 +72,19 @@ final class AnalyticsProcessor {
         if let cravingId = cravingEvent.cravingId {
             do {
                 let metadata = try await storage.fetchMetadata(forCravingId: cravingId)
-                await updateMetadata(metadata, for: cravingEvent)
+                if let metadata = metadata {
+                    // Update metadata
+                    metadata.interactionCount += 1
+                    metadata.lastProcessed = Date()
+
+                    do {
+                        try storage.modelContext.save()
+                    } catch {
+                        print("Error saving metadata updates: \(error)")
+                    }
+                } else {
+                    print("No metadata found for cravingId: \(cravingId)")
+                }
             } catch {
                 print("Error processing craving event: \(error)")
             }
@@ -89,18 +101,5 @@ final class AnalyticsProcessor {
 
     private func processUserEvent(_ event: AnalyticsEvent) async {
         print("Processing user event")
-    }
-
-    private func updateMetadata(_ metadata: AnalyticsMetadata?, for event: CravingEvent) async {
-        guard let metadata = metadata else { return }
-
-        metadata.interactionCount += 1
-        metadata.lastProcessed = Date()
-
-        do {
-            try storage.modelContext.save()
-        } catch {
-            print("Error saving metadata updates: \(error)")
-        }
     }
 }
