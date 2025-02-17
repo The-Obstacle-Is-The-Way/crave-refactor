@@ -5,12 +5,13 @@
 📄 YC MVP Planning Document → https://docs.google.com/document/d/1kcK9C_-ynso44XMNej9MHrC_cZi7T8DXjF1hICOXOD4/edit?tab=t.0
 
 📄 Timeline of commits:
-* 📌 Feb 12: Initial commit
-* 📌 Feb 13: UI and logging
-* 📌 Feb 14: SwiftData & analytics bugs
-* 📌 Feb 15: Restructuring, major refactors
-* 📌 Feb 16: Final working build
-* Leveraged AI to accelerate but made critical planning and logic decisions myself. 
+📌 Feb 12: Initial commit
+📌 Feb 13: UI and logging
+📌 Feb 14: SwiftData & analytics bugs
+📌 Feb 15: Restructuring, major refactors
+📌 Feb 16: Final working build
+
+Leveraged AI to accelerate but made critical planning and logic decisions myself. 
 
 💡 This was built in 5 days from scratch while learning Swift with AI assistance. The commit history proves my iteration speed—over 160 commits solving real programming problems. It wasn’t just AI-generated code; I debugged, refactored, and solved SwiftData persistence issues. I can execute fast, learn fast, and build something real. The marathon continues.
 
