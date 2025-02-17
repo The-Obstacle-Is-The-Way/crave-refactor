@@ -1,11 +1,10 @@
 //
 //
 //  🍒
-//  Analytics/UI/Components/AnalyticsInsightView.swift
+//  CRAVEApp/Features/Analytics/Presentation/Views/Components/AnalyticsInsightView.swift
 //  Purpose: A view that displays analytics insights
 //
 //
-
 
 import SwiftUI
 import Charts
@@ -17,12 +16,12 @@ struct AnalyticsInsightView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Analytics Insights")
-                .font(.title)
+                .font(CRAVEDesignSystem.Typography.title1) //UPDATE: title1
                 .padding()
 
             VStack(alignment: .leading) {
                 Text("Daily Activity")
-                    .font(.headline)
+                    .font(CRAVEDesignSystem.Typography.headline) //UPDATE: headline
                     .padding(.horizontal)
 
                 CalendarHeatmapView(data: calendarData)
@@ -31,7 +30,7 @@ struct AnalyticsInsightView: View {
 
             VStack(alignment: .leading) {
                 Text("Time of Day Patterns")
-                    .font(.headline)
+                    .font(CRAVEDesignSystem.Typography.headline) //UPDATE: headline
                     .padding(.horizontal)
 
                 TimeOfDayPieChart(data: timeOfDayData)

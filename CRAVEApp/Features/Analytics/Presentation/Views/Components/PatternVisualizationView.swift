@@ -1,7 +1,7 @@
 //
 //
 //  🍒
-//  CRAVEApp/Analytics/UI/Components/PatternVisualizationView.swift
+//  CRAVEApp/Features/Analytics/Presentation/Views/Components/PatternVisualizationView.swift
 //  Purpose: A view that visualizes patterns in the user's data.
 //
 //
@@ -16,12 +16,12 @@ struct PatternVisualizationView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Time of Day Distribution")
-                .font(.headline)
+                .font(CRAVEDesignSystem.Typography.headline) //UPDATE: headline
             
             TimeOfDayPieChart(data: timeOfDayData)
             
             Text("Pattern Strength")
-                .font(.headline)
+                .font(CRAVEDesignSystem.Typography.headline) //UPDATE: headline
             
             // Additional pattern visualization components can go here
             

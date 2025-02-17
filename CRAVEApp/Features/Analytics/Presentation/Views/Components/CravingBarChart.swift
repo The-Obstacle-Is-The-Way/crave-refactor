@@ -1,6 +1,6 @@
 //
 //  🍒
-//  CRAVEApp/Analytics/UI/Components/CravingBarChart.swift
+//  CRAVEApp/Features/Analytics/Presentation/Views/Components/CravingBarChart.swift
 //  Purpose: Displays a bar chart of craving frequency per day.
 //
 //
@@ -21,8 +21,8 @@ struct CravingBarChart: View {
         VStack {
             if data.isEmpty {
                 Text("No cravings logged yet")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
+                    .font(CRAVEDesignSystem.Typography.headline) //UPDATE: headline
+                    .foregroundColor(CRAVEDesignSystem.Colors.textSecondary) //UPDATE: textSecondary
                     .padding()
             } else {
                 Chart {
@@ -35,8 +35,8 @@ struct CravingBarChart: View {
                         .annotation(position: .top) {
                             if let count = data[date], count > 0 {
                                 Text("\(count)")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .font(CRAVEDesignSystem.Typography.caption2) //UPDATE: caption2
+                                    .foregroundColor(CRAVEDesignSystem.Colors.textSecondary) //UPDATE: textSecondary
                             }
                         }
                     }

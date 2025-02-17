@@ -1,7 +1,7 @@
 //
 //
 //  🍒
-//  CRAVEApp/Analytics/UI/Components/CalendarHeatmapView.swift
+//  CRAVEApp/Features/Analytics/Presentation/Views/Components/CalendarHeatmapView.swift
 //  Purpose: A calendar heatmap view for displaying data over time.
 //
 //
