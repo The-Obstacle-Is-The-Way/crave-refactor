@@ -170,6 +170,12 @@ CRAVEApp/
 
 ---
 
+## Code Execution Flow 
+
+<img src="https://github.com/The-Obstacle-Is-The-Way/CRAVE/blob/main/CRAVEApp/Resources/Docs/Images/crave-execution-flow.svg" alt="CRAVE Execution Flow" width="800"/>
+
+---
+
 *This MVP has a solid MVVM foundation, and I'm in the process of pivoting to find a technical cofounder for YC. Once that's secured, I'll revisit and refine the code further.*
 
 ## 🌟 Architecture & Features
