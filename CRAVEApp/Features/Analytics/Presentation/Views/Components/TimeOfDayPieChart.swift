@@ -33,7 +33,7 @@ struct TimeOfDayPieChart: View {
                         if count > 0 {
                             Text("\(count)")
                                 .font(.caption)
-                                .foregroundColor(.white)
+                                .foregroundColor(.white) // Corrected: Apply directly to Text
                         }
                     }
                 }
@@ -61,6 +61,7 @@ struct TimeOfDayPieChart: View {
         }
     }
 }
+
 
 #Preview {
     TimeOfDayPieChart(data: [
