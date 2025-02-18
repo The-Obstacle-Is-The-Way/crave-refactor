@@ -4,19 +4,19 @@ import SwiftData
 import SwiftUI
 
 @MainActor
-public class AnalyticsDashboardViewModel: ObservableObject {
+public final class AnalyticsDashboardViewModel: ObservableObject { // ADDED public HERE.  THIS IS THE FIX.
     @Published var basicStats: BasicAnalyticsResult?
     @Published var isLoading = false
-    private let manager: AnalyticsManager // Correct: Takes the manager
+    private let manager: AnalyticsManager
 
-    init(manager: AnalyticsManager) { // Correct: Initializes with the manager
+    public init(manager: AnalyticsManager) { //This was already fixed
         self.manager = manager
     }
 
     func loadAnalytics() async {
         isLoading = true
         do {
-            basicStats = try await manager.getBasicStats() // Correct: Uses the manager
+            basicStats = try await manager.getBasicStats()
         } catch {
             print("Failed to load analytics: \(error)")
         }
