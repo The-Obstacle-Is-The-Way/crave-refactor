@@ -6,7 +6,7 @@ public struct AnalyticsEntity {
     public let eventType: String
     public let timestamp: Date
     public let metadata: [String: Any]
-    
+
     public init(id: UUID = UUID(), eventType: String, timestamp: Date = Date(), metadata: [String: Any] = [:]) {
         self.id = id
         self.eventType = eventType
@@ -14,3 +14,4 @@ public struct AnalyticsEntity {
         self.metadata = metadata
     }
 }
+
