@@ -1,34 +1,31 @@
-// App/Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
+// Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
+
 import Foundation
-import SwiftUI
 import SwiftData
-import Combine
+import SwiftUI
 
+// Corrected class declaration
+@MainActor
+public class AnalyticsDashboardViewModel: ObservableObject {
+    @Published var basicStats: BasicAnalyticsResult?
+    @Published var isLoading = false
+    private var modelContext: ModelContext
 
-@MainActor // Ensure UI updates happen on the main thread
-public final class AnalyticsDashboardViewModel: ObservableObject {
-    @Published public var basicStats: BasicAnalyticsResult?
-    @Published public var isLoading = false // Add loading state
-    private let manager: AnalyticsManager // Dependency
-    //private let modelContext: ModelContext // No need to pass this in.
-
-
-    init(manager: AnalyticsManager) { // Take AnalyticsManager as a dependency
-        self.manager = manager
-        //self.modelContext = modelContext // No need to pass this in.
+     init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
 
-
     func loadAnalytics() async {
-        isLoading = true // Set loading state
+        isLoading = true
+        // Assuming you have a method to fetch basic analytics
         do {
-            self.basicStats = try await manager.getBasicStats() // Use the manager to fetch data
+            let analyticsManager = AnalyticsManager(storage: AnalyticsStorage(modelContext: modelContext), aggregator: AnalyticsAggregator(storage: AnalyticsStorage(modelContext: modelContext)), patternDetection: PatternDetectionService(storage: AnalyticsStorage(modelContext: modelContext), configuration: AnalyticsConfiguration.shared))
+            basicStats = try await analyticsManager.getBasicStats()
         } catch {
-            // Handle errors
-            print("Error loading analytics: \(error)")
-            // Optionally set an error state
+            // Handle errors, perhaps setting an error message in the view model
+            print("Failed to load analytics: \(error)")
         }
-        isLoading = false // Clear loading state
+        isLoading = false
     }
 }
 

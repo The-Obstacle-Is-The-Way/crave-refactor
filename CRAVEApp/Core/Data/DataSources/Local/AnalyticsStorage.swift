@@ -1,44 +1,65 @@
 // Core/Data/DataSources/Local/AnalyticsStorage.swift
-
 import Foundation
 import SwiftData
 
-internal final class AnalyticsStorage { // Or public if needed externally
+// Changed to internal.  This class is an implementation detail.
+internal final class AnalyticsStorage {
 
     private let modelContext: ModelContext
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
-    
-    public func store(_ event: AnalyticsEvent) async throws {
-        // Implement storage logic.
+
+    // You'll need to update these methods to work with AnalyticsDTO,
+    // NOT AnalyticsEvent directly.
+
+    func store(_ event: AnalyticsDTO) async throws {
+        modelContext.insert(event)
+       try modelContext.save()
     }
     
-    public func storeBatch(_ events: [AnalyticsEvent]) async throws {
-        // Implement batch storage.
+    func fetchEvents(from startDate: Date, to endDate: Date) async throws -> [AnalyticsDTO] {
+        let predicate = #Predicate<AnalyticsDTO> {
+            $0.timestamp >= startDate && $0.timestamp <= endDate
+        }
+        let descriptor = FetchDescriptor<AnalyticsDTO>(predicate: predicate, sortBy: [SortDescriptor(\.timestamp)])
+           return try modelContext.fetch(descriptor)
+       }
+    
+    func fetchEvents(ofType eventType: String) async throws -> [AnalyticsDTO] { // Changed to String
+        let predicate = #Predicate<AnalyticsDTO> {
+            $0.eventType == eventType
+        }
+        let descriptor = FetchDescriptor<AnalyticsDTO>(predicate: predicate)
+        return try modelContext.fetch(descriptor)
     }
     
-    public func fetchEvents(from startDate: Date, to endDate: Date) async throws -> [AnalyticsEvent] {
-        // Return events from storage.
-        return []
+    func fetchMetadata(forCravingId cravingId: UUID) async throws -> AnalyticsMetadata? {
+           let predicate = #Predicate<AnalyticsMetadata> {
+              $0.id == cravingId // Assuming your AnalyticsMetadata has an id that links to the craving
+           }
+           let descriptor = FetchDescriptor<AnalyticsMetadata>(predicate: predicate)
+           return try modelContext.fetch(descriptor).first
+       }
+
+       func update(metadata: AnalyticsMetadata) async throws {
+           //Since metadata is not a new object, it is already in the context.
+           //SwiftData tracks it and saves automatically, so we only need to save.
+           try modelContext.save()
+       }
+
+    func storeBatch(_ events: [AnalyticsDTO]) async throws { // Changed to AnalyticsDTO
+        events.forEach { modelContext.insert($0) }
+        try modelContext.save()
     }
-    
-    public func fetchEvents(ofType eventType: EventType) async throws -> [AnalyticsEvent] {
-        return []
-    }
-    
-    public func fetchMetadata(forCravingId cravingId: UUID) throws -> AnalyticsMetadata? {
-        // Return metadata from storage.
-        return nil
-    }
-    
-    public func update(metadata: AnalyticsMetadata) throws {
-        // Update metadata in storage.
-    }
-    
-    public func cleanupData(before date: Date) async throws {
-        // Implement cleanup.
+
+    func cleanupData(before date: Date) async throws {
+        let predicate = #Predicate<AnalyticsDTO> {
+            $0.timestamp < date
+        }
+        try modelContext.delete(model: AnalyticsDTO.self, where: predicate)
+        try modelContext.save() // Added to persist immediately
     }
 }
 

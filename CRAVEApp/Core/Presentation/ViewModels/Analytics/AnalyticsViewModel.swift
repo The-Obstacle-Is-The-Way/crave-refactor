@@ -10,6 +10,7 @@ public final class AnalyticsViewModel: ObservableObject {
     
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        //All depedencies are injected into AnalyticsManager
         self.manager = AnalyticsManager(
             storage: AnalyticsStorage(modelContext: modelContext),
             aggregator: AnalyticsAggregator(storage: AnalyticsStorage(modelContext: modelContext)),
@@ -22,3 +23,4 @@ public final class AnalyticsViewModel: ObservableObject {
     
     // Add your analytics methods here
 }
+

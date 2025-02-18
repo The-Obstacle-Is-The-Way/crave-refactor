@@ -4,16 +4,13 @@ import SwiftData
 
 @main
 struct CRAVEApp: App {
-    @StateObject private var container: DependencyContainer
-    
-    init() {
-        _container = StateObject(wrappedValue: DependencyContainer())
-    }
-    
+    @StateObject private var container: DependencyContainer  = DependencyContainer() // Create it here, ONCE.
+
     var body: some Scene {
         WindowGroup {
-            CRAVETabView()
-                .environmentObject(container)
+            CRAVETabView(container: container) //Pass container
+                .environmentObject(container) // Inject into environment
         }
     }
 }
+

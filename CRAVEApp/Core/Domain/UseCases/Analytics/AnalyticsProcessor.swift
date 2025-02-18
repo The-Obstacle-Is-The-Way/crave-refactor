@@ -5,12 +5,12 @@ import Foundation
 public final class AnalyticsProcessor {
     private let configuration: AnalyticsConfiguration
     private let storage: AnalyticsStorage
-    
-    public init(configuration: AnalyticsConfiguration, storage: AnalyticsStorage) {
+
+    init(configuration: AnalyticsConfiguration, storage: AnalyticsStorage) { // Removed 'public'
         self.configuration = configuration
         self.storage = storage
     }
-    
+
     public func processEvent(_ event: any AnalyticsEvent) async {
         do {
             switch event.type {
@@ -25,18 +25,17 @@ public final class AnalyticsProcessor {
             print("Error processing event: \(error)")
         }
     }
-    
+
     private func processInteractionEvent(_ event: any AnalyticsEvent) async throws {
         // Implementation here
     }
-    
+
     private func processSystemEvent(_ event: any AnalyticsEvent) async throws {
         // Implementation here
     }
-    
-    
-    
+
     private func processUserEvent(_ event: any AnalyticsEvent) async throws {
         // Implementation here
     }
 }
+

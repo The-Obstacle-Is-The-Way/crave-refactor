@@ -1,17 +1,19 @@
+// Core/Domain/UseCases/Analytics/PatternDetectionService.swift
 import Foundation
 
+@MainActor
 public final class PatternDetectionService {
     private let storage: AnalyticsStorage
     private let configuration: AnalyticsConfiguration
 
-    public init(storage: AnalyticsStorage, configuration: AnalyticsConfiguration) {
+     init(storage: AnalyticsStorage, configuration: AnalyticsConfiguration) { //removed public
         self.storage = storage
         self.configuration = configuration
     }
 
     public func detectPatterns() async throws -> [BasicAnalyticsResult.DetectedPattern] {
-        // Implement your pattern detection logic here.
-        return []
+        // Implementation for pattern detection
+        return [] // Replace with actual implementation
     }
 }
 
