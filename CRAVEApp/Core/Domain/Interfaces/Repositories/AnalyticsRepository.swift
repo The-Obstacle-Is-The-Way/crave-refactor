@@ -1,3 +1,5 @@
+// Core/Domain/Interfaces/Repositories/AnalyticsRepository.swift
+
 import Foundation
 
 public protocol AnalyticsRepository {

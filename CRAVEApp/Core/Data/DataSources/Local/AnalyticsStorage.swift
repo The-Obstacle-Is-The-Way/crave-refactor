@@ -1,10 +1,13 @@
+// Core/Data/DataSources/Local/AnalyticsStorage.swift
+
 import Foundation
 import SwiftData
 
-public class AnalyticsStorage {
-    public let modelContext: ModelContext
+internal final class AnalyticsStorage { // Or public if needed externally
 
-    public init(modelContext: ModelContext) {
+    private let modelContext: ModelContext
+
+    init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     

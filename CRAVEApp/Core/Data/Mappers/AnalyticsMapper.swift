@@ -1,7 +1,8 @@
 // Core/Data/Mappers/AnalyticsMapper.swift
+
 import Foundation
 
-final class AnalyticsMapper {
+final class AnalyticsMapper { // Or public
     func mapToEntity(_ dto: AnalyticsDTO) -> AnalyticsEntity {
         let metadata = dto.metadata.reduce(into: [String: Any]()) { result, pair in
             result[pair.key] = pair.value
@@ -28,3 +29,4 @@ final class AnalyticsMapper {
         )
     }
 }
+
