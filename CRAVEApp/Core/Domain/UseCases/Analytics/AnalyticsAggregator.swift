@@ -10,7 +10,7 @@ public final class AnalyticsAggregator {
     }
 
     public func aggregateEvent(_ event: any AnalyticsEvent) async {
+        // Implementation for aggregating events.
         print("event of type: \(event.type) aggregated") //placeholder
     }
 }
-

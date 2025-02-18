@@ -23,6 +23,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		28054BF22D644EA20045ADB3 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		28601EE52D5D735D0018AC5A /* CRAVE.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CRAVE.xctestplan; sourceTree = "<group>"; };
 		28B8D8DF2D5CD84000FA0F1E /* CRAVE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CRAVE.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,6 +229,7 @@
 				28B8D8DB2D5CD84000FA0F1E /* Sources */,
 				28B8D8DC2D5CD84000FA0F1E /* Frameworks */,
 				28B8D8DD2D5CD84000FA0F1E /* Resources */,
+				28054BF22D644EA20045ADB3 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
