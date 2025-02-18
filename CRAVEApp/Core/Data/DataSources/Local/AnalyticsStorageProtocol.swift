@@ -1,15 +1,4 @@
-// File: AnalyticsStorageProtocol.swift
-// Description:
-// This public protocol abstracts the analytics storage functionality.
-// Public APIs (such as AnalyticsAggregator and PatternDetectionService) depend only
-// on this protocol rather than the concrete, internal AnalyticsStorage class.
-//
-// IMPORTANT: Because this protocol’s methods use AnalyticsDTO and AnalyticsMetadata in their
-// signatures, those types must also be declared public.
-//
-// This approach keeps the internal implementation details of AnalyticsStorage hidden,
-// while still exposing only what is needed.
-
+// Core/Data/DataSources/Local/AnalyticsStorageProtocol.swift
 import Foundation
 import SwiftData
 
@@ -35,3 +24,4 @@ public protocol AnalyticsStorageProtocol {
     // Cleans up (deletes) data older than the specified date.
     func cleanupData(before date: Date) async throws
 }
+

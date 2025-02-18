@@ -1,29 +1,30 @@
-// File: PatternDetectionService.swift
-// Description:
-// This public class detects patterns in analytics data.
-// It depends on AnalyticsStorageProtocol and a public configuration (AnalyticsConfiguration),
-// ensuring that internal storage details remain hidden.
-// A placeholder implementation is provided for testing purposes.
-
 import Foundation
 
 @MainActor
 public final class PatternDetectionService {
-    // Dependency on storage via the public protocol.
     private let storage: AnalyticsStorageProtocol
-    // Dependency on a public configuration.
     private let configuration: AnalyticsConfiguration
-
-    // Public initializer that accepts a storage instance (via the protocol) and a configuration.
+    
+    // Public initializer.
     public init(storage: AnalyticsStorageProtocol, configuration: AnalyticsConfiguration) {
         self.storage = storage
         self.configuration = configuration
     }
-
-    // Detects patterns in the analytics data.
-    // Placeholder: returns an empty array so that the app can run during testing.
-    public func detectPatterns() async throws -> [BasicAnalyticsResult.DetectedPattern] {
-        // Replace this with your actual pattern detection logic when ready.
-        return []
+    
+    // Public method to detect patterns in events.
+    public func detectPatterns(in events: [any AnalyticsEvent]) async throws -> [String] {
+        let threshold = configuration.highFrequencyThreshold
+        let window = configuration.timeWindowForHighFrequency
+        
+        var patterns: [String] = []
+        for i in 0..<events.count {
+            let windowStart = events[i].timestamp
+            let windowEnd = windowStart.addingTimeInterval(window)
+            let eventsInWindow = events.filter { $0.timestamp >= windowStart && $0.timestamp <= windowEnd }
+            if eventsInWindow.count > threshold {
+                patterns.append("High frequency craving detected at \(windowStart)")
+            }
+        }
+        return patterns
     }
 }

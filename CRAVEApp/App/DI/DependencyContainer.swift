@@ -1,4 +1,11 @@
-// App/DI/DependencyContainer.swift
+// File: App/DI/DependencyContainer.swift
+// Description:
+// This dependency container creates and wires together all the dependencies for your app.
+// Note how all public methods return view models that depend only on public types.
+// The AnalyticsRepositoryImpl now accepts an AnalyticsStorageProtocol, so we can pass in a concrete
+// AnalyticsStorage (which conforms to that protocol) without exposing its internals.
+
+
 import Foundation
 import SwiftUI
 import SwiftData
@@ -7,11 +14,12 @@ import Combine
 @MainActor
 public final class DependencyContainer: ObservableObject {
     @Published private(set) var modelContainer: ModelContainer
-
+    
     public init() {
+        // Initialize the ModelContainer with a schema including all persistent models.
         let schema = Schema([
             CravingEntity.self,
-            AnalyticsMetadata.self  // Make sure ALL your persistent models are here!
+            AnalyticsMetadata.self  // Ensure all persistent models are included.
         ])
         do {
             self.modelContainer = try ModelContainer(for: schema)
@@ -19,70 +27,81 @@ public final class DependencyContainer: ObservableObject {
             fatalError("Failed to create ModelContainer: \(error)")
         }
     }
-
+    
     // MARK: - Analytics Dependencies
-
-    private func makeAnalyticsStorage() -> AnalyticsStorage {
-        AnalyticsStorage(modelContext: modelContainer.mainContext)
+    
+    /// Returns an instance conforming to AnalyticsStorageProtocol.
+    private func makeAnalyticsStorage() -> AnalyticsStorageProtocol {
+        return AnalyticsStorage(modelContext: modelContainer.mainContext)
     }
-
+    
+    /// Returns a new AnalyticsMapper.
     private func makeAnalyticsMapper() -> AnalyticsMapper {
         return AnalyticsMapper()
     }
-
+    
+    /// Returns an AnalyticsRepository built from storage and mapper.
     private func makeAnalyticsRepository() -> AnalyticsRepository {
         return AnalyticsRepositoryImpl(storage: makeAnalyticsStorage(), mapper: makeAnalyticsMapper())
     }
-
+    
+    /// Returns an AnalyticsAggregator built using the storage.
     private func makeAnalyticsAggregator() -> AnalyticsAggregator {
         return AnalyticsAggregator(storage: makeAnalyticsStorage())
     }
-
+    
+    /// Returns a PatternDetectionService using storage and the shared configuration.
     private func makePatternDetectionService() -> PatternDetectionService {
         return PatternDetectionService(storage: makeAnalyticsStorage(), configuration: AnalyticsConfiguration.shared)
     }
     
-    //Correctly creates the manager with repository
+    /// Returns an AnalyticsManager built from its dependencies.
     private func makeAnalyticsManager() -> AnalyticsManager {
-        return AnalyticsManager(repository: makeAnalyticsRepository(), aggregator: makeAnalyticsAggregator(), patternDetection: makePatternDetectionService())
+        return AnalyticsManager(
+            repository: makeAnalyticsRepository(),
+            aggregator: makeAnalyticsAggregator(),
+            patternDetection: makePatternDetectionService()
+        )
     }
-
-    // MARK: - Craving Dependencies (These are fine as they are)
+    
+    // MARK: - Craving Dependencies
+    
     private func makeCravingManager() -> CravingManager {
-        CravingManager(modelContext: modelContainer.mainContext)
+        return CravingManager(modelContext: modelContainer.mainContext)
     }
-
+    
     private func makeCravingRepository() -> CravingRepository {
-        CravingRepositoryImpl(cravingManager: makeCravingManager())
+        return CravingRepositoryImpl(cravingManager: makeCravingManager())
     }
-
+    
     private func makeAddCravingUseCase() -> AddCravingUseCaseProtocol {
-        AddCravingUseCase(cravingRepository: makeCravingRepository())
+        return AddCravingUseCase(cravingRepository: makeCravingRepository())
     }
-
+    
     private func makeFetchCravingsUseCase() -> FetchCravingsUseCaseProtocol {
-        FetchCravingsUseCase(cravingRepository: makeCravingRepository())
+        return FetchCravingsUseCase(cravingRepository: makeCravingRepository())
     }
-
+    
     private func makeArchiveCravingUseCase() -> ArchiveCravingUseCaseProtocol {
-        ArchiveCravingUseCase(cravingRepository: makeCravingRepository())
+        return ArchiveCravingUseCase(cravingRepository: makeCravingRepository())
     }
-
+    
     // MARK: - View Models
-    //Correctly creates view models
+    
+    /// Returns a public AnalyticsDashboardViewModel.
     public func makeAnalyticsDashboardViewModel() -> AnalyticsDashboardViewModel {
-        AnalyticsDashboardViewModel(manager: makeAnalyticsManager()) // Inject the manager
+        return AnalyticsDashboardViewModel(manager: makeAnalyticsManager())
     }
-
+    
     public func makeCravingListViewModel() -> CravingListViewModel {
-        CravingListViewModel(
+        return CravingListViewModel(
             fetchCravingsUseCase: makeFetchCravingsUseCase(),
             archiveCravingUseCase: makeArchiveCravingUseCase()
         )
     }
-
+    
     public func makeLogCravingViewModel() -> LogCravingViewModel {
-        LogCravingViewModel(addCravingUseCase: makeAddCravingUseCase())
+        return LogCravingViewModel(addCravingUseCase: makeAddCravingUseCase())
     }
 }
 

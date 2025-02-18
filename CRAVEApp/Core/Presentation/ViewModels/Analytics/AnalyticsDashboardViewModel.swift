@@ -1,19 +1,22 @@
 // Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
-import Foundation
-import SwiftData
+
+
 import SwiftUI
+import SwiftData
 
 @MainActor
-public final class AnalyticsDashboardViewModel: ObservableObject { // ADDED public HERE.  THIS IS THE FIX.
-    @Published var basicStats: BasicAnalyticsResult?
-    @Published var isLoading = false
+public final class AnalyticsDashboardViewModel: ObservableObject {
+    @Published public var basicStats: BasicAnalyticsResult?
+    @Published public var isLoading: Bool = false
     private let manager: AnalyticsManager
 
-    public init(manager: AnalyticsManager) { //This was already fixed
+    // Public initializer so that this view model can be constructed externally.
+    public init(manager: AnalyticsManager) {
         self.manager = manager
     }
-
-    func loadAnalytics() async {
+    
+    // Public method to load analytics.
+    public func loadAnalytics() async {
         isLoading = true
         do {
             basicStats = try await manager.getBasicStats()
@@ -23,4 +26,3 @@ public final class AnalyticsDashboardViewModel: ObservableObject { // ADDED publ
         isLoading = false
     }
 }
-
