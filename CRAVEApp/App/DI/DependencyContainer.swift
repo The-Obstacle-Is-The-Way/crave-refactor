@@ -1,4 +1,4 @@
-//  App/DI/DependencyContainer.swift
+// App/DI/DependencyContainer.swift
 import Foundation
 import SwiftUI
 import SwiftData
@@ -27,18 +27,27 @@ public final class DependencyContainer: ObservableObject {
         AnalyticsStorage(modelContext: modelContainer.mainContext)
     }
     
+    //Creates the mapper
+    private func makeAnalyticsMapper() -> AnalyticsMapper {
+        return AnalyticsMapper()
+    }
+    
+    //Creates the repository
+    private func makeAnalyticsRepository() -> AnalyticsRepository {
+        return AnalyticsRepositoryImpl(storage: makeAnalyticsStorage(), mapper: makeAnalyticsMapper())
+    }
+    
+    private func makeAnalyticsAggregator() -> AnalyticsAggregator {
+        return AnalyticsAggregator(storage: makeAnalyticsStorage()) //Pass down storage
+    }
+
+    private func makePatternDetectionService() -> PatternDetectionService {
+        return PatternDetectionService(storage: makeAnalyticsStorage(), configuration: AnalyticsConfiguration.shared) //Pass down storage
+    }
+    
     private func makeAnalyticsManager() -> AnalyticsManager {
-        let storage = makeAnalyticsStorage()
-        let aggregator = AnalyticsAggregator(storage: storage)
-        let patternDetection = PatternDetectionService(
-            storage: storage,
-            configuration: AnalyticsConfiguration.shared
-        )
-        return AnalyticsManager(
-            storage: storage,
-            aggregator: aggregator,
-            patternDetection: patternDetection
-        )
+        //Now we use the repository
+        return AnalyticsManager(repository: makeAnalyticsRepository(), aggregator: makeAnalyticsAggregator(), patternDetection: makePatternDetectionService())
     }
     
     // MARK: - Craving Dependencies
@@ -66,7 +75,7 @@ public final class DependencyContainer: ObservableObject {
     
     //Corrected reference
     public func makeAnalyticsDashboardViewModel() -> AnalyticsDashboardViewModel {
-        AnalyticsDashboardViewModel(modelContext: modelContainer.mainContext)
+        AnalyticsDashboardViewModel(manager: makeAnalyticsManager()) //Inject manager
       }
     
     public func makeCravingListViewModel() -> CravingListViewModel {

@@ -2,28 +2,25 @@
 import Foundation
 
 public final class AnalyticsManager {
-    private let storage: AnalyticsStorage
+    private let repository: AnalyticsRepository // Use the REPOSITORY
     private let aggregator: AnalyticsAggregator
     private let patternDetection: PatternDetectionService
 
-    init( //Removed public
-        storage: AnalyticsStorage,
-        aggregator: AnalyticsAggregator,
-        patternDetection: PatternDetectionService
-    ) {
-        self.storage = storage
+    // Inject the repository, aggregator, and patternDetection
+    init(repository: AnalyticsRepository, aggregator: AnalyticsAggregator, patternDetection: PatternDetectionService) {
+        self.repository = repository
         self.aggregator = aggregator
         self.patternDetection = patternDetection
     }
 
     public func getBasicStats() async throws -> BasicAnalyticsResult {
-        // Fetch events from storage
         let endDate = Date()
         let startDate = Calendar.current.date(byAdding: .month, value: -1, to: endDate) ?? endDate
 
-        let events = try await storage.fetchEvents(from: startDate, to: endDate)
+        // Use the REPOSITORY to fetch events.  This will return [AnalyticsEvent]
+        let events = try await repository.fetchEvents(from: startDate, to: endDate)
 
-        // Process events
+        // --- The rest of this method remains the same ---
         var cravingsByDate: [Date: Int] = [:]
         var cravingsByHour: [Int: Int] = [:]
         var cravingsByWeekday: [Int: Int] = [:]
@@ -33,24 +30,19 @@ public final class AnalyticsManager {
 
         for event in events {
             if let userEvent = event as? UserEvent {
-                // Process date
                 let date = Calendar.current.startOfDay(for: event.timestamp)
                 cravingsByDate[date, default: 0] += 1
 
-                // Process hour
                 let hour = Calendar.current.component(.hour, from: event.timestamp)
                 cravingsByHour[hour, default: 0] += 1
 
-                // Process weekday
                 let weekday = Calendar.current.component(.weekday, from: event.timestamp)
                 cravingsByWeekday[weekday, default: 0] += 1
 
-                // Process trigger
                 if let trigger = userEvent.metadata["trigger"] as? String {
                     triggers[trigger, default: 0] += 1
                 }
 
-                // Process intensity
                 if let intensity = userEvent.metadata["intensity"] as? Double {
                     totalIntensity += intensity
                     intensityCount += 1
@@ -58,13 +50,8 @@ public final class AnalyticsManager {
             }
         }
 
-        // Detect patterns
         let patterns = try await patternDetection.detectPatterns()
-
-        // Calculate average intensity
         let averageIntensity = intensityCount > 0 ? totalIntensity / Double(intensityCount) : nil
-
-        // Create time patterns from hour data
         let timePatterns = cravingsByHour.compactMap { hour, frequency -> BasicAnalyticsResult.TimePattern? in
             let confidence = Double(frequency) / Double(events.count)
             return BasicAnalyticsResult.TimePattern(
@@ -86,17 +73,15 @@ public final class AnalyticsManager {
             detectedPatterns: patterns
         )
     }
+    
 
     public func trackEvent(_ event: AnalyticsEvent) async throws {
-        // Store the event
-        //try await storage.store(event) //Removed
-
-        // Aggregate the event
-        //await aggregator.aggregateEvent(event) //Removed
+        try await repository.storeEvent(event) // Use repository
+        await aggregator.aggregateEvent(event)  // Aggregate
     }
 
     public func clearOldData(before date: Date) async throws {
-       // try await storage.cleanupData(before: date) //Removed
+        try await repository.cleanupOldData(before: date) // Use repository
     }
 }
 
