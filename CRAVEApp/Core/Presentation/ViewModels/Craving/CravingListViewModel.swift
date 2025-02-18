@@ -1,36 +1,39 @@
-// Core/Presentation/ViewModels/Craving/CravingListViewModel.swift
+// File: Core/Presentation/ViewModels/Craving/CravingListViewModel.swift
+
 import Foundation
 import SwiftUI
-import SwiftData
+import Combine
 
 @MainActor
 public final class CravingListViewModel: ObservableObject {
-    @Published var cravings: [CravingEntity] = [] // Add this line
     private let fetchCravingsUseCase: FetchCravingsUseCaseProtocol
     private let archiveCravingUseCase: ArchiveCravingUseCaseProtocol
+    
+    @Published public private(set) var cravings: [CravingEntity] = []
+    @Published public private(set) var errorMessage: String?
 
-    public init(fetchCravingsUseCase: FetchCravingsUseCaseProtocol, archiveCravingUseCase: ArchiveCravingUseCaseProtocol) {
+    public init(fetchCravingsUseCase: FetchCravingsUseCaseProtocol,
+                archiveCravingUseCase: ArchiveCravingUseCaseProtocol) {
         self.fetchCravingsUseCase = fetchCravingsUseCase
         self.archiveCravingUseCase = archiveCravingUseCase
     }
-
-    func fetchCravings() async {
+    
+    // Renamed method to match your view calls
+    public func fetchCravings() async {
         do {
             cravings = try await fetchCravingsUseCase.execute()
         } catch {
-            // Handle errors appropriately (e.g., show an alert)
-            print("Error fetching cravings: \(error)")
+            errorMessage = error.localizedDescription
         }
     }
-
-    func archiveCraving(_ craving: CravingEntity) async {
+    
+    public func archiveCraving(_ craving: CravingEntity) async {
         do {
             try await archiveCravingUseCase.execute(craving)
-             //Refetch after archiving to update the list
+            // Refresh the list after archiving
             await fetchCravings()
         } catch {
-            // Handle errors appropriately
-            print("Error archiving craving: \(error)")
+            errorMessage = error.localizedDescription
         }
     }
 }

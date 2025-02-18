@@ -1,7 +1,4 @@
 // File: Core/Domain/UseCases/Analytics/AnalyticsAggregator.swift
-// Description:
-// This public class aggregates analytics events to produce a BasicAnalyticsResult.
-// It relies on the 'metadata' property of AnalyticsEvent.
 
 import Foundation
 
@@ -9,12 +6,10 @@ import Foundation
 public final class AnalyticsAggregator: ObservableObject {
     private let storage: AnalyticsStorageProtocol
     
-    // Public initializer.
     public init(storage: AnalyticsStorageProtocol) {
         self.storage = storage
     }
     
-    // Public method to aggregate events into a BasicAnalyticsResult.
     public func aggregate(events: [any AnalyticsEvent]) async throws -> BasicAnalyticsResult {
         let totalCravings = events.count
         let totalResisted = events.filter { ($0.metadata["resisted"] as? Bool) ?? false }.count
@@ -25,7 +20,7 @@ public final class AnalyticsAggregator: ObservableObject {
         var cravingsByHour: [Int: Int] = [:]
         var cravingsByWeekday: [Int: Int] = [:]
         var commonTriggers: [String: Int] = [:]
-        var timePatterns: [String] = []  // Placeholder
+        let timePatterns: [String] = []  // Placeholder, not mutated
         
         for event in events {
             let date = Calendar.current.startOfDay(for: event.timestamp)

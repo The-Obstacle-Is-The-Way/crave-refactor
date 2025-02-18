@@ -1,4 +1,5 @@
-// Core/Data/Repositories/CravingRepositoryImpl.swift
+// File: Core/Data/Repositories/CravingRepositoryImpl.swift
+
 import Foundation
 import SwiftData
 
@@ -10,19 +11,21 @@ internal final class CravingRepositoryImpl: CravingRepository {
         self.cravingManager = cravingManager
     }
     
-    public func fetchAllActiveCravings() async throws -> [CravingEntity] {
+    // MARK: - CravingRepository protocol conformance
+    // These can be internal because the class is internal and we only need to satisfy the public protocol internally.
+    func fetchAllActiveCravings() async throws -> [CravingEntity] {
         try await cravingManager.fetchActiveCravings()
     }
     
-    public func addCraving(_ craving: CravingEntity) async throws {
+    func addCraving(_ craving: CravingEntity) async throws {
         try await cravingManager.insert(craving)
     }
     
-    public func archiveCraving(_ craving: CravingEntity) async throws {
+    func archiveCraving(_ craving: CravingEntity) async throws {
         try await cravingManager.archive(craving)
     }
     
-    public func deleteCraving(_ craving: CravingEntity) async throws {
+    func deleteCraving(_ craving: CravingEntity) async throws {
         try await cravingManager.delete(craving)
     }
 }

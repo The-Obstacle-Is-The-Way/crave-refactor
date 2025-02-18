@@ -1,28 +1,27 @@
-// Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
+// File: Core/Presentation/ViewModels/Analytics/AnalyticsDashboardViewModel.swift
 
-
+import Foundation
 import SwiftUI
-import SwiftData
+import Combine
 
 @MainActor
 public final class AnalyticsDashboardViewModel: ObservableObject {
-    @Published public var basicStats: BasicAnalyticsResult?
-    @Published public var isLoading: Bool = false
     private let manager: AnalyticsManager
+    
+    // Expose only what you need; keep anything else private or internal.
+    @Published public private(set) var basicStats: BasicAnalyticsResult?
+    @Published public private(set) var errorMessage: String?
 
-    // Public initializer so that this view model can be constructed externally.
     public init(manager: AnalyticsManager) {
         self.manager = manager
     }
     
-    // Public method to load analytics.
     public func loadAnalytics() async {
-        isLoading = true
         do {
-            basicStats = try await manager.getBasicStats()
+            let result = try await manager.getBasicStats()
+            self.basicStats = result
         } catch {
-            print("Failed to load analytics: \(error)")
+            self.errorMessage = error.localizedDescription
         }
-        isLoading = false
     }
 }
