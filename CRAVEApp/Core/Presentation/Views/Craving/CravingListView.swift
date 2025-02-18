@@ -1,49 +1,70 @@
-// Core/Presentation/Views/Craving/CravingListView.swift
+// CRAVEApp/App/Views/Craving/CravingListView.swift
 import SwiftUI
 
 public struct CravingListView: View {
-    @ObservedObject private var viewModel: CravingListViewModel
-    
+    @StateObject private var viewModel: CravingListViewModel
+
     public init(viewModel: CravingListViewModel) {
-        self.viewModel = viewModel
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     public var body: some View {
-        Group {
-            if viewModel.isLoading {
-                ProgressView()
-            } else {
-                content
+        NavigationView { // Embed in NavigationView for title
+            List {
+                ForEach(viewModel.cravings, id: \.id) { craving in
+                    CravingCard(craving: craving) // Using CravingCard for each craving
+                }
+                .onDelete(perform: deleteCraving)
             }
-        }
-        .task {
-            await viewModel.loadCravings()
-        }
-        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("OK") {
-                viewModel.errorMessage = nil
+            .navigationTitle("Cravings") // Set navigation title
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                }
             }
-        } message: {
-            if let error = viewModel.errorMessage {
-                Text(error)
+            .refreshable {
+                await viewModel.fetchCravings()
+            }
+            .onAppear {
+                Task {
+                    await viewModel.fetchCravings()
+                }
             }
         }
     }
-    
-    private var content: some View {
-        List {
-            ForEach(viewModel.cravings) { craving in
-                CravingCard(craving: craving)
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            Task {
-                                await viewModel.archiveCraving(craving)
-                            }
-                        } label: {
-                            Label("Archive", systemImage: "archivebox")
-                        }
-                    }
+
+    private func deleteCraving(at offsets: IndexSet) {
+        offsets.forEach { index in
+            let craving = viewModel.cravings[index]
+            Task {
+                await viewModel.archiveCraving(craving)
             }
         }
     }
 }
+
+struct CravingListView_Previews: PreviewProvider {
+    static var previews: some View {
+        CravingListView(viewModel: CravingListViewModel(fetchCravingsUseCase: MockFetchCravingsUseCase(), archiveCravingUseCase: MockArchiveCravingUseCase()))
+            .environmentObject(DependencyContainer())
+    }
+}
+
+// Mock Use Cases for Preview - Mock FetchCravingsUseCaseProtocol
+final class MockFetchCravingsUseCase: FetchCravingsUseCaseProtocol {
+    func execute() async throws -> [CravingEntity] {
+        [
+            CravingEntity(text: "Sample Craving 1"),
+            CravingEntity(text: "Another Craving")
+        ]
+    }
+}
+
+// Mock Use Cases for Preview - MockArchiveCravingUseCaseProtocol
+final class MockArchiveCravingUseCase: ArchiveCravingUseCaseProtocol {
+    func execute(_ craving: CravingEntity) async throws {
+        // do nothing
+    }
+}
+
+

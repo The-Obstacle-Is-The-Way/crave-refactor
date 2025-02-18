@@ -5,24 +5,22 @@ import SwiftData
 @MainActor
 public final class AnalyticsViewModel: ObservableObject {
     @Published public var isLoading = false
-    private let manager: AnalyticsManager  // Receives the fully constructed manager
+    @Published public var basicStats: BasicAnalyticsResult? // ADDED DECLARATION FOR basicStats
+    private let manager: AnalyticsManager  // Receives the manager
 
-    // The ViewModel ONLY takes the AnalyticsManager.  It doesn't create anything else.
-    public init(manager: AnalyticsManager) {
+    public init(manager: AnalyticsManager) { // Takes AnalyticsManager directly
         self.manager = manager
     }
 
-    // Add your analytics methods here, which now use self.manager
-    // Example:
-    // public func loadSomeData() async {
-    //     isLoading = true
-    //     do {
-    //        let result = try await manager.someAnalyticsMethod()
-    //        // ... process result, update @Published properties ...
-    //     } catch {
-    //         // Handle errors
-    //     }
-    //     isLoading = false
-    // }
+    // Add your analytics methods here, using self.manager to access AnalyticsManager functionality
+    public func loadAnalytics() async {
+        isLoading = true
+        do {
+            basicStats = try await manager.getBasicStats() // Now basicStats is declared and in scope
+        } catch {
+            print("Failed to load analytics: \(error)")
+        }
+        isLoading = false
+    }
 }
 

@@ -7,20 +7,17 @@ import SwiftUI
 public class AnalyticsDashboardViewModel: ObservableObject {
     @Published var basicStats: BasicAnalyticsResult?
     @Published var isLoading = false
-    private let manager: AnalyticsManager // Receives the fully constructed manager
+    private let manager: AnalyticsManager // Correct: Takes the manager
 
-     init(manager: AnalyticsManager) { // Takes the manager, not the context
-         self.manager = manager
+    init(manager: AnalyticsManager) { // Correct: Initializes with the manager
+        self.manager = manager
     }
 
     func loadAnalytics() async {
         isLoading = true
-        // Assuming you have a method to fetch basic analytics
         do {
-            //Now uses manager
-            basicStats = try await manager.getBasicStats()
+            basicStats = try await manager.getBasicStats() // Correct: Uses the manager
         } catch {
-            // Handle errors, perhaps setting an error message in the view model
             print("Failed to load analytics: \(error)")
         }
         isLoading = false

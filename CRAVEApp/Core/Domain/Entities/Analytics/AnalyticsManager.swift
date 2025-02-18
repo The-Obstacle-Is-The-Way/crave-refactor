@@ -2,12 +2,12 @@
 import Foundation
 
 public final class AnalyticsManager {
-    private let repository: AnalyticsRepository // Use the REPOSITORY
+    private let repository: AnalyticsRepository // Use the REPOSITORY protocol
     private let aggregator: AnalyticsAggregator
     private let patternDetection: PatternDetectionService
 
     // Inject the repository, aggregator, and patternDetection
-    init(repository: AnalyticsRepository, aggregator: AnalyticsAggregator, patternDetection: PatternDetectionService) {
+    init(repository: AnalyticsRepository, aggregator: AnalyticsAggregator, patternDetection: PatternDetectionService) { // Correct Init
         self.repository = repository
         self.aggregator = aggregator
         self.patternDetection = patternDetection
@@ -18,9 +18,9 @@ public final class AnalyticsManager {
         let startDate = Calendar.current.date(byAdding: .month, value: -1, to: endDate) ?? endDate
 
         // Use the REPOSITORY to fetch events.  This will return [AnalyticsEvent]
-        let events = try await repository.fetchEvents(from: startDate, to: endDate)
+        let events = try await repository.fetchEvents(from: startDate, to: endDate) // Use repository
 
-        // --- The rest of this method remains the same ---
+        // --- The rest of this method remains the same (correctly processes AnalyticsEvent objects) ---
         var cravingsByDate: [Date: Int] = [:]
         var cravingsByHour: [Int: Int] = [:]
         var cravingsByWeekday: [Int: Int] = [:]
@@ -29,7 +29,7 @@ public final class AnalyticsManager {
         var intensityCount: Int = 0
 
         for event in events {
-            if let userEvent = event as? UserEvent {
+            if let userEvent = event as? UserEvent { // Correctly handles UserEvent
                 let date = Calendar.current.startOfDay(for: event.timestamp)
                 cravingsByDate[date, default: 0] += 1
 
@@ -73,7 +73,7 @@ public final class AnalyticsManager {
             detectedPatterns: patterns
         )
     }
-    
+
 
     public func trackEvent(_ event: AnalyticsEvent) async throws {
         try await repository.storeEvent(event) // Use repository
