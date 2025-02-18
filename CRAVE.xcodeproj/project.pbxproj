@@ -72,6 +72,7 @@
 				Core/Data/DTOs/AnalyticsDTO.swift = (ios, );
 				Core/Data/DTOs/CravingDTO.swift = (ios, );
 				Core/Data/DataSources/Local/AnalyticsStorage.swift = (ios, );
+				Core/Data/DataSources/Local/AnalyticsStorageProtocol.swift = (ios, );
 				Core/Data/DataSources/Local/CravingManager.swift = (ios, );
 				Core/Data/DataSources/Remote/APIClient.swift = (ios, );
 				Core/Data/DataSources/Remote/ModelContainer.swift = (ios, );

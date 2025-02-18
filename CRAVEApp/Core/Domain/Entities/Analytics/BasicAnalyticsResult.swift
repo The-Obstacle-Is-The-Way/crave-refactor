@@ -1,3 +1,5 @@
+//BasicAnalyticsResult
+
 import Foundation
 
 public struct BasicAnalyticsResult {
@@ -46,7 +48,7 @@ public struct BasicAnalyticsResult {
 }
 
 public extension BasicAnalyticsResult {
-    struct TimePattern: Equatable {
+    public struct TimePattern: Equatable {
         public let hour: Int
         public let frequency: Int
         public let confidence: Double
@@ -54,13 +56,26 @@ public extension BasicAnalyticsResult {
         public var isSignificant: Bool {
             confidence >= 0.7 && frequency >= 3
         }
+        
+        public init(hour: Int, frequency: Int, confidence: Double) {
+            self.hour = hour
+            self.frequency = frequency
+            self.confidence = confidence
+        }
     }
     
-    struct DetectedPattern: Equatable {
+    public struct DetectedPattern: Equatable {
         public let type: PatternType
         public let description: String
         public let confidence: Double
         public let supportingData: [String: Any]
+        
+        public init(type: PatternType, description: String, confidence: Double, supportingData: [String: Any]) {
+            self.type = type
+            self.description = description
+            self.confidence = confidence
+            self.supportingData = supportingData
+        }
         
         public static func == (lhs: DetectedPattern, rhs: DetectedPattern) -> Bool {
             return lhs.type == rhs.type &&
@@ -70,7 +85,7 @@ public extension BasicAnalyticsResult {
         }
     }
     
-    enum PatternType: String {
+    public enum PatternType: String {
         case timeOfDay = "time_of_day"
         case dayOfWeek = "day_of_week"
         case trigger = "trigger"
@@ -115,4 +130,3 @@ public extension BasicAnalyticsResult {
         )
     }
 }
-
