@@ -1,4 +1,5 @@
-// App/Navigation/CRAVETabView.swift (Corrected)
+// File: App/Navigation/CRAVETabView.swift
+
 import SwiftUI
 
 struct CRAVETabView: View {
@@ -7,25 +8,31 @@ struct CRAVETabView: View {
 
     init(container: DependencyContainer) {
         _coordinator = StateObject(wrappedValue: AppCoordinator(container: container))
-        // Ensure that the AnalyticsDashboardViewModel is created here
-        _ = container.makeAnalyticsDashboardViewModel() //This will be created
     }
 
     var body: some View {
         TabView(selection: $coordinator.selectedTab) {
+            
+            // 1) Left-most tab: Log Craving
+            LogCravingView(viewModel: container.makeLogCravingViewModel())
+                .tabItem {
+                    Label("Log", systemImage: "plus.circle")
+                }
+                .tag(0)
+            
+            // 2) Middle tab: Cravings List
             CravingListView(viewModel: container.makeCravingListViewModel())
                 .tabItem {
                     Label("Cravings", systemImage: "list.bullet")
                 }
-                .tag(0)
+                .tag(1)
 
-            // Use the pre-created view model
+            // 3) Right-most tab: Analytics
             AnalyticsDashboardView(viewModel: container.makeAnalyticsDashboardViewModel())
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                 }
-                .tag(1)
+                .tag(2)
         }
     }
 }
-
